@@ -38,7 +38,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 max-w-md mx-auto shadow-xl shadow-black/40 overflow-hidden">
+    <div className="min-h-screen bg-white max-w-md mx-auto shadow-xl shadow-black/10 overflow-hidden">
       {data ? (
         <ReadinessCard data={data} onBack={handleBack} />
       ) : (
