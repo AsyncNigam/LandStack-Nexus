@@ -45,13 +45,13 @@ export default function Sidebar({
   selectedId,
 }: SidebarProps) {
   return (
-    <aside className="flex h-full w-96 flex-col border-r border-amber-600/30 bg-[#D97706] text-white">
+    <aside className="flex h-full w-96 flex-col border-r border-[#E8DCC8] bg-[#F4EBD9] text-[#7A3E14]">
       {/* Header */}
-      <div className="border-b border-white/20 px-5 py-4">
-        <h2 className="text-lg font-bold tracking-tight text-white">
+      <div className="border-b border-[#E8DCC8] px-5 py-4">
+        <h2 className="text-lg font-bold tracking-tight text-[#7A3E14]">
           Discrepancy Queue
         </h2>
-        <p className="mt-0.5 text-xs text-white/70">
+        <p className="mt-0.5 text-xs text-[#7A3E14]/60">
           {conflicts.length} unresolved issue{conflicts.length !== 1 ? "s" : ""}
         </p>
       </div>
@@ -60,25 +60,25 @@ export default function Sidebar({
       <div className="flex-1 overflow-y-auto">
         {loading && (
           <div className="flex items-center justify-center py-16">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#C86B28]/30 border-t-[#C86B28]" />
           </div>
         )}
 
         {error && (
-          <div className="px-5 py-8 text-center text-sm text-red-100">
+          <div className="px-5 py-8 text-center text-sm text-[#B91C1C]">
             {error}
           </div>
         )}
 
         {!loading && !error && conflicts.length === 0 && (
           <div className="px-5 py-16 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/20">
-              <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#C86B28]/15">
+              <svg className="h-6 w-6 text-emerald-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
               </svg>
             </div>
-            <p className="text-sm font-medium text-white/90">All clear</p>
-            <p className="mt-0.5 text-xs text-white/60">No unresolved conflicts</p>
+            <p className="text-sm font-medium text-[#7A3E14]">All clear</p>
+            <p className="mt-0.5 text-xs text-[#7A3E14]/50">No unresolved conflicts</p>
           </div>
         )}
 
@@ -87,27 +87,27 @@ export default function Sidebar({
             key={c.id}
             type="button"
             onClick={() => onSelectConflict(c)}
-            className={`group w-full border-b border-amber-600/30 px-5 py-4 text-left transition-colors hover:bg-amber-600/40 ${
+            className={`group w-full border-b border-[#E8DCC8] px-5 py-4 text-left transition-colors hover:bg-[#C86B28]/10 ${
               selectedId === c.id
-                ? "bg-amber-700/60 border-l-4 border-l-white"
+                ? "bg-[#C86B28]/20 border-l-4 border-l-[#C86B28]"
                 : ""
             }`}
           >
             {/* Top row: ULPIN + severity badge */}
             <div className="flex items-center justify-between gap-2">
-              <span className="font-mono text-sm font-semibold text-white">
+              <span className="font-mono text-sm font-semibold text-[#7A3E14]">
                 {c.ulpin}
               </span>
               <SeverityBadge severity={c.severity} />
             </div>
 
             {/* Conflict type */}
-            <p className="mt-1.5 text-xs font-medium text-white/80">
+            <p className="mt-1.5 text-xs font-medium text-[#7A3E14]/70">
               {TYPE_LABELS[c.conflict_type] ?? c.conflict_type}
             </p>
 
             {/* Bottom row: state + timestamp */}
-            <div className="mt-2 flex items-center justify-between text-[11px] text-white/60">
+            <div className="mt-2 flex items-center justify-between text-[11px] text-[#7A3E14]/50">
               <span className="uppercase tracking-wider font-medium">{c.source_state}</span>
               <span>
                 {new Date(c.detected_at).toLocaleDateString("en-IN", {
@@ -122,8 +122,8 @@ export default function Sidebar({
       </div>
 
       {/* Footer */}
-      <div className="border-t border-white/20 px-5 py-3">
-        <p className="text-center text-[10px] uppercase tracking-widest text-white/60">
+      <div className="border-t border-[#E8DCC8] px-5 py-3">
+        <p className="text-center text-[10px] uppercase tracking-widest text-[#7A3E14]/50">
           LandStack Nexus • Officer Dashboard
         </p>
       </div>

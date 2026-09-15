@@ -51,8 +51,8 @@ const MOCK_AUDIT: AuditEntry[] = [
     ulpin: "TN-202-0087",
     tx_hash: "0x3d91b4f8e72c0a16d5b7...a4e1",
     icon: Cpu,
-    iconColor: "text-[#D97706]",
-    iconBg: "bg-[#D97706]/10",
+    iconColor: "text-[#7A3E14]",
+    iconBg: "bg-[#7A3E14]/10",
   },
   {
     id: 3,
@@ -96,25 +96,25 @@ export default function AuditTab() {
             <ShieldCheck size={20} className="text-emerald-600" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-[#334155]">
+            <h2 className="text-lg font-bold text-[#7A3E14]">
               Immutable Audit Trail
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[#A0845C]">
               Append-only PostgreSQL ledger • Every state change is
               cryptographically referenced
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 border border-slate-200 shadow-sm">
+        <div className="flex items-center gap-2 rounded-lg bg-[#F4EBD9] px-3 py-1.5 border border-[#E8DCC8] shadow-sm">
           <div className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
-          <span className="text-xs font-medium text-slate-500">
+          <span className="text-xs font-medium text-[#A0845C]">
             {MOCK_AUDIT.length} entries
           </span>
         </div>
       </div>
 
       {/* ── Timeline ────────────────────────────────────────────── */}
-      <div className="relative ml-6 border-l-2 border-slate-200 pl-8">
+      <div className="relative ml-6 border-l-2 border-[#E8DCC8] pl-8">
         {MOCK_AUDIT.map((entry, index) => {
           const Icon = entry.icon;
           return (
@@ -124,56 +124,56 @@ export default function AuditTab() {
             >
               {/* Timeline node */}
               <div
-                className={`absolute -left-[41px] flex h-8 w-8 items-center justify-center rounded-full ${entry.iconBg} ring-4 ring-[#F1F5E9]`}
+                className={`absolute -left-[41px] flex h-8 w-8 items-center justify-center rounded-full ${entry.iconBg} ring-4 ring-[#F4EBD9]`}
               >
                 <Icon size={16} className={entry.iconColor} />
               </div>
 
               {/* Timestamp + Officer */}
               <div className="mb-2 flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                <div className="flex items-center gap-1.5 text-xs text-[#A0845C]">
                   <Clock size={12} />
                   <span className="font-mono">{entry.timestamp}</span>
                 </div>
-                <div className="h-3 w-px bg-slate-200" />
-                <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                <div className="h-3 w-px bg-[#E8DCC8]" />
+                <div className="flex items-center gap-1.5 text-xs text-[#A0845C]">
                   <User size={12} />
-                  <span className="font-semibold text-[#334155]">
+                  <span className="font-semibold text-[#7A3E14]">
                     {entry.officer_name}
                   </span>
                 </div>
               </div>
 
               {/* Action title */}
-              <h4 className="mb-1.5 text-sm font-bold text-[#334155]">
+              <h4 className="mb-1.5 text-sm font-bold text-[#7A3E14]">
                 {entry.action}
               </h4>
 
               {/* Role */}
-              <p className="mb-2.5 text-[11px] text-slate-400">
+              <p className="mb-2.5 text-[11px] text-[#A0845C]">
                 {entry.officer_role}
               </p>
 
               {/* Audit payload card */}
-              <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                <p className="mb-3 text-xs leading-relaxed text-slate-500">
+              <div className="rounded-xl border border-[#E8DCC8] bg-[#F4EBD9] p-4 shadow-sm">
+                <p className="mb-3 text-xs leading-relaxed text-[#A0845C]">
                   {entry.action_detail}
                 </p>
 
-                <div className="flex flex-wrap gap-x-6 gap-y-2 border-t border-slate-100 pt-3">
+                <div className="flex flex-wrap gap-x-6 gap-y-2 border-t border-[#EDE3D3] pt-3">
                   {/* ULPIN */}
                   <div className="flex items-center gap-1.5">
-                    <FileText size={12} className="text-slate-300" />
-                    <span className="text-[11px] text-slate-400">ULPIN:</span>
-                    <span className="font-mono text-xs font-bold text-[#334155]">
+                    <FileText size={12} className="text-[#C4A882]" />
+                    <span className="text-[11px] text-[#A0845C]">ULPIN:</span>
+                    <span className="font-mono text-xs font-bold text-[#7A3E14]">
                       {entry.ulpin}
                     </span>
                   </div>
 
                   {/* TX Hash */}
                   <div className="flex items-center gap-1.5">
-                    <ShieldCheck size={12} className="text-slate-300" />
-                    <span className="text-[11px] text-slate-400">
+                    <ShieldCheck size={12} className="text-[#C4A882]" />
+                    <span className="text-[11px] text-[#A0845C]">
                       TX Hash:
                     </span>
                     <span className="font-mono text-xs font-semibold text-emerald-600">
@@ -188,9 +188,9 @@ export default function AuditTab() {
       </div>
 
       {/* ── Footer ──────────────────────────────────────────────── */}
-      <div className="mt-8 flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm">
+      <div className="mt-8 flex items-center justify-center gap-2 rounded-lg border border-[#E8DCC8] bg-[#F4EBD9] px-4 py-3 shadow-sm">
         <ShieldCheck size={14} className="text-emerald-600" />
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-[#A0845C]">
           All entries are append-only and cryptographically referenced.
           Tampering with this ledger triggers an integrity alert to the
           National Informatics Centre (NIC).

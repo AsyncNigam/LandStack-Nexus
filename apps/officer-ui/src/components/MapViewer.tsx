@@ -83,7 +83,7 @@ export default function MapViewer() {
             // Background before satellite tiles load
             id: "background",
             type: "background",
-            paint: { "background-color": "#F1F5E9" },
+            paint: { "background-color": "#F4EBD9" },
           },
         ],
       },
@@ -153,7 +153,7 @@ export default function MapViewer() {
               "#B91C1C", // Deep Crimson
               "CLEAN",
               "#15803d", // Forest Green
-              "#D97706", // Golden Ochre
+              "#7A3E14", // Golden Ochre
             ],
             "fill-extrusion-height": ["get", "height"],
             "fill-extrusion-base": 0,
@@ -225,7 +225,7 @@ export default function MapViewer() {
             })
               .setLngLat(e.lngLat)
               .setHTML(
-                `<div style="background:#ffffff;color:#334155;padding:12px;border-radius:8px;font-size:13px;border:1px solid #e2e8f0;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1)">
+                `<div style="background:#ffffff;color:#7A3E14;padding:12px;border-radius:8px;font-size:13px;border:1px solid #e2e8f0;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1)">
                   <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Land Parcel</div>
                   <div style="font-size:15px;font-weight:700;color:#0f172a;font-family:monospace">${props.ulpin}</div>
                   <div style="margin-top:8px;display:flex;justify-content:space-between">
@@ -269,11 +269,11 @@ export default function MapViewer() {
       <div ref={containerRef} className="h-full w-full" />
 
       {/* ── Floating Layer Controls ────────────────────────────── */}
-      <div className="absolute right-4 top-4 z-10 w-64 rounded-xl border border-slate-200 bg-white/90 p-4 shadow-xl backdrop-blur-sm text-[#334155]">
+      <div className="absolute right-4 top-4 z-10 w-64 rounded-xl border border-[#E8DCC8] bg-[#F4EBD9] p-4 shadow-md backdrop-blur-sm text-[#7A3E14]">
         {/* Header */}
         <div className="mb-3 flex items-center gap-2">
-          <Layers size={16} className="text-[#D97706]" />
-          <h3 className="text-xs font-bold uppercase tracking-widest text-[#334155]">
+          <Layers size={16} className="text-[#7A3E14]" />
+          <h3 className="text-xs font-bold uppercase tracking-widest text-[#7A3E14]">
             Map Layers
           </h3>
         </div>
@@ -287,20 +287,20 @@ export default function MapViewer() {
                 key={layer.id}
                 type="button"
                 onClick={() => toggleLayer(layer.id)}
-                className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-slate-100"
+                className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-[#C86B28]/10"
               >
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-[#334155]">
+                  <p className="text-xs font-semibold text-[#7A3E14]">
                     {layer.label}
                   </p>
-                  <p className="text-[10px] text-slate-500 truncate">
+                  <p className="text-[10px] text-[#7A3E14]/50 truncate">
                     {layer.description}
                   </p>
                 </div>
                 {isOn ? (
                   <Eye size={16} className="flex-shrink-0 text-emerald-600" />
                 ) : (
-                  <EyeOff size={16} className="flex-shrink-0 text-slate-400" />
+                  <EyeOff size={16} className="flex-shrink-0 text-[#A0845C]" />
                 )}
               </button>
             );
@@ -308,8 +308,8 @@ export default function MapViewer() {
         </div>
 
         {/* Footer */}
-        <div className="mt-3 border-t border-slate-200 pt-2.5">
-          <div className="flex items-center gap-2 text-[10px] text-slate-500">
+        <div className="mt-3 border-t border-[#E8DCC8] pt-2.5">
+          <div className="flex items-center gap-2 text-[10px] text-[#7A3E14]/50">
             <div className="h-2 w-2 rounded-full bg-emerald-600 shadow-sm" />
             <span>PostGIS Live • EPSG:4326</span>
           </div>
@@ -317,18 +317,18 @@ export default function MapViewer() {
       </div>
 
       {/* ── Bottom-left legend ────────────────────────────────── */}
-      <div className="absolute bottom-6 left-4 z-10 flex gap-3 rounded-lg border border-slate-200 bg-white/90 px-4 py-2.5 shadow-md backdrop-blur-sm">
+      <div className="absolute bottom-6 left-4 z-10 flex gap-3 rounded-lg border border-[#E8DCC8] bg-[#F4EBD9] px-4 py-2.5 shadow-md">
         <div className="flex items-center gap-1.5">
           <div className="h-3 w-3 rounded-sm bg-[#B91C1C]" />
-          <span className="text-[11px] font-medium text-[#334155]">Conflict</span>
+          <span className="text-[11px] font-medium text-[#7A3E14]">Conflict</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="h-3 w-3 rounded-sm bg-emerald-600" />
-          <span className="text-[11px] font-medium text-[#334155]">Clean</span>
+          <span className="text-[11px] font-medium text-[#7A3E14]">Clean</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="h-3 w-3 rounded-sm bg-[#D97706]" />
-          <span className="text-[11px] font-medium text-[#334155]">Pending</span>
+          <div className="h-3 w-3 rounded-sm bg-[#C86B28]" />
+          <span className="text-[11px] font-medium text-[#7A3E14]">Pending</span>
         </div>
       </div>
     </div>

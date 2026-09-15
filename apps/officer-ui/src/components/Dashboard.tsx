@@ -48,7 +48,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#F1F5E9] text-[#334155]">
+    <div className="flex h-screen w-screen overflow-hidden bg-[#F4EBD9] text-[#7A3E14]">
       {/* Left: Discrepancy Queue */}
       <Sidebar
         conflicts={conflicts}

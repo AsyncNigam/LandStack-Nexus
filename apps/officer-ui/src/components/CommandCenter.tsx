@@ -51,19 +51,19 @@ export default function CommandCenter() {
   const [activeTab, setActiveTab] = useState("map");
 
   return (
-    <div className="flex h-screen w-screen bg-[#F1F5E9] text-[#334155] overflow-hidden font-sans">
+    <div className="flex h-screen w-screen bg-[#F4EBD9] text-[#7A3E14] overflow-hidden font-sans">
       {/* ═══ LEFT SIDEBAR ═══════════════════════════════════════════ */}
-      <aside className="flex w-64 flex-col border-r border-[#C8A96E]/30 bg-[#D97706]">
+      <aside className="flex w-64 flex-col border-r border-[#E8DCC8] bg-[#F4EBD9]">
         {/* Logo */}
-        <div className="flex items-center gap-3 border-b border-white/20 px-5 py-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/20 shadow-lg">
-            <Shield className="h-5 w-5 text-white" />
+        <div className="flex items-center gap-3 border-b border-[#E8DCC8] px-5 py-5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#C86B28]/20 shadow-sm">
+            <Shield className="h-5 w-5 text-[#7A3E14]" />
           </div>
           <div>
-            <h1 className="text-sm font-bold tracking-tight text-white">
+            <h1 className="text-sm font-bold tracking-tight text-[#7A3E14]">
               LandStack Nexus
             </h1>
-            <p className="text-[10px] font-medium uppercase tracking-widest text-white/60">
+            <p className="text-[10px] font-medium uppercase tracking-widest text-[#7A3E14]/50">
               Command Center
             </p>
           </div>
@@ -71,7 +71,7 @@ export default function CommandCenter() {
 
         {/* Navigation */}
         <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
-          <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-white/50">
+          <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-[#7A3E14]/50">
             Operations
           </p>
           {NAV_ITEMS.map((item) => {
@@ -84,19 +84,19 @@ export default function CommandCenter() {
                 className={clsx(
                   "group relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
                   isActive
-                    ? "bg-white/20 text-white shadow-sm"
-                    : "text-white/70 hover:bg-white/10 hover:text-white",
+                    ? "bg-[#C86B28] text-white shadow-sm"
+                    : "text-[#7A3E14]/70 hover:bg-[#C86B28]/10 hover:text-[#7A3E14]",
                 )}
               >
                 {/* Active indicator bar */}
                 {isActive && (
-                  <div className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-white shadow-md" />
+                  <div className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-[#C86B28] shadow-md" />
                 )}
 
                 <item.icon
                   className={clsx(
                     "h-4.5 w-4.5 flex-shrink-0",
-                    isActive ? "text-white" : "text-white/50 group-hover:text-white/80",
+                    isActive ? "text-white" : "text-[#7A3E14]/50 group-hover:text-[#7A3E14]/80",
                   )}
                   size={18}
                 />
@@ -109,7 +109,7 @@ export default function CommandCenter() {
                       "flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold",
                       isActive
                         ? "bg-white/25 text-white"
-                        : "bg-[#B91C1C]/80 text-white",
+                        : "bg-[#B91C1C] text-white",
                     )}
                   >
                     {item.badge}
@@ -121,14 +121,14 @@ export default function CommandCenter() {
         </nav>
 
         {/* System Status Footer */}
-        <div className="border-t border-white/20 px-4 py-3">
+        <div className="border-t border-[#E8DCC8] px-4 py-3">
           <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-emerald-300 shadow-sm" />
-            <span className="text-[11px] font-medium text-white/70">
+            <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-sm" />
+            <span className="text-[11px] font-medium text-[#7A3E14]/70">
               System Operational
             </span>
           </div>
-          <div className="mt-1.5 flex items-center gap-3 text-[10px] text-white/50">
+          <div className="mt-1.5 flex items-center gap-3 text-[10px] text-[#7A3E14]/50">
             <span>PostGIS ●</span>
             <span>3 Parcels ●</span>
             <span>v1.0.0</span>
@@ -139,12 +139,12 @@ export default function CommandCenter() {
       {/* ═══ MAIN AREA ══════════════════════════════════════════════ */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* ── Top Header Bar ─────────────────────────────────────── */}
-        <header className="flex h-14 flex-shrink-0 items-center justify-between border-b border-slate-200 bg-white px-6 shadow-sm">
+        <header className="flex h-14 flex-shrink-0 items-center justify-between border-b border-[#E8DCC8] bg-[#FFF8EE] px-6 shadow-sm">
           {/* Left: Tab title + breadcrumb */}
           <div className="flex items-center gap-2 text-sm">
-            <span className="font-medium text-slate-400">Operations</span>
-            <ChevronRight className="h-3.5 w-3.5 text-slate-300" />
-            <span className="font-semibold text-[#334155]">
+            <span className="font-medium text-[#7A3E14]/50">Operations</span>
+            <ChevronRight className="h-3.5 w-3.5 text-[#7A3E14]/30" />
+            <span className="font-semibold text-[#7A3E14]">
               {TAB_TITLES[activeTab] ?? activeTab}
             </span>
           </div>
@@ -157,25 +157,25 @@ export default function CommandCenter() {
             {/* Notification bell */}
             <button
               type="button"
-              className="relative rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-[#D97706]"
+              className="relative rounded-lg p-2 text-[#7A3E14]/50 transition-colors hover:bg-[#C86B28]/10 hover:text-[#7A3E14]"
             >
               <Bell size={18} />
-              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-[#B91C1C] ring-2 ring-white" />
+              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-[#B91C1C] ring-2 ring-[#FFF8EE]" />
             </button>
 
             {/* Divider */}
-            <div className="h-6 w-px bg-slate-200" />
+            <div className="h-6 w-px bg-[#E8DCC8]" />
 
             {/* Officer profile */}
             <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#D97706]/10 ring-2 ring-[#D97706]/30">
-                <User size={16} className="text-[#D97706]" />
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#C86B28]/15 ring-2 ring-[#C86B28]/30">
+                <User size={16} className="text-[#7A3E14]" />
               </div>
               <div className="hidden sm:block">
-                <p className="text-xs font-semibold text-[#334155]">
+                <p className="text-xs font-semibold text-[#7A3E14]">
                   Inspector R. Sharma
                 </p>
-                <p className="text-[10px] text-slate-400">DILRMP Division</p>
+                <p className="text-[10px] text-[#7A3E14]/50">DILRMP Division</p>
               </div>
             </div>
           </div>
@@ -191,19 +191,19 @@ export default function CommandCenter() {
 
           {activeTab !== "map" && activeTab !== "analytics" && activeTab !== "ai" && activeTab !== "queue" && activeTab !== "audit" && (
             <div className="flex h-full flex-col items-center justify-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white ring-1 ring-slate-200 shadow-sm">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F4EBD9] ring-1 ring-[#E8DCC8] shadow-sm">
                 {(() => {
                   const item = NAV_ITEMS.find((n) => n.id === activeTab);
                   if (!item) return null;
                   const Icon = item.icon;
-                  return <Icon size={28} className="text-slate-400" />;
+                  return <Icon size={28} className="text-[#A0845C]" />;
                 })()}
               </div>
               <div className="text-center">
-                <p className="text-lg font-semibold text-slate-500">
+                <p className="text-lg font-semibold text-[#A0845C]">
                   {TAB_TITLES[activeTab]}
                 </p>
-                <p className="mt-1 text-sm text-slate-400">
+                <p className="mt-1 text-sm text-[#A0845C]">
                   Module loading — available in next deployment
                 </p>
               </div>
@@ -227,14 +227,14 @@ function LiveClock() {
   });
 
   return (
-    <div className="hidden items-center gap-1.5 rounded-md bg-slate-100 px-2.5 py-1 text-[11px] font-mono text-slate-500 sm:flex">
+    <div className="hidden items-center gap-1.5 rounded-md bg-[#C86B28]/10 px-2.5 py-1 text-[11px] font-mono text-[#7A3E14]/60 sm:flex">
       <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
       {time.toLocaleTimeString("en-IN", {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
       })}
-      <span className="text-slate-400">IST</span>
+      <span className="text-[#7A3E14]/40">IST</span>
     </div>
   );
 }

@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-[#F1F5E9] text-[#334155] antialiased;
+    @apply bg-[#F4EBD9] text-[#7A3E14] antialiased;
   }
 
   /* Custom scrollbar for the command center */
@@ -13,18 +13,18 @@
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    @apply bg-[#E8ECE0];
+    @apply bg-[#EDE3D3];
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-slate-400 rounded-full;
+    @apply bg-[#C4A882] rounded-full;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-slate-500;
+    @apply bg-[#A08560];
   }
 }
 
 @layer utilities {
-  .glow-ochre {
-    box-shadow: 0 0 20px rgba(217, 119, 6, 0.1);
+  .glow-rust {
+    box-shadow: 0 0 20px rgba(122, 62, 20, 0.1);
   }
 }

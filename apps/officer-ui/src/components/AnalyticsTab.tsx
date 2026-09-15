@@ -39,7 +39,7 @@ const donutData = [
   { name: "Tax Arrears", value: 15 },
   { name: "AI Encroachment", value: 10 },
 ];
-const DONUT_COLORS = ["#D97706", "#334155", "#16a34a", "#B91C1C"];
+const DONUT_COLORS = ["#7A3E14", "#A0845C", "#16a34a", "#B91C1C"];
 
 const barData = [
   { name: "Odisha", integrated: 94 },
@@ -53,15 +53,15 @@ const barData = [
 
 const TOOLTIP_STYLE = {
   contentStyle: {
-    backgroundColor: "#ffffff",
-    borderColor: "#e2e8f0",
+    backgroundColor: "#FFF8EE",
+    borderColor: "#E8DCC8",
     borderRadius: "8px",
-    color: "#334155",
+    color: "#7A3E14",
     fontSize: "12px",
-    boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+    boxShadow: "0 4px 20px rgba(122,62,20,0.08)",
   },
-  itemStyle: { color: "#64748b" },
-  labelStyle: { color: "#334155", fontWeight: 600 },
+  itemStyle: { color: "#A0845C" },
+  labelStyle: { color: "#7A3E14", fontWeight: 600 },
 };
 
 // ─── Metric Cards ───────────────────────────────────────────────────
@@ -86,13 +86,13 @@ function MetricCard({
   trendColor = "text-emerald-600",
 }: MetricCardProps) {
   return (
-    <div className="group relative overflow-hidden rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-200 hover:shadow-md">
+    <div className="group relative overflow-hidden rounded-xl border border-[#E8DCC8] bg-[#F4EBD9] p-5 shadow-sm transition-all duration-200 hover:shadow-md">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-slate-400">
+          <p className="text-xs font-medium uppercase tracking-wider text-[#A0845C]">
             {label}
           </p>
-          <p className="mt-2 text-2xl font-bold tracking-tight text-[#334155]">
+          <p className="mt-2 text-2xl font-bold tracking-tight text-[#7A3E14]">
             {value}
           </p>
           {trend && (
@@ -121,8 +121,8 @@ export default function AnalyticsTab() {
           label="Total ULPINs Indexed"
           value="1,245,892"
           icon={Database}
-          iconColor="text-[#D97706]"
-          iconBg="bg-[#D97706]/10"
+          iconColor="text-[#7A3E14]"
+          iconBg="bg-[#7A3E14]/10"
           trend="+14.2% this month"
         />
         <MetricCard
@@ -138,8 +138,8 @@ export default function AnalyticsTab() {
           label="AI Sentinel Flags"
           value="112"
           icon={Satellite}
-          iconColor="text-[#D97706]"
-          iconBg="bg-[#D97706]/10"
+          iconColor="text-[#7A3E14]"
+          iconBg="bg-[#7A3E14]/10"
           trend="+23 new today"
           trendColor="text-amber-600"
         />
@@ -150,20 +150,20 @@ export default function AnalyticsTab() {
           iconColor="text-emerald-600"
           iconBg="bg-emerald-50"
           trend="Phase 1 target"
-          trendColor="text-slate-400"
+          trendColor="text-[#A0845C]"
         />
       </div>
 
       {/* ── Charts Row ─────────────────────────────────────────── */}
       <div className="grid grid-cols-3 gap-4">
         {/* ── Area Chart: Daily Reconciliations (2 cols) ──────── */}
-        <div className="col-span-2 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="col-span-2 rounded-xl border border-[#E8DCC8] bg-[#F4EBD9] p-5 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-semibold text-[#334155]">
+              <h3 className="text-sm font-semibold text-[#7A3E14]">
                 Daily Automated Reconciliations
               </h3>
-              <p className="mt-0.5 text-xs text-slate-400">
+              <p className="mt-0.5 text-xs text-[#A0845C]">
                 Last 7 days • Cross-department record matching
               </p>
             </div>
@@ -176,21 +176,21 @@ export default function AnalyticsTab() {
             <AreaChart data={areaData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
               <defs>
                 <linearGradient id="gradientOchre" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#D97706" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#D97706" stopOpacity={0} />
+                  <stop offset="0%" stopColor="#7A3E14" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="#7A3E14" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E8DCC8" />
               <XAxis
                 dataKey="name"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "#94a3b8", fontSize: 12 }}
+                tick={{ fill: "#A0845C", fontSize: 12 }}
               />
               <YAxis
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "#94a3b8", fontSize: 11 }}
+                tick={{ fill: "#A0845C", fontSize: 11 }}
                 tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}k`}
               />
               <Tooltip
@@ -202,7 +202,7 @@ export default function AnalyticsTab() {
               <Area
                 type="monotone"
                 dataKey="reconciled"
-                stroke="#D97706"
+                stroke="#7A3E14"
                 strokeWidth={2.5}
                 fill="url(#gradientOchre)"
                 animationDuration={1500}
@@ -213,11 +213,11 @@ export default function AnalyticsTab() {
         </div>
 
         {/* ── Donut Chart: Discrepancy Breakdown (1 col) ─────── */}
-        <div className="col-span-1 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h3 className="text-sm font-semibold text-[#334155]">
+        <div className="col-span-1 rounded-xl border border-[#E8DCC8] bg-[#F4EBD9] p-5 shadow-sm">
+          <h3 className="text-sm font-semibold text-[#7A3E14]">
             Discrepancy Breakdown
           </h3>
-          <p className="mt-0.5 text-xs text-slate-400">
+          <p className="mt-0.5 text-xs text-[#A0845C]">
             By conflict category
           </p>
 
@@ -259,9 +259,9 @@ export default function AnalyticsTab() {
                     className="h-2.5 w-2.5 rounded-full"
                     style={{ backgroundColor: DONUT_COLORS[i] }}
                   />
-                  <span className="text-slate-500">{entry.name}</span>
+                  <span className="text-[#A0845C]">{entry.name}</span>
                 </div>
-                <span className="font-semibold text-[#334155]">{entry.value}%</span>
+                <span className="font-semibold text-[#7A3E14]">{entry.value}%</span>
               </div>
             ))}
           </div>
@@ -269,33 +269,33 @@ export default function AnalyticsTab() {
       </div>
 
       {/* ── Bar Chart: State Integration (Full width) ──────────── */}
-      <div className="mt-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="mt-4 rounded-xl border border-[#E8DCC8] bg-[#F4EBD9] p-5 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-semibold text-[#334155]">
+            <h3 className="text-sm font-semibold text-[#7A3E14]">
               State DILRMP 3.0 Integration Status
             </h3>
-            <p className="mt-0.5 text-xs text-slate-400">
+            <p className="mt-0.5 text-xs text-[#A0845C]">
               API connectivity & data pipeline readiness (%)
             </p>
           </div>
-          <span className="rounded-md bg-slate-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+          <span className="rounded-md bg-[#F4EBD9] border border-[#E8DCC8] px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-[#A0845C]">
             Phase 1 Rollout
           </span>
         </div>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={barData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#E8DCC8" vertical={false} />
             <XAxis
               dataKey="name"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#64748b", fontSize: 12 }}
+              tick={{ fill: "#A0845C", fontSize: 12 }}
             />
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#94a3b8", fontSize: 11 }}
+              tick={{ fill: "#A0845C", fontSize: 11 }}
               domain={[0, 100]}
               tickFormatter={(v: number) => `${v}%`}
             />

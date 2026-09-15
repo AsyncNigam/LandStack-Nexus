@@ -56,21 +56,21 @@ export default function EvidenceCard({ conflict, onClose, onResolved }: Evidence
   }
 
   return (
-    <div className="absolute bottom-6 right-6 z-30 w-[500px] rounded-2xl border border-slate-200 bg-white/95 shadow-2xl shadow-slate-900/10 backdrop-blur-xl">
+    <div className="absolute bottom-6 right-6 z-30 w-[500px] rounded-2xl border border-[#E8DCC8] bg-[#F4EBD9]/95 shadow-2xl shadow-[#7A3E14]/10 backdrop-blur-xl">
       {/* ── Header ──────────────────────────────────────────────── */}
-      <div className="flex items-start justify-between border-b border-slate-200 px-6 py-4">
+      <div className="flex items-start justify-between border-b border-[#E8DCC8] px-6 py-4">
         <div>
-          <p className="font-mono text-base font-bold text-[#334155]">
+          <p className="font-mono text-base font-bold text-[#7A3E14]">
             {conflict.ulpin}
           </p>
-          <p className="mt-0.5 text-xs font-semibold text-[#D97706]">
+          <p className="mt-0.5 text-xs font-semibold text-[#7A3E14]">
             {conflict.conflict_type} Conflict • {conflict.source_state?.toUpperCase()}
           </p>
         </div>
         <button
           type="button"
           onClick={onClose}
-          className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-[#334155]"
+          className="rounded-lg p-1.5 text-[#A0845C] transition-colors hover:bg-[#EDE3D3] hover:text-[#7A3E14]"
           aria-label="Close"
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -107,10 +107,10 @@ export default function EvidenceCard({ conflict, onClose, onResolved }: Evidence
       )}
 
       {/* ── Side-by-side comparison ─────────────────────────────── */}
-      <div className="mx-4 mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-slate-200 bg-slate-200">
+      <div className="mx-4 mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-[#E8DCC8] bg-[#E8DCC8]">
         {/* Left: Revenue Department */}
-        <div className="bg-white p-4">
-          <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
+        <div className="bg-[#F4EBD9] p-4">
+          <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-[#A0845C]">
             Revenue Dept (RoR)
           </p>
           {isOwnership && <DataRow label="Owner" value={safe(fv.ror)} />}
@@ -130,8 +130,8 @@ export default function EvidenceCard({ conflict, onClose, onResolved }: Evidence
         </div>
 
         {/* Right: Sub-Registrar */}
-        <div className="bg-white p-4">
-          <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
+        <div className="bg-[#F4EBD9] p-4">
+          <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-[#A0845C]">
             Sub-Registrar (Reg)
           </p>
           {isOwnership && <DataRow label="Owner" value={safe(fv.registration)} />}
@@ -154,7 +154,7 @@ export default function EvidenceCard({ conflict, onClose, onResolved }: Evidence
       <div className="mx-4 mt-3">
         <label
           htmlFor="resolution-note"
-          className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-slate-500"
+          className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-[#A0845C]"
         >
           Resolution Note
         </label>
@@ -164,17 +164,17 @@ export default function EvidenceCard({ conflict, onClose, onResolved }: Evidence
           value={note}
           onChange={(e) => setNote(e.target.value)}
           placeholder="Describe the action taken…"
-          className="w-full resize-none rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-[#334155] placeholder-slate-400 outline-none transition-colors focus:border-[#D97706] focus:ring-1 focus:ring-[#D97706]"
+          className="w-full resize-none rounded-xl border border-[#E8DCC8] bg-[#F4EBD9] px-3 py-2 text-sm text-[#7A3E14] placeholder-[#A0845C] outline-none transition-colors focus:border-[#7A3E14] focus:ring-1 focus:ring-[#7A3E14]"
         />
       </div>
 
       {/* ── Footer ──────────────────────────────────────────────── */}
-      <div className="flex items-center justify-end gap-3 border-t border-slate-200 px-6 py-4 mt-3">
+      <div className="flex items-center justify-end gap-3 border-t border-[#E8DCC8] px-6 py-4 mt-3">
         <button
           type="button"
           onClick={onClose}
           disabled={isResolving}
-          className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-[#334155] disabled:opacity-50"
+          className="rounded-lg border border-[#E8DCC8] px-4 py-2 text-sm font-medium text-[#7A3E14] transition-colors hover:bg-[#EDE3D3] hover:text-[#7A3E14] disabled:opacity-50"
         >
           Close
         </button>
@@ -182,7 +182,7 @@ export default function EvidenceCard({ conflict, onClose, onResolved }: Evidence
           type="button"
           onClick={handleResolve}
           disabled={isResolving}
-          className="rounded-lg bg-[#D97706] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#b45309] disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-lg bg-[#7A3E14] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#5C2E0A] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isResolving ? (
             <span className="flex items-center gap-2">
@@ -203,8 +203,8 @@ export default function EvidenceCard({ conflict, onClose, onResolved }: Evidence
 function DataRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="mb-2 last:mb-0">
-      <p className="text-[10px] uppercase tracking-wider text-slate-500">{label}</p>
-      <p className="mt-0.5 text-sm font-semibold text-[#334155]">{value}</p>
+      <p className="text-[10px] uppercase tracking-wider text-[#A0845C]">{label}</p>
+      <p className="mt-0.5 text-sm font-semibold text-[#7A3E14]">{value}</p>
     </div>
   );
 }
