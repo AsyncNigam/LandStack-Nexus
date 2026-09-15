@@ -1,3 +1,18 @@
+// ─── GoRT Parcel Types ──────────────────────────────────────────────
+export type {
+  AreaUnit,
+  StateCode,
+  GoRTCanonicalField,
+  SourceTerminology,
+  SourceState,
+  SourceDept,
+  CommonParcelModel,
+  OdishaRawPayload,
+  TamilNaduRawPayload,
+  PunjabRawPayload,
+  RawStatePayload,
+} from "./types/parcel.js";
+
 // ─── Data Source Identifiers ────────────────────────────────────────
 /** The three mock government databases that feed into reconciliation. */
 export type DataSource = "revenue" | "registry" | "tax";
