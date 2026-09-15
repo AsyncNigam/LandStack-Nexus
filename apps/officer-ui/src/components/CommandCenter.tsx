@@ -14,6 +14,7 @@ import {
 import { clsx } from "clsx";
 import MapViewer from "./MapViewer";
 import AnalyticsTab from "./AnalyticsTab";
+import AIDetectionTab from "./AIDetectionTab";
 
 // ─── Tab definitions ────────────────────────────────────────────────
 
@@ -182,8 +183,9 @@ export default function CommandCenter() {
         <main className="relative flex-1 overflow-hidden">
           {activeTab === "map" && <MapViewer />}
           {activeTab === "analytics" && <AnalyticsTab />}
+          {activeTab === "ai" && <AIDetectionTab />}
 
-          {activeTab !== "map" && activeTab !== "analytics" && (
+          {activeTab !== "map" && activeTab !== "analytics" && activeTab !== "ai" && (
             <div className="flex h-full flex-col items-center justify-center gap-4">
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-800/50 ring-1 ring-slate-700/50">
                 {(() => {
