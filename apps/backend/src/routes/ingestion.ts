@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import pool from "../db.js";
 import { normalizeOdishaData } from "../adapters/odisha.js";
 import { normalizeTamilNaduData } from "../adapters/tamilNadu.js";
+import { detectConflicts } from "../engine/conflictEngine.js";
 import type {
   CommonParcelModel,
   OdishaRawPayload,
@@ -101,7 +102,10 @@ router.post("/:department", async (req: Request<{ department: string }>, res: Re
     // 2. Insert into department-specific table
     await insertByDepartment(department as Department, model);
 
-    // 3. Success
+    // 3. Fire conflict detection in the background (non-blocking)
+    detectConflicts(model.ulpin).catch(console.error);
+
+    // 4. Success
     const response: ApiResponse<{ ulpin: string }> = {
       success: true,
       data: { ulpin: model.ulpin },
