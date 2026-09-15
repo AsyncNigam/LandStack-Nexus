@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
 import type { Conflict } from "../types";
 
 interface SidebarProps {
+  conflicts: Conflict[];
+  loading: boolean;
+  error: string | null;
   onSelectConflict: (conflict: Conflict) => void;
   selectedId: number | null;
 }
@@ -36,28 +37,13 @@ const TYPE_LABELS: Record<string, string> = {
 
 // ─── Component ──────────────────────────────────────────────────────
 
-export default function Sidebar({ onSelectConflict, selectedId }: SidebarProps) {
-  const [conflicts, setConflicts] = useState<Conflict[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchConflicts() {
-      try {
-        const { data } = await axios.get<{ success: boolean; data: Conflict[] }>(
-          "/api/v1/conflicts",
-        );
-        setConflicts(data.data);
-      } catch (err) {
-        console.error("Failed to fetch conflicts:", err);
-        setError("Unable to load discrepancies");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchConflicts();
-  }, []);
-
+export default function Sidebar({
+  conflicts,
+  loading,
+  error,
+  onSelectConflict,
+  selectedId,
+}: SidebarProps) {
   return (
     <aside className="flex h-full w-96 flex-col border-r border-gray-800 bg-gray-950">
       {/* Header */}
@@ -86,7 +72,13 @@ export default function Sidebar({ onSelectConflict, selectedId }: SidebarProps) 
 
         {!loading && !error && conflicts.length === 0 && (
           <div className="px-5 py-16 text-center">
-            <p className="text-sm text-gray-500">All clear — no conflicts found</p>
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-500/10">
+              <svg className="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+            </div>
+            <p className="text-sm font-medium text-gray-400">All clear</p>
+            <p className="mt-0.5 text-xs text-gray-600">No unresolved conflicts</p>
           </div>
         )}
 
@@ -96,7 +88,9 @@ export default function Sidebar({ onSelectConflict, selectedId }: SidebarProps) 
             type="button"
             onClick={() => onSelectConflict(c)}
             className={`group w-full border-b border-gray-800/60 px-5 py-4 text-left transition-colors hover:bg-gray-900/80 ${
-              selectedId === c.id ? "bg-indigo-950/40 border-l-2 border-l-indigo-500" : ""
+              selectedId === c.id
+                ? "bg-indigo-950/40 border-l-2 border-l-indigo-500"
+                : ""
             }`}
           >
             {/* Top row: ULPIN + severity badge */}
@@ -114,9 +108,7 @@ export default function Sidebar({ onSelectConflict, selectedId }: SidebarProps) 
 
             {/* Bottom row: state + timestamp */}
             <div className="mt-2 flex items-center justify-between text-[11px] text-gray-600">
-              <span className="uppercase tracking-wider">
-                {c.source_state}
-              </span>
+              <span className="uppercase tracking-wider">{c.source_state}</span>
               <span>
                 {new Date(c.detected_at).toLocaleDateString("en-IN", {
                   day: "2-digit",
