@@ -38,12 +38,21 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-white max-w-md mx-auto shadow-xl shadow-black/10 overflow-hidden">
-      {data ? (
-        <ReadinessCard data={data} onBack={handleBack} />
-      ) : (
-        <SearchScreen onSearch={handleSearch} loading={loading} />
-      )}
+    <div className="flex min-h-screen items-center justify-center bg-gray-200 font-sans">
+      {/* Phone shell — looks like a device on desktop, full-screen on mobile */}
+      <div className="relative h-[850px] w-full max-w-md overflow-hidden bg-gray-50 shadow-2xl sm:rounded-[2.5rem] sm:border-8 sm:border-gray-900">
+        {/* Notch (cosmetic) */}
+        <div className="pointer-events-none absolute left-1/2 top-0 z-50 hidden h-7 w-36 -translate-x-1/2 rounded-b-2xl bg-gray-900 sm:block" />
+
+        {data ? (
+          <ReadinessCard data={data} onBack={handleBack} />
+        ) : (
+          <SearchScreen onSearch={handleSearch} loading={loading} />
+        )}
+
+        {/* Home bar (cosmetic) */}
+        <div className="pointer-events-none absolute bottom-2 left-1/2 z-50 hidden h-1 w-32 -translate-x-1/2 rounded-full bg-gray-400 sm:block" />
+      </div>
     </div>
   );
 }

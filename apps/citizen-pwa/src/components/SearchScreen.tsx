@@ -1,9 +1,41 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
+import {
+  Search,
+  ScanLine,
+  Clock,
+  ArrowRight,
+  MapPin,
+  Shield,
+} from "lucide-react";
+
+// ─── Types ──────────────────────────────────────────────────────────
 
 interface SearchScreenProps {
   onSearch: (ulpin: string) => void;
   loading: boolean;
 }
+
+// ─── Mock recent searches ───────────────────────────────────────────
+
+const RECENT = [
+  {
+    ulpin: "OD-101-0001",
+    state: "Odisha",
+    label: "Residential Plot, Bhubaneswar",
+    status: "Clean",
+    statusColor: "text-emerald-600 bg-emerald-50",
+  },
+  {
+    ulpin: "TN-202-0001",
+    state: "Tamil Nadu",
+    label: "Agricultural Land, Coimbatore",
+    status: "Review",
+    statusColor: "text-amber-600 bg-amber-50",
+  },
+];
+
+// ─── Component ──────────────────────────────────────────────────────
 
 export default function SearchScreen({ onSearch, loading }: SearchScreenProps) {
   const [ulpin, setUlpin] = useState("");
@@ -15,65 +47,159 @@ export default function SearchScreen({ onSearch, loading }: SearchScreenProps) {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-6 py-12">
-      {/* Logo / branding */}
-      <div className="mb-8 text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10">
-          <svg className="h-8 w-8 text-emerald-500" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
-          </svg>
+    <div className="flex h-full flex-col overflow-y-auto bg-gray-50">
+      {/* ── Status bar (mock) ─────────────────────────────────── */}
+      <div className="flex items-center justify-between px-6 pt-4 pb-1">
+        <span className="text-xs font-semibold text-gray-400">
+          {new Date().toLocaleTimeString("en-IN", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          })}
+        </span>
+        <div className="flex items-center gap-1.5">
+          <div className="h-2.5 w-4 rounded-sm border border-gray-400 relative">
+            <div className="absolute inset-0.5 rounded-[1px] bg-emerald-500" style={{ width: "70%" }} />
+          </div>
         </div>
-        <h1 className="text-2xl font-bold tracking-tight text-white">
-          LandStack Nexus
-        </h1>
-        <p className="mt-1 text-sm text-gray-400">
-          Citizen Land Record Verification
-        </p>
       </div>
 
-      {/* Search form */}
-      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
-        <div>
-          <label
-            htmlFor="ulpin-input"
-            className="mb-1.5 block text-xs font-semibold uppercase tracking-widest text-gray-500"
-          >
-            Enter ULPIN
-          </label>
-          <input
-            id="ulpin-input"
-            type="text"
-            value={ulpin}
-            onChange={(e) => setUlpin(e.target.value)}
-            placeholder="e.g., OD-101-0001"
-            autoComplete="off"
-            className="w-full rounded-xl border border-gray-700 bg-gray-800 px-4 py-3 text-base font-mono text-white placeholder-gray-600 outline-none transition-colors focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-          />
-          <p className="mt-1.5 text-[11px] text-gray-600">
-            14-character Unique Land Parcel Identification Number
-          </p>
+      {/* ── Hero ──────────────────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4 }}
+        className="px-6 pt-8"
+      >
+        <div className="flex items-center gap-2">
+          <Shield size={14} className="text-blue-600" />
+          <span className="text-xs font-semibold uppercase tracking-widest text-blue-600">
+            Government of India
+          </span>
+        </div>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-gray-900">
+          LandStack Portal
+        </h1>
+        <p className="mt-1 text-sm text-gray-500">
+          Verify land records across departments in seconds.
+        </p>
+      </motion.div>
+
+      {/* ── Search Input ──────────────────────────────────────── */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.1, duration: 0.4 }}
+        className="px-6 mt-8"
+      >
+        <form onSubmit={handleSubmit}>
+          <div className="flex items-center gap-2 rounded-2xl border border-gray-100 bg-white p-2 shadow-sm transition-shadow focus-within:shadow-md focus-within:ring-2 focus-within:ring-blue-500/20">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-gray-100">
+              <MapPin size={18} className="text-gray-400" />
+            </div>
+            <input
+              type="text"
+              value={ulpin}
+              onChange={(e) => setUlpin(e.target.value)}
+              placeholder="Enter 14-digit ULPIN"
+              autoComplete="off"
+              className="flex-1 bg-transparent py-2 text-base font-medium text-gray-900 placeholder-gray-400 outline-none"
+            />
+            <button
+              type="submit"
+              disabled={loading || !ulpin.trim()}
+              className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-600/30 transition-all hover:bg-blue-700 disabled:opacity-40 disabled:shadow-none"
+            >
+              {loading ? (
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+              ) : (
+                <Search size={18} />
+              )}
+            </button>
+          </div>
+        </form>
+      </motion.div>
+
+      {/* ── OR divider ────────────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="flex items-center gap-4 px-6 mt-6"
+      >
+        <div className="h-px flex-1 bg-gray-200" />
+        <span className="text-xs font-semibold text-gray-400">OR</span>
+        <div className="h-px flex-1 bg-gray-200" />
+      </motion.div>
+
+      {/* ── QR Scanner Button ─────────────────────────────────── */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.25, duration: 0.4 }}
+        className="px-6 mt-6"
+      >
+        <button
+          type="button"
+          className="flex w-full items-center justify-center gap-3 rounded-2xl border border-blue-100 bg-blue-50 px-6 py-4 font-semibold text-blue-700 transition-all active:scale-[0.98]"
+        >
+          <ScanLine size={22} className="animate-pulse" />
+          Scan Bhu-Aadhaar QR
+        </button>
+      </motion.div>
+
+      {/* ── Recent Activity ───────────────────────────────────── */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.35, duration: 0.4 }}
+        className="mt-8 flex-1 px-6 pb-8"
+      >
+        <div className="flex items-center gap-2 mb-3">
+          <Clock size={14} className="text-gray-400" />
+          <h3 className="text-xs font-semibold uppercase tracking-widest text-gray-500">
+            Recent Activity
+          </h3>
         </div>
 
-        <button
-          type="submit"
-          disabled={loading || !ulpin.trim()}
-          className="w-full rounded-xl bg-emerald-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {loading ? (
-            <span className="flex items-center justify-center gap-2">
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-              Searching…
-            </span>
-          ) : (
-            "Check Land Status"
-          )}
-        </button>
-      </form>
+        <div className="space-y-3">
+          {RECENT.map((item) => (
+            <button
+              key={item.ulpin}
+              type="button"
+              onClick={() => onSearch(item.ulpin)}
+              className="flex w-full items-center justify-between rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all active:scale-[0.98] hover:shadow-md"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100">
+                  <MapPin size={18} className="text-gray-500" />
+                </div>
+                <div className="text-left">
+                  <p className="font-mono text-sm font-bold text-gray-900">
+                    {item.ulpin}
+                  </p>
+                  <p className="text-xs text-gray-500">{item.label}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${item.statusColor}`}
+                >
+                  {item.status}
+                </span>
+                <ArrowRight size={16} className="text-gray-300" />
+              </div>
+            </button>
+          ))}
+        </div>
+      </motion.div>
 
-      {/* Footer */}
-      <p className="mt-12 text-center text-[10px] uppercase tracking-widest text-gray-700">
-        Government of India • Digital Public Infrastructure
-      </p>
+      {/* ── Footer ────────────────────────────────────────────── */}
+      <div className="px-6 pb-6 text-center">
+        <p className="text-[10px] text-gray-400">
+          Digital Public Infrastructure • DILRMP 3.0
+        </p>
+      </div>
     </div>
   );
 }
