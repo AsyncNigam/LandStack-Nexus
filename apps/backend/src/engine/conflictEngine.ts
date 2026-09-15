@@ -7,6 +7,7 @@ interface RoRRow {
   ulpin: string;
   owner_name: string;
   area_acre: string; // NUMERIC comes back as string from pg
+  last_updated: string | Date;
 }
 
 interface RegistrationRow {
@@ -14,6 +15,7 @@ interface RegistrationRow {
   ulpin: string;
   owner_name: string;
   area_acre: string;
+  registered_on: string | Date;
 }
 
 // ─── Conflict field values ──────────────────────────────────────────
@@ -29,17 +31,25 @@ interface AreaConflictValues {
   variance: number;
 }
 
+interface FreshnessConflictValues {
+  source: string;
+  date: string;
+}
+
 // ─── Thresholds ─────────────────────────────────────────────────────
 
 /** Area variance above 3% is flagged as a conflict. */
 const AREA_TOLERANCE = 0.03;
+
+/** Records older than this many years are considered stale. */
+const FRESHNESS_YEARS = 2;
 
 // ─── Log a detected conflict to the database ───────────────────────
 
 async function logConflict(
   ulpin: string,
   type: string,
-  values: OwnershipConflictValues | AreaConflictValues,
+  values: OwnershipConflictValues | AreaConflictValues | FreshnessConflictValues,
   severity: string,
 ): Promise<void> {
   await pool.query(
@@ -61,11 +71,12 @@ async function logConflict(
  * Currently implements:
  *  - **Ownership check** — exact string match on owner_name
  *  - **Area check** — 3 % tolerance on area_acre
+ *  - **Freshness check** — flag records older than 2 years
  */
 export async function detectConflicts(ulpin: string): Promise<void> {
   // 1. Fetch the latest RoR record for this ULPIN
   const rorResult = await pool.query<RoRRow>(
-    `SELECT id, ulpin, owner_name, area_acre
+    `SELECT id, ulpin, owner_name, area_acre, last_updated
        FROM ror_records
       WHERE ulpin = $1
       ORDER BY last_updated DESC
@@ -75,7 +86,7 @@ export async function detectConflicts(ulpin: string): Promise<void> {
 
   // 2. Fetch the latest Registration record for this ULPIN
   const regResult = await pool.query<RegistrationRow>(
-    `SELECT id, ulpin, owner_name, area_acre
+    `SELECT id, ulpin, owner_name, area_acre, registered_on
        FROM registration_records
       WHERE ulpin = $1
       ORDER BY registered_on DESC
@@ -121,5 +132,29 @@ export async function detectConflicts(ulpin: string): Promise<void> {
         "MEDIUM",
       );
     }
+  }
+
+  // ── 5.3  Freshness Check (2-year staleness) ────────────────────────
+  const twoYearsAgo = new Date();
+  twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - FRESHNESS_YEARS);
+
+  const rorDate = new Date(ror.last_updated);
+  if (rorDate < twoYearsAgo) {
+    await logConflict(
+      ulpin,
+      "FRESHNESS",
+      { source: "Revenue", date: rorDate.toISOString() },
+      "LOW",
+    );
+  }
+
+  const regDate = new Date(reg.registered_on);
+  if (regDate < twoYearsAgo) {
+    await logConflict(
+      ulpin,
+      "FRESHNESS",
+      { source: "Registry", date: regDate.toISOString() },
+      "LOW",
+    );
   }
 }
