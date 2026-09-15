@@ -51,19 +51,19 @@ export default function CommandCenter() {
   const [activeTab, setActiveTab] = useState("map");
 
   return (
-    <div className="flex h-screen w-screen bg-slate-950 text-slate-300 overflow-hidden font-sans">
+    <div className="flex h-screen w-screen bg-[#F1F5E9] text-[#334155] overflow-hidden font-sans">
       {/* ═══ LEFT SIDEBAR ═══════════════════════════════════════════ */}
-      <aside className="flex w-64 flex-col border-r border-slate-800/80 bg-slate-900">
+      <aside className="flex w-64 flex-col border-r border-[#C8A96E]/30 bg-[#D97706]">
         {/* Logo */}
-        <div className="flex items-center gap-3 border-b border-slate-800/80 px-5 py-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 shadow-lg shadow-indigo-600/20">
+        <div className="flex items-center gap-3 border-b border-white/20 px-5 py-5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/20 shadow-lg">
             <Shield className="h-5 w-5 text-white" />
           </div>
           <div>
             <h1 className="text-sm font-bold tracking-tight text-white">
               LandStack Nexus
             </h1>
-            <p className="text-[10px] font-medium uppercase tracking-widest text-slate-500">
+            <p className="text-[10px] font-medium uppercase tracking-widest text-white/60">
               Command Center
             </p>
           </div>
@@ -71,7 +71,7 @@ export default function CommandCenter() {
 
         {/* Navigation */}
         <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
-          <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-600">
+          <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-white/50">
             Operations
           </p>
           {NAV_ITEMS.map((item) => {
@@ -84,19 +84,19 @@ export default function CommandCenter() {
                 className={clsx(
                   "group relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
                   isActive
-                    ? "bg-indigo-500/10 text-indigo-400 shadow-sm glow-indigo"
-                    : "text-slate-400 hover:bg-slate-800/60 hover:text-slate-200",
+                    ? "bg-white/20 text-white shadow-sm"
+                    : "text-white/70 hover:bg-white/10 hover:text-white",
                 )}
               >
                 {/* Active indicator bar */}
                 {isActive && (
-                  <div className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-indigo-500 shadow-md shadow-indigo-500/50" />
+                  <div className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-white shadow-md" />
                 )}
 
                 <item.icon
                   className={clsx(
                     "h-4.5 w-4.5 flex-shrink-0",
-                    isActive ? "text-indigo-400" : "text-slate-500 group-hover:text-slate-300",
+                    isActive ? "text-white" : "text-white/50 group-hover:text-white/80",
                   )}
                   size={18}
                 />
@@ -108,8 +108,8 @@ export default function CommandCenter() {
                     className={clsx(
                       "flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold",
                       isActive
-                        ? "bg-indigo-500/20 text-indigo-300"
-                        : "bg-red-500/15 text-red-400",
+                        ? "bg-white/25 text-white"
+                        : "bg-[#B91C1C]/80 text-white",
                     )}
                   >
                     {item.badge}
@@ -121,14 +121,14 @@ export default function CommandCenter() {
         </nav>
 
         {/* System Status Footer */}
-        <div className="border-t border-slate-800/80 px-4 py-3">
+        <div className="border-t border-white/20 px-4 py-3">
           <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50" />
-            <span className="text-[11px] font-medium text-slate-500">
+            <div className="h-2 w-2 rounded-full bg-emerald-300 shadow-sm" />
+            <span className="text-[11px] font-medium text-white/70">
               System Operational
             </span>
           </div>
-          <div className="mt-1.5 flex items-center gap-3 text-[10px] text-slate-600">
+          <div className="mt-1.5 flex items-center gap-3 text-[10px] text-white/50">
             <span>PostGIS ●</span>
             <span>3 Parcels ●</span>
             <span>v1.0.0</span>
@@ -139,12 +139,12 @@ export default function CommandCenter() {
       {/* ═══ MAIN AREA ══════════════════════════════════════════════ */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* ── Top Header Bar ─────────────────────────────────────── */}
-        <header className="flex h-14 flex-shrink-0 items-center justify-between border-b border-slate-800/80 bg-slate-900/80 px-6 backdrop-blur-md">
+        <header className="flex h-14 flex-shrink-0 items-center justify-between border-b border-slate-200 bg-white px-6 shadow-sm">
           {/* Left: Tab title + breadcrumb */}
           <div className="flex items-center gap-2 text-sm">
-            <span className="font-medium text-slate-500">Operations</span>
-            <ChevronRight className="h-3.5 w-3.5 text-slate-600" />
-            <span className="font-semibold text-white">
+            <span className="font-medium text-slate-400">Operations</span>
+            <ChevronRight className="h-3.5 w-3.5 text-slate-300" />
+            <span className="font-semibold text-[#334155]">
               {TAB_TITLES[activeTab] ?? activeTab}
             </span>
           </div>
@@ -157,25 +157,25 @@ export default function CommandCenter() {
             {/* Notification bell */}
             <button
               type="button"
-              className="relative rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-800 hover:text-white"
+              className="relative rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-[#D97706]"
             >
               <Bell size={18} />
-              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-slate-900" />
+              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-[#B91C1C] ring-2 ring-white" />
             </button>
 
             {/* Divider */}
-            <div className="h-6 w-px bg-slate-800" />
+            <div className="h-6 w-px bg-slate-200" />
 
             {/* Officer profile */}
             <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-800 ring-2 ring-slate-700">
-                <User size={16} className="text-slate-400" />
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#D97706]/10 ring-2 ring-[#D97706]/30">
+                <User size={16} className="text-[#D97706]" />
               </div>
               <div className="hidden sm:block">
-                <p className="text-xs font-semibold text-slate-200">
+                <p className="text-xs font-semibold text-[#334155]">
                   Inspector R. Sharma
                 </p>
-                <p className="text-[10px] text-slate-500">DILRMP Division</p>
+                <p className="text-[10px] text-slate-400">DILRMP Division</p>
               </div>
             </div>
           </div>
@@ -191,19 +191,19 @@ export default function CommandCenter() {
 
           {activeTab !== "map" && activeTab !== "analytics" && activeTab !== "ai" && activeTab !== "queue" && activeTab !== "audit" && (
             <div className="flex h-full flex-col items-center justify-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-800/50 ring-1 ring-slate-700/50">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white ring-1 ring-slate-200 shadow-sm">
                 {(() => {
                   const item = NAV_ITEMS.find((n) => n.id === activeTab);
                   if (!item) return null;
                   const Icon = item.icon;
-                  return <Icon size={28} className="text-slate-600" />;
+                  return <Icon size={28} className="text-slate-400" />;
                 })()}
               </div>
               <div className="text-center">
                 <p className="text-lg font-semibold text-slate-500">
                   {TAB_TITLES[activeTab]}
                 </p>
-                <p className="mt-1 text-sm text-slate-600">
+                <p className="mt-1 text-sm text-slate-400">
                   Module loading — available in next deployment
                 </p>
               </div>
@@ -227,14 +227,14 @@ function LiveClock() {
   });
 
   return (
-    <div className="hidden items-center gap-1.5 rounded-md bg-slate-800/60 px-2.5 py-1 text-[11px] font-mono text-slate-400 sm:flex">
+    <div className="hidden items-center gap-1.5 rounded-md bg-slate-100 px-2.5 py-1 text-[11px] font-mono text-slate-500 sm:flex">
       <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
       {time.toLocaleTimeString("en-IN", {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
       })}
-      <span className="text-slate-600">IST</span>
+      <span className="text-slate-400">IST</span>
     </div>
   );
 }
