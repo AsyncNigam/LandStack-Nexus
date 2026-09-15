@@ -7,7 +7,7 @@ import pool from "./db.js";
 import ingestionRouter from "./routes/ingestion.js";
 import conflictsRouter from "./routes/conflicts.js";
 import parcelsRouter from "./routes/parcels.js";
-import type { ApiResponse, LandRecord } from "@landstack/shared";
+import type { ApiResponse } from "@landstack/shared";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -58,30 +58,6 @@ app.get("/api/health", async (_req, res) => {
     };
     res.status(503).json(response);
   }
-});
-
-// ─── Dummy land-records endpoint ────────────────────────────────────
-app.get("/api/records", (_req, res) => {
-  const dummyRecords: LandRecord[] = [
-    {
-      parcelId: "SRV-001",
-      ownerName: "Ramesh Kumar",
-      areaSqm: 4500,
-      source: "revenue",
-    },
-    {
-      parcelId: "SRV-001",
-      ownerName: "Ramesh Kumar",
-      areaSqm: 4620,
-      source: "registry",
-    },
-  ];
-
-  const response: ApiResponse<LandRecord[]> = {
-    success: true,
-    data: dummyRecords,
-  };
-  res.json(response);
 });
 
 // ─── Start server ───────────────────────────────────────────────────
