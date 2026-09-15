@@ -1,7 +1,7 @@
-import MapViewer from "./components/MapViewer";
+import Dashboard from "./components/Dashboard";
 
 function App() {
-  return <MapViewer />;
+  return <Dashboard />;
 }
 
 export default App;

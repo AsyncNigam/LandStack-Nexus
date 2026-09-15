@@ -154,7 +154,7 @@ export default function MapViewer() {
   return (
     <div
       ref={containerRef}
-      className="h-screen w-screen"
+      className="h-full w-full"
     />
   );
 }
