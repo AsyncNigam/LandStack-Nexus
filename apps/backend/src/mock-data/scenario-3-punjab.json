@@ -1,0 +1,32 @@
+{
+  "scenario": "Ownership Conflict — Tax department lists a different person",
+  "ulpin": "PB-303-0001",
+  "state": "PB",
+  "description": "A plot near Ludhiana where Revenue and Registry agree on AMIT SINGH as the owner, but the Municipality has GURPREET KAUR paying taxes — possibly an unreported inheritance or sale.",
+
+  "ror": {
+    "source_dept": "Revenue",
+    "state": "PB",
+    "khasra_no": "PB-303",
+    "plot_no": "KH-77B",
+    "owner_name": "AMIT SINGH",
+    "area_acre": 2.00,
+    "last_updated": "2024-07-22T09:15:00Z"
+  },
+
+  "registration": {
+    "source_dept": "Sub-Registrar",
+    "state": "PB",
+    "deed_no": "REG-991",
+    "owner_name": "AMIT SINGH",
+    "area_acre": 2.00,
+    "registered_on": "2022-03-05"
+  },
+
+  "tax": {
+    "source_dept": "Municipality",
+    "owner_name": "GURPREET KAUR",
+    "tax_due": 1200,
+    "last_paid_on": "2024-04-20"
+  }
+}

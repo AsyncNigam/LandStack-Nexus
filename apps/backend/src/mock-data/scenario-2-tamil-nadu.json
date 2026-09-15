@@ -1,0 +1,32 @@
+{
+  "scenario": "Area Conflict — Registry reports 25% more land than Revenue",
+  "ulpin": "TN-202-0001",
+  "state": "TN",
+  "description": "An agricultural plot near Coimbatore where the Sub-Registrar deed shows 1.50 acres but the Revenue patta shows 1.20 acres — a 25% variance far exceeding the 3% tolerance.",
+
+  "ror": {
+    "source_dept": "Revenue",
+    "state": "TN",
+    "patta_no": "TN-202",
+    "plot_no": "SY-118",
+    "owner_name": "SITA RAM",
+    "area_acre": 1.20,
+    "last_updated": "2024-09-10T14:00:00Z"
+  },
+
+  "registration": {
+    "source_dept": "Sub-Registrar",
+    "state": "TN",
+    "deed_no": "DOC-554",
+    "owner_name": "SITA RAM",
+    "area_acre": 1.50,
+    "registered_on": "2024-01-12"
+  },
+
+  "tax": {
+    "source_dept": "Municipality",
+    "owner_name": "SITA RAM",
+    "tax_due": 500,
+    "last_paid_on": "2024-06-15"
+  }
+}

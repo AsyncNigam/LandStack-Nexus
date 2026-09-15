@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "seed": "tsx src/seed.ts"
   },
   "dependencies": {
     "@landstack/shared": "*",

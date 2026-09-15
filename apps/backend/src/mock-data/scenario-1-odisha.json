@@ -1,0 +1,32 @@
+{
+  "scenario": "Clean — All sources agree",
+  "ulpin": "OD-101-0001",
+  "state": "OD",
+  "description": "A residential plot in Bhubaneswar where all three departments report identical owner and area. No conflict expected.",
+
+  "ror": {
+    "source_dept": "Revenue",
+    "state": "OD",
+    "khata_no": "KH-101",
+    "plot_no": "PLT-44A",
+    "owner_name": "RAVI KUMAR",
+    "area_acre": 1.20,
+    "last_updated": "2024-11-15T10:30:00Z"
+  },
+
+  "registration": {
+    "source_dept": "Sub-Registrar",
+    "state": "OD",
+    "deed_no": "D-882",
+    "owner_name": "RAVI KUMAR",
+    "area_acre": 1.20,
+    "registered_on": "2023-06-20"
+  },
+
+  "tax": {
+    "source_dept": "Municipality",
+    "owner_name": "RAVI KUMAR",
+    "tax_due": 0,
+    "last_paid_on": "2024-12-01"
+  }
+}
