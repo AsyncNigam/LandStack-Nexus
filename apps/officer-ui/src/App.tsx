@@ -1,7 +1,7 @@
-import Dashboard from "./components/Dashboard";
+import CommandCenter from "./components/CommandCenter";
 
 function App() {
-  return <Dashboard />;
+  return <CommandCenter />;
 }
 
 export default App;
