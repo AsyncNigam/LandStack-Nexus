@@ -69,7 +69,8 @@ CREATE TABLE IF NOT EXISTS conflicts (
   severity          VARCHAR(20)  NOT NULL DEFAULT 'MEDIUM',
   status            VARCHAR(20)  NOT NULL DEFAULT 'UNRESOLVED',
   detected_at       TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-  resolved_at       TIMESTAMPTZ
+  resolved_at       TIMESTAMPTZ,
+  resolution_note   TEXT
 );
 
 -- ─── 6. Audit Logs ─────────────────────────────────────────────────

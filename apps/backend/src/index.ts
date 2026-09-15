@@ -5,6 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import pool from "./db.js";
 import ingestionRouter from "./routes/ingestion.js";
+import conflictsRouter from "./routes/conflicts.js";
 import type { ApiResponse, LandRecord } from "@landstack/shared";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -18,6 +19,7 @@ app.use(express.json());
 
 // ─── Routes ─────────────────────────────────────────────────────────
 app.use("/api/v1/ingest", ingestionRouter);
+app.use("/api/v1/conflicts", conflictsRouter);
 
 // ─── Schema initialisation ─────────────────────────────────────────
 async function initDatabase(): Promise<void> {
