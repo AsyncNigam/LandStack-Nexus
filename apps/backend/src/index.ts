@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import pool from "./db.js";
+import ingestionRouter from "./routes/ingestion.js";
 import type { ApiResponse, LandRecord } from "@landstack/shared";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -14,6 +15,9 @@ const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
+
+// ─── Routes ─────────────────────────────────────────────────────────
+app.use("/api/v1/ingest", ingestionRouter);
 
 // ─── Schema initialisation ─────────────────────────────────────────
 async function initDatabase(): Promise<void> {
