@@ -6,7 +6,8 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "lint": "tsc --noEmit",
-    "seed": "tsx src/seed.ts"
+    "seed": "tsx src/seed.ts",
+    "test:api": "tsx src/test-endpoints.ts"
   },
   "dependencies": {
     "@landstack/shared": "*",
