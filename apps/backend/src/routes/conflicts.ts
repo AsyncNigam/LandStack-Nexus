@@ -28,6 +28,58 @@ interface ResolveBody {
   action: string; // e.g. 'MANUAL_RESOLUTION'
 }
 
+// ─── GET / ─────────────────────────────────────────────────────────
+// Returns all unresolved conflicts joined with parcel state info
+// for the Officer Dashboard "Discrepancy Queue".
+
+interface UnresolvedConflictRow {
+  id: number;
+  ulpin: string;
+  conflict_type: string;
+  field_values: Record<string, unknown>;
+  source_timestamps: Record<string, unknown>;
+  severity: string;
+  detected_at: string;
+  source_state: string;
+}
+
+router.get("/", async (_req: Request, res: Response) => {
+  try {
+    const result = await pool.query<UnresolvedConflictRow>(
+      `SELECT
+         c.id,
+         c.ulpin,
+         c.conflict_type,
+         c.field_values,
+         c.source_timestamps,
+         c.severity,
+         c.detected_at,
+         p.source_state
+       FROM conflicts c
+       JOIN parcels p ON c.ulpin = p.ulpin
+       WHERE c.status = 'UNRESOLVED'
+       ORDER BY c.detected_at DESC`,
+    );
+
+    const response: ApiResponse<UnresolvedConflictRow[]> = {
+      success: true,
+      data: result.rows,
+    };
+    res.status(200).json(response);
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Failed to fetch conflicts";
+    console.error("❌ Conflicts query failed:", message);
+
+    const response: ApiResponse<null> = {
+      success: false,
+      data: null,
+      message: "Failed to fetch conflicts",
+    };
+    res.status(500).json(response);
+  }
+});
+
 // ─── POST /:id/resolve ─────────────────────────────────────────────
 // Atomically resolves a conflict and writes an immutable audit log.
 // If the audit log insert fails, the conflict remains UNRESOLVED.
