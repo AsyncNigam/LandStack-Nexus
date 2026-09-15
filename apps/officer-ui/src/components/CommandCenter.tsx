@@ -15,6 +15,8 @@ import { clsx } from "clsx";
 import MapViewer from "./MapViewer";
 import AnalyticsTab from "./AnalyticsTab";
 import AIDetectionTab from "./AIDetectionTab";
+import QueueTab from "./QueueTab";
+import AuditTab from "./AuditTab";
 
 // ─── Tab definitions ────────────────────────────────────────────────
 
@@ -184,8 +186,10 @@ export default function CommandCenter() {
           {activeTab === "map" && <MapViewer />}
           {activeTab === "analytics" && <AnalyticsTab />}
           {activeTab === "ai" && <AIDetectionTab />}
+          {activeTab === "queue" && <QueueTab />}
+          {activeTab === "audit" && <AuditTab />}
 
-          {activeTab !== "map" && activeTab !== "analytics" && activeTab !== "ai" && (
+          {activeTab !== "map" && activeTab !== "analytics" && activeTab !== "ai" && activeTab !== "queue" && activeTab !== "audit" && (
             <div className="flex h-full flex-col items-center justify-center gap-4">
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-800/50 ring-1 ring-slate-700/50">
                 {(() => {
