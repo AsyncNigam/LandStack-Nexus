@@ -32,6 +32,20 @@ const STATE_NODES = [
   { id: "UP", name: "Uttar Pradesh", status: "degraded", latency: "380ms", records: "4.2M", lastSync: "45 mins ago", uptime: "91.4%", conflicts: 2010, apiVersion: "v2.9", dept: "Board of Revenue (Bhulekh)", pipeline: "SFTP Batch", throughput: "1,800/hr" },
   { id: "MP", name: "Madhya Pradesh", status: "online", latency: "48ms", records: "1.3M", lastSync: "20 mins ago", uptime: "97.8%", conflicts: 1150, apiVersion: "v3.0", dept: "Revenue Department", pipeline: "REST Poll", throughput: "2,600/hr" },
   { id: "WB", name: "West Bengal", status: "online", latency: "38ms", records: "2.1M", lastSync: "10 mins ago", uptime: "98.9%", conflicts: 1870, apiVersion: "v3.1", dept: "Land & Land Reform", pipeline: "CDC + Kafka", throughput: "4,500/hr" },
+  ...["Andhra Pradesh", "Bihar", "Chhattisgarh", "Goa", "Haryana", "Himachal Pradesh", "Jharkhand", "Kerala", "Telangana", "Uttarakhand", "Tripura", "Manipur", "Meghalaya"].map((name, i) => ({
+    id: name.slice(0, 2).toUpperCase(),
+    name,
+    status: (i % 5 === 0) ? "degraded" : "online",
+    latency: `${20 + Math.floor(Math.random() * 60)}ms`,
+    records: `${(1 + Math.random() * 4).toFixed(1)}M`,
+    lastSync: `${Math.floor(Math.random() * 59)} mins ago`,
+    uptime: `${(98 + Math.random() * 1.9).toFixed(1)}%`,
+    conflicts: 500 + Math.floor(Math.random() * 2000),
+    apiVersion: "v3.2",
+    dept: "Revenue Department",
+    pipeline: i % 2 === 0 ? "CDC + Kafka" : "REST Poll",
+    throughput: `${1000 + Math.floor(Math.random() * 5000)}/hr`
+  }))
 ];
 
 // ─── Sync Log Data ───────────────────────────────────────────────────
@@ -51,6 +65,17 @@ const SYNC_LOGS = [
   { time: "09:59", node: "SYS", msg: "Global index compactor finished — 22.1M records indexed.", type: "info" },
   { time: "09:45", node: "SYS", msg: "Conflict detector: 127 new mismatches flagged.", type: "warning" },
   { time: "09:30", node: "SYS", msg: "Daily backup completed: 48.2 GB snapshot.", type: "info" },
+  ...Array.from({ length: 40 }).map((_, i) => {
+    const nodes = ["AP_NODE", "BH_NODE", "CH_NODE", "GO_NODE", "HR_NODE", "SYS", "TN_NODE"];
+    const types = ["success", "info", "warning"];
+    const msgs = ["Pipeline sync completed", "CDC stream ingested", "API handshake successful", "Index compactor finished", "REST endpoint synced"];
+    return {
+      time: `0${8 - Math.floor(i/10)}:${String(59 - (i % 60)).padStart(2, '0')}`,
+      node: nodes[i % nodes.length],
+      msg: `${msgs[i % msgs.length]} — ${1000 + Math.floor(Math.random() * 5000)} records.`,
+      type: types[i % types.length]
+    };
+  })
 ];
 
 // ─── Pipeline Stats ─────────────────────────────────────────────────

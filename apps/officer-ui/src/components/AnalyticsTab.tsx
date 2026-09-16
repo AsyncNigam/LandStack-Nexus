@@ -58,6 +58,9 @@ const generateBarData = () => [
   { name: "Uttar Pradesh", integrated: 45 + Math.floor(Math.random() * 25) },
   { name: "Madhya Pradesh", integrated: 50 + Math.floor(Math.random() * 20) },
   { name: "West Bengal", integrated: 65 + Math.floor(Math.random() * 20) },
+  ...["Andhra Pradesh", "Bihar", "Chhattisgarh", "Goa", "Haryana", "Himachal Pradesh", "Jharkhand", "Kerala", "Telangana", "Uttarakhand"].map(name => ({
+    name, integrated: 30 + Math.floor(Math.random() * 60)
+  }))
 ];
 const DONUT_COLORS = ["#7A3E14", "#A0845C", "#16a34a", "#B91C1C"];
 

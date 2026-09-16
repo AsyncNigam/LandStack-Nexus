@@ -79,9 +79,27 @@ const MOCK_AUDIT: AuditEntry[] = [
     ulpin: "SYSTEM",
     tx_hash: "0x1f7c3a4b8d920e56f3a1...c8b2",
     icon: ArrowDownRight,
-    iconColor: "text-sky-600",
-    iconBg: "bg-sky-50",
+    iconColor: "text-blue-600",
+    iconBg: "bg-blue-50",
   },
+  ...Array.from({ length: 40 }).map((_, i) => {
+    const roles = ["Revenue Officer", "System Admin", "AI Engine", "Sub-Registrar"];
+    const actions = ["Record Updated", "Discrepancy Flagged", "Map Polygon Edited", "Title Transferred", "Tax Arrears Cleared"];
+    const ulpins = ["TN", "MH", "KA", "GJ", "UP", "MP"];
+    return {
+      id: 4 + i,
+      timestamp: `1${Math.floor(i % 5)} Sep 2026, ${String(10 + (i % 14)).padStart(2, '0')}:${String(i % 60).padStart(2, '0')}:12 IST`,
+      officer_name: `Officer 00${i}`,
+      officer_role: roles[i % roles.length],
+      action: actions[i % actions.length],
+      action_detail: `Bulk operation or field update completed automatically by batch processor #${i}.`,
+      ulpin: `${ulpins[i % ulpins.length]}-202-${String(100 + i).padStart(4, '0')}`,
+      tx_hash: `0x${Math.floor(Math.random()*16777215).toString(16)}...${Math.floor(Math.random()*16777215).toString(16).slice(0,4)}`,
+      icon: FileText,
+      iconColor: "text-slate-600",
+      iconBg: "bg-slate-100"
+    };
+  })
 ];
 
 // ─── Component ──────────────────────────────────────────────────────

@@ -27,6 +27,22 @@ const DETECTION_HISTORY = [
   { id: "DET-006", ulpin: "AS-501-0012", location: "Kamrup, AS", type: "Waterway Encroachment", confidence: 71.3, severity: "MEDIUM", date: "2026-09-10", ndviDelta: -44.2, areaExpansion: 560 },
   { id: "DET-007", ulpin: "OD-101-5590", location: "Ganjam, OD", type: "Mining Activity", confidence: 96.7, severity: "CRITICAL", date: "2026-09-09", ndviDelta: -91.2, areaExpansion: 5200 },
   { id: "DET-008", ulpin: "PB-303-2201", location: "Ludhiana, PB", type: "Illegal Construction", confidence: 88.9, severity: "HIGH", date: "2026-09-08", ndviDelta: -63.7, areaExpansion: 1100 },
+  ...Array.from({ length: 30 }).map((_, i) => {
+    const states = ["AP", "BH", "CH", "GO", "HR", "TN", "OD", "WB"];
+    const types = ["Encroachment", "Illegal Filling", "Boundary Shift", "Deforestation", "Mining Activity"];
+    const sevs = ["HIGH", "MEDIUM", "CRITICAL"];
+    return {
+      id: `DET-${100 + i}`,
+      ulpin: `${states[i % states.length]}-${200 + i}-0001`,
+      location: `Region ${i}, ${states[i % states.length]}`,
+      type: types[i % types.length],
+      confidence: 70 + Math.floor(Math.random() * 28),
+      severity: sevs[i % sevs.length],
+      date: `2026-09-${String(1 + (i % 28)).padStart(2, '0')}`,
+      ndviDelta: -(20 + Math.floor(Math.random() * 60)),
+      areaExpansion: 500 + Math.floor(Math.random() * 2000)
+    };
+  })
 ];
 
 // ─── Component ──────────────────────────────────────────────────────

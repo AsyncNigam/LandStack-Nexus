@@ -91,65 +91,86 @@ const OWNERS_POOL = [
 const STATUSES = ["Clean", "Clean", "Clean", "Conflict", "Conflict", "Govt"];
 const LAND_USES = ["Residential", "Agricultural", "Commercial", "Mixed", "Public", "Industrial"];
 
-function generatePlotsForDistrict(center: [number, number], distName: string, stateCode: string): GeoJSON.Feature[] {
-  // Create a realistic village-sized cluster of small cadastral plots
-  const gridSize = 15; // 15x15 = 225 plots per district
-  const plotW = 0.0015; // ~150m wide
-  const plotH = 0.001;  // ~100m tall
-  const gap = 0.0001;   // ~10m gap (paths/roads)
-  
-  const clusterWidth = gridSize * (plotW + gap);
-  const clusterHeight = gridSize * (plotH + gap);
-  const startX = center[0] - (clusterWidth / 2);
-  const startY = center[1] - (clusterHeight / 2);
+function generateDynamicPlots(center: [number, number]): GeoJSON.Feature[] {
+  // Generate a massive, realistic organic mesh of cadastral plots
+  // 80x80 covers a huge ~0.16 degree area, completely filling the screen at zoom 13+
+  const gridSize = 80; 
+  const plotW = 0.0020; // ~200m
+  const plotH = 0.0015; // ~150m
+  const startX = center[0] - (gridSize * plotW) / 2;
+  const startY = center[1] - (gridSize * plotH) / 2;
+
+  // Generate a mesh of perturbed vertices (shared borders, no gaps)
+  const vertices: [number, number][][] = [];
+  for (let r = 0; r <= gridSize; r++) {
+    const rowVerts: [number, number][] = [];
+    for (let c = 0; c <= gridSize; c++) {
+      const bx = startX + c * plotW;
+      const by = startY + r * plotH;
+      // Pseudo-random deterministic jitter
+      const seed = Math.sin(r * 12.9898 + c * 78.233) * 43758.5453;
+      const rand1 = seed - Math.floor(seed);
+      const rand2 = (seed * 10) - Math.floor(seed * 10);
+      
+      // Jitter up to 45% of cell size to make boundaries highly irregular
+      const jx = bx + (rand1 - 0.5) * plotW * 0.9;
+      const jy = by + (rand2 - 0.5) * plotH * 0.9;
+      rowVerts.push([jx, jy]);
+    }
+    vertices.push(rowVerts);
+  }
 
   const features: GeoJSON.Feature[] = [];
   let idx = 0;
-  for (let row = 0; row < gridSize; row++) {
-    for (let col = 0; col < gridSize; col++) {
-      const x = startX + col * (plotW + gap);
-      const y = startY + row * (plotH + gap);
-      const seed = distName.charCodeAt(0) + distName.charCodeAt(distName.length - 1) + idx;
-      const owner = OWNERS_POOL[seed % OWNERS_POOL.length];
-      const status = STATUSES[seed % STATUSES.length];
-      const landUse = LAND_USES[(seed * 3) % LAND_USES.length];
-      features.push({
-        type: "Feature",
+  for (let r = 0; r < gridSize; r++) {
+    for (let c = 0; c < gridSize; c++) {
+      const p1 = vertices[r][c];
+      const p2 = vertices[r][c+1];
+      const p3 = vertices[r+1][c+1];
+      const p4 = vertices[r+1][c];
+      
+      const seed = Math.floor(Math.abs(p1[0] + p1[1]) * 100000) + idx;
+      
+      // Randomly split into two triangular plots 30% of the time for organic realism
+      const isSplit = (seed % 10) > 6;
+      
+      const createPlot = (coords: [number, number][], idNum: number) => ({
+        type: "Feature" as const,
         properties: {
-          plot: `${stateCode}-${(1000 + idx)}/${(5000 + idx * 7)}`,
-          khasra: `${stateCode.slice(0,2)}-${(100 + idx).toString().padStart(3,'0')}`,
-          owner,
-          area: `${(0.5 + (seed % 20) * 0.2).toFixed(2)} ac`,
-          status,
-          landUse,
-          district: distName,
+          plot: `PL-${idNum}`,
+          khasra: `K-${(idNum % 999).toString().padStart(3,'0')}`,
+          owner: OWNERS_POOL[seed % OWNERS_POOL.length],
+          area: `${(0.5 + (seed % 20) * 0.15).toFixed(2)} ac`,
+          status: STATUSES[seed % STATUSES.length],
+          landUse: LAND_USES[(seed * 3) % LAND_USES.length],
         },
         geometry: {
-          type: "Polygon",
-          coordinates: [[[x, y], [x+plotW, y], [x+plotW, y+plotH], [x, y+plotH], [x, y]]]
+          type: "Polygon" as const,
+          // Close the polygon by repeating the first coordinate
+          coordinates: [[...coords, coords[0]]]
         }
       });
+
+      if (isSplit) {
+        // Split into two triangles
+        features.push(createPlot([p1, p2, p3], 1000 + idx));
+        idx++;
+        features.push(createPlot([p1, p3, p4], 1000 + idx));
+      } else {
+        // Irregular quadrilateral
+        features.push(createPlot([p1, p2, p3, p4], 1000 + idx));
+      }
       idx++;
     }
   }
+  
   return features;
 }
 
-// State code map
-const STATE_CODES: Record<string, string> = {
-  "Odisha": "OD", "Tamil Nadu": "TN", "Punjab": "PB", "Gujarat": "GJ", "Assam": "AS",
-  "Maharashtra": "MH", "Karnataka": "KA", "Rajasthan": "RJ", "Uttar Pradesh": "UP",
-  "Madhya Pradesh": "MP", "West Bengal": "WB",
-};
-
-const ALL_PLOTS: GeoJSON.Feature[] = [];
-for (const d of DISTRICTS) {
-  ALL_PLOTS.push(...generatePlotsForDistrict(d.center, d.props.name, STATE_CODES[d.props.state] || "XX"));
-}
-
-const PLOT_GEOJSON: GeoJSON.FeatureCollection = {
+// Initial empty feature collection
+const INITIAL_PLOTS: GeoJSON.FeatureCollection = {
   type: "FeatureCollection",
-  features: ALL_PLOTS
+  features: []
 };
 
 // ─── Component ──────────────────────────────────────────────────────
@@ -164,12 +185,20 @@ export default function MapViewer() {
   const [activeLayers, setActiveLayers] = useState({
     heatmap: true,
     aiSentinel: true,
-    integration: false
+    integration: false,
+    cadastral: false // New toggle for Cadastral Overlay
   });
+  
+  // Ref for accessing latest activeLayers in map event listeners
+  const activeLayersRef = useRef(activeLayers);
+  useEffect(() => {
+    activeLayersRef.current = activeLayers;
+  }, [activeLayers]);
 
   const toggleLayerState = useCallback((layerName: keyof typeof activeLayers) => {
     setActiveLayers((prev) => ({ ...prev, [layerName]: !prev[layerName] }));
   }, []);
+
 
   // ── Initialize map ────────────────────────────────────────────────
 
@@ -191,9 +220,7 @@ export default function MapViewer() {
           }
         },
         layers: [
-          // Fallback dark background so missing tiles don't cause white flashes
-          { id: "dark-bg", type: "background", paint: { "background-color": "#2C3526" } },
-          // Satellite stays fully visible at all zoom levels
+          // Satellite imagery — always visible, no fading
           { id: "satellite-base", type: "raster", source: "satellite" }
         ],
       },
@@ -207,9 +234,26 @@ export default function MapViewer() {
 
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "bottom-right");
 
-    map.on("zoom", () => setZoomLevel(Math.round(map.getZoom() * 10) / 10));
+    map.on("moveend", () => {
+      const currentZoom = map.getZoom();
+      setZoomLevel(Math.round(currentZoom * 10) / 10);
+      
+      // Dynamically generate plots if cadastral mapping is enabled
+      if (activeLayersRef.current.cadastral && currentZoom >= 12.5) {
+        const center = map.getCenter();
+        const features = generateDynamicPlots([center.lng, center.lat]);
+        const source = map.getSource("plots") as maplibregl.GeoJSONSource;
+        if (source) {
+          source.setData({ type: "FeatureCollection", features });
+        }
+      } else if (!activeLayersRef.current.cadastral) {
+        const source = map.getSource("plots") as maplibregl.GeoJSONSource;
+        if (source) source.setData({ type: "FeatureCollection", features: [] });
+      }
+    });
 
     map.on("load", () => {
+      (window as any).debugMap = map;
 
       // ═══ LAYER GROUP 1: District heatmap ═══════════════════════
 
@@ -238,81 +282,71 @@ export default function MapViewer() {
       });
 
       // ═══ LAYER GROUP 2: Cadastral plots ═════════════════════════
-      // Two rendering modes:
-      // - Zoom 12–15: transparent overlay on satellite
-      // - Zoom 15+: bold cadastral survey style on cream background
+      // Overlay mode: transparent plots on top of the satellite imagery
 
-      map.addSource("plots", { type: "geojson", data: PLOT_GEOJSON });
+      map.addSource("plots", { type: "geojson", data: INITIAL_PLOTS });
 
-      // Cadastral grid lines (faint, appear at zoom 13+)
+      // Cadastral grid lines
       map.addLayer({
-        id: "cadastral-grid", type: "line", source: "plots", minzoom: 13,
+        id: "cadastral-grid", type: "line", source: "plots",
         paint: {
           "line-color": "#FFD700",
-          "line-width": ["interpolate", ["linear"], ["zoom"], 13, 0.5, 16, 1.5],
+          "line-width": 1.5,
           "line-dasharray": [4, 3],
           "line-opacity": 0.6,
         }
       });
 
-      // Plot fill — bold saturated colors visible on satellite
+      // Plot fill — transparent overlay
       map.addLayer({
-        id: "plot-fill", type: "fill", source: "plots", minzoom: 12,
+        id: "plot-fill", type: "fill", source: "plots",
         paint: {
           "fill-color": ["match", ["get", "status"],
-            "Clean", "rgba(34,197,94,0.45)",
-            "Conflict", "rgba(239,68,68,0.5)",
-            "Govt", "rgba(59,130,246,0.45)",
-            "rgba(250,204,21,0.35)"
+            "Clean", "#C8E6C9",
+            "Conflict", "#FFCDD2",
+            "Govt", "#BBDEFB",
+            "#FFF9C4"
           ],
-          "fill-opacity": [
-            "interpolate", ["linear"], ["zoom"],
-            12, 0.4,
-            14, 0.6,
-            16, 0.8
-          ],
+          "fill-opacity": 0.5,
         }
       });
 
-      // Plot borders — bright yellow/white for max contrast on satellite
+      // Plot borders — gold on satellite
       map.addLayer({
-        id: "plot-borders", type: "line", source: "plots", minzoom: 12,
+        id: "plot-borders", type: "line", source: "plots",
         paint: {
-          "line-color": ["match", ["get", "status"],
-            "Conflict", "#FF0000", "Govt", "#3B82F6", "#FFD700"
-          ],
-          "line-width": ["interpolate", ["linear"], ["zoom"], 12, 1, 14, 2.5, 17, 4],
+          "line-color": "#FFD700",
+          "line-width": 2,
         }
       });
 
-      // Conflict hatching pattern
+      // Conflict hatching
       map.addLayer({
-        id: "plot-conflict-hatch", type: "line", source: "plots", minzoom: 14,
+        id: "plot-conflict-hatch", type: "line", source: "plots",
         filter: ["==", ["get", "status"], "Conflict"],
         paint: {
-          "line-color": "#FF0000",
+          "line-color": "#C62828",
           "line-width": 2,
           "line-dasharray": [3, 2],
-          "line-opacity": 0.7,
+          "line-opacity": 0.8,
         }
       });
 
-      // Cadastral Plot Labels (Khasra numbers rendered natively)
+      // Khasra + Owner labels
       map.addLayer({
-        id: "plot-labels", type: "symbol", source: "plots", minzoom: 14.5,
+        id: "plot-labels", type: "symbol", source: "plots",
         layout: {
-          "text-field": ["get", "khasra"],
-          "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
-          "text-size": ["interpolate", ["linear"], ["zoom"], 14.5, 10, 17, 16],
+          "text-field": ["concat", ["get", "khasra"], "\n", ["get", "owner"]],
+          "text-font": ["Open Sans Bold"], // Ensure simple font stack that exists in demotiles
+          "text-size": 12,
           "text-anchor": "center",
-          "text-allow-overlap": false
+          "text-allow-overlap": false,
+          "text-max-width": 8
         },
         paint: {
           "text-color": "#FFFFFF",
-          "text-halo-color": ["match", ["get", "status"],
-            "Conflict", "#B91C1C", "Govt", "#1565C0", "#000000"
-          ],
-          "text-halo-width": 1.5,
+          "text-halo-color": "rgba(0,0,0,0.8)",
+          "text-halo-width": 2,
         }
       });
 
@@ -420,7 +454,39 @@ export default function MapViewer() {
     };
   }, []);
 
-  // ── Toggle visibility ─────────────────────────────────────────────
+  // ── Imperative Cadastral Toggle ───────────────────────────────────
+
+  const handleCadastralToggle = () => {
+    const nextVal = !activeLayers.cadastral;
+    toggleLayerState('cadastral');
+    if (!mapRef.current) return;
+    const setVis = (id: string, visible: boolean) => {
+      try { if (mapRef.current?.getLayer(id)) mapRef.current.setLayoutProperty(id, "visibility", visible ? "visible" : "none"); }
+      catch (e) { console.warn("Toggle:", id, e); }
+    };
+
+    setVis("plot-fill", nextVal);
+    setVis("plot-borders", nextVal);
+    setVis("cadastral-grid", nextVal);
+    setVis("plot-conflict-hatch", nextVal);
+    setVis("plot-labels", nextVal);
+    setVis("district-heatmap", activeLayers.heatmap && !nextVal);
+    setVis("district-borders", activeLayers.heatmap && !nextVal);
+
+    const source = mapRef.current.getSource("plots") as maplibregl.GeoJSONSource;
+    if (source) {
+      if (nextVal && mapRef.current.getZoom() >= 12.5) {
+        const center = mapRef.current.getCenter();
+        const features = generateDynamicPlots([center.lng, center.lat]);
+        source.setData({ type: "FeatureCollection", features });
+      } else {
+        console.log("Toggling cadastral OFF. Clearing source...");
+        source.setData({ type: "FeatureCollection", features: [] });
+      }
+    }
+  };
+
+  // ── General Layer Visibility ──────────────────────────────────────
 
   useEffect(() => {
     if (!mapRef.current || !mapReady) return;
@@ -428,23 +494,21 @@ export default function MapViewer() {
       try { if (mapRef.current?.getLayer(id)) mapRef.current.setLayoutProperty(id, "visibility", visible ? "visible" : "none"); }
       catch (e) { console.warn("Toggle:", id, e); }
     };
+    
+    setVis("integration-overlay", activeLayers.integration);
 
-    setVis("district-heatmap", activeLayers.heatmap);
-    setVis("district-borders", activeLayers.heatmap);
-    setVis("plot-fill", activeLayers.heatmap);
-    setVis("plot-borders", activeLayers.heatmap);
-    setVis("cadastral-grid", activeLayers.heatmap);
-    setVis("plot-conflict-hatch", activeLayers.heatmap);
-    setVis("plot-labels", activeLayers.heatmap);
-
+    if (!activeLayers.cadastral) {
+      setVis("district-heatmap", activeLayers.heatmap);
+      setVis("district-borders", activeLayers.heatmap);
+    }
+    
     document.querySelectorAll(".district-label-marker").forEach(el => {
       (el as HTMLElement).style.display = activeLayers.heatmap ? "block" : "none";
     });
     document.querySelectorAll(".ai-flag-marker").forEach(el => {
       (el as HTMLElement).style.display = activeLayers.aiSentinel ? "block" : "none";
     });
-    setVis("integration-overlay", activeLayers.integration);
-  }, [activeLayers, mapReady]);
+  }, [activeLayers.integration, activeLayers.heatmap, activeLayers.aiSentinel, activeLayers.cadastral, mapReady]);
 
   // ── Show/hide plot labels based on zoom level ─────────────────────
   // (plot labels are handled via click popups to avoid 2000+ DOM markers)
@@ -453,8 +517,9 @@ export default function MapViewer() {
 
   const renderToggle = (id: keyof typeof activeLayers, label: string, desc: string) => {
     const isOn = activeLayers[id];
+    const onClick = id === 'cadastral' ? handleCadastralToggle : () => toggleLayerState(id);
     return (
-      <button key={id} type="button" onClick={() => toggleLayerState(id)}
+      <button key={id} type="button" onClick={onClick}
         className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-[#C86B28]/10">
         <div className="flex-1 min-w-0">
           <p className="text-xs font-semibold text-[#7A3E14]">{label}</p>
@@ -465,7 +530,7 @@ export default function MapViewer() {
     );
   };
 
-  const plotCount = DISTRICTS.length * 225;
+  const plotCount = "Dynamic (Infinite Grid)";
 
   return (
     <div className="relative h-full w-full">
@@ -481,6 +546,7 @@ export default function MapViewer() {
         </div>
         <div className="space-y-2.5">
           {renderToggle('heatmap', 'Dispute Heatmap', `${DISTRICTS.length} districts • 10 states`)}
+          {renderToggle('cadastral', 'Cadastral Overlay', 'View land plots and Khasra boundaries')}
           {renderToggle('aiSentinel', 'AI Sentinel Flags', 'Automated anomaly markers')}
           {renderToggle('integration', 'Pending Integration', 'Red dashed = unsynced pipeline')}
         </div>
@@ -496,22 +562,27 @@ export default function MapViewer() {
         </div>
       </div>
 
-      {/* ── Zoom hint ────────────────────────────────────────── */}
-      {zoomLevel >= 9 && zoomLevel < 12 && (
-        <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2 flex items-center gap-2 rounded-lg bg-[#7A3E14] px-4 py-2 text-white text-xs font-semibold shadow-lg animate-bounce">
-          <ZoomIn size={14} />
-          Zoom in to see individual cadastral plots
+      {/* ── Dynamic Zoom Toggle Button ────────────────────────────────────────── */}
+      {zoomLevel >= 13 && !activeLayers.cadastral && (
+        <div className="absolute left-1/2 bottom-8 z-20 -translate-x-1/2">
+          <button 
+            onClick={handleCadastralToggle}
+            className="flex items-center gap-2 rounded-full bg-[#15803D] px-6 py-3 text-white text-sm font-bold shadow-2xl hover:bg-[#166534] transition-all animate-bounce border-2 border-white/20"
+          >
+            <Layers size={18} />
+            See Cadastral Mapping
+          </button>
         </div>
       )}
-      {zoomLevel >= 12 && zoomLevel < 15 && (
-        <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2 flex items-center gap-2 rounded-lg bg-[#C86B28] px-4 py-2 text-white text-xs font-semibold shadow-lg">
-          <ZoomIn size={14} />
-          Plot Overlay Mode — Zoom more for full Bhulekh Survey View
-        </div>
-      )}
-      {zoomLevel >= 15 && (
-        <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2 flex items-center gap-2 rounded-lg bg-[#15803D] px-4 py-2 text-white text-xs font-semibold shadow-lg">
-          📋 Bhulekh Cadastral Survey — {plotCount} plots • Khasra, Owner, Land Use
+      {zoomLevel >= 13 && activeLayers.cadastral && (
+        <div className="absolute left-1/2 bottom-8 z-20 -translate-x-1/2">
+          <button 
+            onClick={handleCadastralToggle}
+            className="flex items-center gap-2 rounded-full bg-[#B91C1C] px-6 py-3 text-white text-sm font-bold shadow-2xl hover:bg-[#991B1B] transition-all border-2 border-white/20"
+          >
+            <EyeOff size={18} />
+            Hide Cadastral Mapping
+          </button>
         </div>
       )}
 
@@ -527,10 +598,9 @@ export default function MapViewer() {
           </div>
         ) : (
           <div className="flex gap-3">
-            <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-sm bg-green-500/60 border-2 border-[#FFD700]" /><span className="text-[11px] font-medium text-[#7A3E14]">Clean</span></div>
-            <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-sm bg-red-500/60 border-2 border-red-600" /><span className="text-[11px] font-medium text-[#7A3E14]">Conflict</span></div>
-            <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-sm bg-blue-500/60 border-2 border-blue-600" /><span className="text-[11px] font-medium text-[#7A3E14]">Govt</span></div>
-            <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-sm border-2 border-[#FFD700] bg-transparent" /><span className="text-[11px] font-medium text-[#7A3E14]">Boundary</span></div>
+            <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-sm bg-[#C8E6C9] border-2 border-[#5D4037]" /><span className="text-[11px] font-medium text-[#7A3E14]">Clean</span></div>
+            <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-sm bg-[#FFCDD2] border-2 border-[#C62828]" /><span className="text-[11px] font-medium text-[#7A3E14]">Conflict</span></div>
+            <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-sm bg-[#BBDEFB] border-2 border-[#5D4037]" /><span className="text-[11px] font-medium text-[#7A3E14]">Govt</span></div>
           </div>
         )}
       </div>

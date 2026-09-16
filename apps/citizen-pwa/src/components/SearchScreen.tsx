@@ -16,22 +16,20 @@ interface SearchScreenProps {
   loading: boolean;
 }
 
-const generateRecent = () => [
-  {
-    ulpin: `OD-101-${Math.floor(1000 + Math.random() * 9000)}`,
-    state: "Odisha",
-    label: "Residential Plot, Bhubaneswar",
-    status: Math.random() > 0.5 ? "Clean" : "Review",
-    statusColor: "text-emerald-600 bg-emerald-50",
-  },
-  {
-    ulpin: `TN-202-${Math.floor(1000 + Math.random() * 9000)}`,
-    state: "Tamil Nadu",
-    label: "Agricultural Land, Coimbatore",
-    status: "Review",
-    statusColor: "text-amber-600 bg-amber-50",
-  },
-];
+const generateRecent = () => {
+  return Array.from({ length: 15 }).map((_, i) => {
+    const states = ["Odisha", "Tamil Nadu", "Punjab", "Gujarat", "Maharashtra", "Karnataka", "Rajasthan", "Uttar Pradesh", "Madhya Pradesh", "West Bengal"];
+    const labels = ["Residential Plot", "Agricultural Land", "Commercial Space", "Empty Lot", "Mixed Use"];
+    const isClean = Math.random() > 0.4;
+    return {
+      ulpin: `${states[i % states.length].substring(0,2).toUpperCase()}-${100 + i}-${Math.floor(1000 + Math.random() * 9000)}`,
+      state: states[i % states.length],
+      label: `${labels[i % labels.length]}, Region ${i + 1}`,
+      status: isClean ? "Clean" : "Review",
+      statusColor: isClean ? "text-emerald-600 bg-emerald-50" : "text-amber-600 bg-amber-50",
+    };
+  });
+};
 
 // ─── Component ──────────────────────────────────────────────────────
 
