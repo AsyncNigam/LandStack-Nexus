@@ -16,18 +16,16 @@ interface SearchScreenProps {
   loading: boolean;
 }
 
-// ─── Mock recent searches ───────────────────────────────────────────
-
-const RECENT = [
+const generateRecent = () => [
   {
-    ulpin: "OD-101-0001",
+    ulpin: `OD-101-${Math.floor(1000 + Math.random() * 9000)}`,
     state: "Odisha",
     label: "Residential Plot, Bhubaneswar",
-    status: "Clean",
+    status: Math.random() > 0.5 ? "Clean" : "Review",
     statusColor: "text-emerald-600 bg-emerald-50",
   },
   {
-    ulpin: "TN-202-0001",
+    ulpin: `TN-202-${Math.floor(1000 + Math.random() * 9000)}`,
     state: "Tamil Nadu",
     label: "Agricultural Land, Coimbatore",
     status: "Review",
@@ -39,11 +37,21 @@ const RECENT = [
 
 export default function SearchScreen({ onSearch, loading }: SearchScreenProps) {
   const [ulpin, setUlpin] = useState("");
+  const [isScanning, setIsScanning] = useState(false);
+  const [recentData, setRecentData] = useState(generateRecent());
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const trimmed = ulpin.trim();
     if (trimmed) onSearch(trimmed);
+  }
+
+  function handleScan() {
+    setIsScanning(true);
+    setTimeout(() => {
+      setIsScanning(false);
+      onSearch(`QR-SCANNED-${Math.floor(1000 + Math.random() * 9000)}`);
+    }, 2000);
   }
 
   return (
@@ -141,10 +149,12 @@ export default function SearchScreen({ onSearch, loading }: SearchScreenProps) {
       >
         <button
           type="button"
-          className="flex w-full items-center justify-center gap-3 rounded-2xl border border-blue-100 bg-blue-50 px-6 py-4 font-semibold text-blue-700 transition-all active:scale-[0.98]"
+          onClick={handleScan}
+          disabled={isScanning}
+          className="flex w-full items-center justify-center gap-3 rounded-2xl border border-blue-100 bg-blue-50 px-6 py-4 font-semibold text-blue-700 transition-all active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100"
         >
-          <ScanLine size={22} className="animate-pulse" />
-          Scan Bhu-Aadhaar QR
+          <ScanLine size={22} className={isScanning ? "animate-spin" : "animate-pulse"} />
+          {isScanning ? "Scanning Bhu-Aadhaar QR..." : "Scan Bhu-Aadhaar QR"}
         </button>
       </motion.div>
 
@@ -163,7 +173,7 @@ export default function SearchScreen({ onSearch, loading }: SearchScreenProps) {
         </div>
 
         <div className="space-y-3">
-          {RECENT.map((item) => (
+          {recentData.map((item) => (
             <button
               key={item.ulpin}
               type="button"
@@ -183,7 +193,9 @@ export default function SearchScreen({ onSearch, loading }: SearchScreenProps) {
               </div>
               <div className="flex items-center gap-2">
                 <span
-                  className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${item.statusColor}`}
+                  className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                    item.status === "Clean" ? "text-emerald-600 bg-emerald-50" : "text-amber-600 bg-amber-50"
+                  }`}
                 >
                   {item.status}
                 </span>

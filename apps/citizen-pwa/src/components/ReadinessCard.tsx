@@ -16,6 +16,7 @@ import type { ParcelResponse } from "../types";
 interface ReadinessCardProps {
   data: ParcelResponse;
   onBack: () => void;
+  onDispute?: () => void;
 }
 
 // ─── Score logic ────────────────────────────────────────────────────
@@ -30,8 +31,8 @@ function hasConflict(conflicts: ParcelResponse["conflicts"] | undefined, type: s
   return conflicts?.some((c) => c.conflict_type === type) ?? false;
 }
 
-function safe(value: unknown, fallback = "N/A"): string {
-  if (value === null || value === undefined) return fallback;
+function safe(value: unknown, fallback = "Not Available"): string {
+  if (value === null || value === undefined || value === "") return fallback;
   return String(value);
 }
 
@@ -82,13 +83,13 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 // ─── Component ──────────────────────────────────────────────────────
 
-export default function ReadinessCard({ data, onBack }: ReadinessCardProps) {
+export default function ReadinessCard({ data, onBack, onDispute }: ReadinessCardProps) {
   const score = calcScore(data?.conflicts);
   const theme = SCORE_THEMES[score] ?? SCORE_THEMES[50];
   const dashOffset = CIRCUMFERENCE - (score / 100) * CIRCUMFERENCE;
 
-  const ownerName = safe(data?.ror?.owner_name ?? data?.registration?.owner_name);
-  const areaAcre = safe(data?.ror?.area_acre ?? data?.registration?.area_acre);
+  const ownerName = safe(data?.ror?.owner_name ?? data?.registration?.owner_name, "Pending Verification");
+  const areaAcre = safe(data?.ror?.area_acre ?? data?.registration?.area_acre, "Unknown Area");
   const taxDue = parseFloat(safe(data?.tax?.tax_due, "0"));
 
   return (
@@ -316,9 +317,10 @@ export default function ReadinessCard({ data, onBack }: ReadinessCardProps) {
         >
           <button
             type="button"
+            onClick={onDispute}
             className="w-full rounded-2xl bg-blue-600 py-4 text-base font-bold text-white shadow-xl shadow-blue-600/20 transition-all active:scale-[0.98] hover:bg-blue-700"
           >
-            Resolve Issue (Flag Error)
+            File a Dispute
           </button>
         </motion.div>
       )}

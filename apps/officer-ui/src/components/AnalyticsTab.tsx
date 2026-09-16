@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   Database,
   AlertTriangle,
@@ -5,6 +6,7 @@ import {
   Network,
   ArrowUpRight,
   TrendingUp,
+  RefreshCw,
 } from "lucide-react";
 import {
   AreaChart,
@@ -21,33 +23,43 @@ import {
   Bar,
 } from "recharts";
 
-// ─── Mock Data ──────────────────────────────────────────────────────
+// ─── Mock Data Generators ───────────────────────────────────────────
 
-const areaData = [
-  { name: "Mon", reconciled: 142_800 },
-  { name: "Tue", reconciled: 156_320 },
-  { name: "Wed", reconciled: 134_500 },
-  { name: "Thu", reconciled: 171_200 },
-  { name: "Fri", reconciled: 165_800 },
-  { name: "Sat", reconciled: 178_400 },
-  { name: "Sun", reconciled: 152_900 },
+const generateAreaData = () => [
+  { name: "Mon", reconciled: 130000 + Math.random() * 20000 },
+  { name: "Tue", reconciled: 140000 + Math.random() * 20000 },
+  { name: "Wed", reconciled: 130000 + Math.random() * 20000 },
+  { name: "Thu", reconciled: 160000 + Math.random() * 20000 },
+  { name: "Fri", reconciled: 150000 + Math.random() * 20000 },
+  { name: "Sat", reconciled: 170000 + Math.random() * 20000 },
+  { name: "Sun", reconciled: 140000 + Math.random() * 20000 },
 ];
 
-const donutData = [
-  { name: "Area Variance", value: 45 },
-  { name: "Ownership Mismatch", value: 30 },
-  { name: "Tax Arrears", value: 15 },
-  { name: "AI Encroachment", value: 10 },
+const generateDonutData = () => {
+  const base = [
+    { name: "Area Variance", value: 35 + Math.floor(Math.random() * 15) },
+    { name: "Ownership Mismatch", value: 20 + Math.floor(Math.random() * 15) },
+    { name: "Tax Arrears", value: 10 + Math.floor(Math.random() * 10) },
+  ];
+  const remainder = 100 - base.reduce((acc, curr) => acc + curr.value, 0);
+  base.push({ name: "AI Encroachment", value: remainder });
+  return base;
+};
+
+const generateBarData = () => [
+  { name: "Odisha", integrated: 80 + Math.floor(Math.random() * 20) },
+  { name: "Tamil Nadu", integrated: 70 + Math.floor(Math.random() * 20) },
+  { name: "Punjab", integrated: 60 + Math.floor(Math.random() * 20) },
+  { name: "Gujarat", integrated: 75 + Math.floor(Math.random() * 20) },
+  { name: "Assam", integrated: 30 + Math.floor(Math.random() * 20) },
+  { name: "Maharashtra", integrated: 85 + Math.floor(Math.random() * 15) },
+  { name: "Karnataka", integrated: 78 + Math.floor(Math.random() * 20) },
+  { name: "Rajasthan", integrated: 55 + Math.floor(Math.random() * 20) },
+  { name: "Uttar Pradesh", integrated: 45 + Math.floor(Math.random() * 25) },
+  { name: "Madhya Pradesh", integrated: 50 + Math.floor(Math.random() * 20) },
+  { name: "West Bengal", integrated: 65 + Math.floor(Math.random() * 20) },
 ];
 const DONUT_COLORS = ["#7A3E14", "#A0845C", "#16a34a", "#B91C1C"];
-
-const barData = [
-  { name: "Odisha", integrated: 94 },
-  { name: "Tamil Nadu", integrated: 88 },
-  { name: "Punjab", integrated: 76 },
-  { name: "Gujarat", integrated: 62 },
-  { name: "Assam", integrated: 41 },
-];
 
 // ─── Shared tooltip style ───────────────────────────────────────────
 
@@ -113,10 +125,34 @@ function MetricCard({
 // ─── Main Component ─────────────────────────────────────────────────
 
 export default function AnalyticsTab() {
+  const [areaData, setAreaData] = useState(generateAreaData());
+  const [donutData, setDonutData] = useState(generateDonutData());
+  const [barData, setBarData] = useState(generateBarData());
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    setTimeout(() => {
+      setAreaData(generateAreaData());
+      setDonutData(generateDonutData());
+      setBarData(generateBarData());
+      setIsRefreshing(false);
+    }, 600);
+  };
+
   return (
-    <div className="h-full overflow-y-auto p-6">
+    <div className="h-full overflow-y-auto p-6 relative">
+      <button 
+        onClick={handleRefresh}
+        disabled={isRefreshing}
+        className="absolute top-6 right-6 flex items-center gap-2 rounded-lg bg-[#7A3E14]/10 px-3 py-1.5 text-xs font-semibold text-[#7A3E14] transition-colors hover:bg-[#7A3E14]/20"
+      >
+        <RefreshCw size={14} className={isRefreshing ? "animate-spin" : ""} />
+        {isRefreshing ? "Fetching..." : "Refresh Data"}
+      </button>
+
       {/* ── Metric Cards ───────────────────────────────────────── */}
-      <div className="mb-6 grid grid-cols-4 gap-4">
+      <div className="mb-6 grid grid-cols-4 gap-4 mt-8">
         <MetricCard
           label="Total ULPINs Indexed"
           value="1,245,892"

@@ -1,17 +1,155 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { Layers, Eye, EyeOff } from "lucide-react";
+import { Layers, Eye, EyeOff, ZoomIn } from "lucide-react";
 
-// ─── Guaranteed Demo Data ──────────────────────────────────────────
+// ─── All-India District Dataset (28+ districts across 10 states) ─────
 
-const DEMO_GEOJSON = {
+interface DistrictProps {
+  name: string; state: string; conflicts: number; aiFlags: number; pending: boolean; parcels: number;
+}
+
+const DISTRICTS: { props: DistrictProps; center: [number, number]; size: number }[] = [
+  // ── ODISHA ──
+  { props: { name: "Khordha", state: "Odisha", conflicts: 1420, aiFlags: 45, pending: true, parcels: 84200 }, center: [85.82, 20.25], size: 0.25 },
+  { props: { name: "Cuttack", state: "Odisha", conflicts: 780, aiFlags: 18, pending: false, parcels: 62400 }, center: [85.95, 20.52], size: 0.25 },
+  { props: { name: "Puri", state: "Odisha", conflicts: 1120, aiFlags: 32, pending: true, parcels: 55800 }, center: [85.75, 19.85], size: 0.25 },
+  { props: { name: "Ganjam", state: "Odisha", conflicts: 1850, aiFlags: 67, pending: true, parcels: 92100 }, center: [84.97, 19.37], size: 0.30 },
+  { props: { name: "Sambalpur", state: "Odisha", conflicts: 950, aiFlags: 28, pending: true, parcels: 47600 }, center: [83.87, 21.40], size: 0.28 },
+  { props: { name: "Sundargarh", state: "Odisha", conflicts: 1310, aiFlags: 41, pending: true, parcels: 71200 }, center: [84.60, 21.97], size: 0.30 },
+  { props: { name: "Koraput", state: "Odisha", conflicts: 1640, aiFlags: 55, pending: true, parcels: 68300 }, center: [82.70, 18.80], size: 0.30 },
+  // ── TAMIL NADU ──
+  { props: { name: "Coimbatore", state: "Tamil Nadu", conflicts: 2100, aiFlags: 78, pending: true, parcels: 110400 }, center: [76.95, 11.02], size: 0.25 },
+  { props: { name: "Chennai", state: "Tamil Nadu", conflicts: 890, aiFlags: 22, pending: false, parcels: 95200 }, center: [80.22, 13.02], size: 0.20 },
+  { props: { name: "Madurai", state: "Tamil Nadu", conflicts: 1560, aiFlags: 48, pending: true, parcels: 78600 }, center: [78.15, 9.95], size: 0.25 },
+  { props: { name: "Salem", state: "Tamil Nadu", conflicts: 670, aiFlags: 15, pending: false, parcels: 52100 }, center: [78.15, 11.65], size: 0.25 },
+  { props: { name: "Tirunelveli", state: "Tamil Nadu", conflicts: 1230, aiFlags: 38, pending: true, parcels: 64800 }, center: [77.75, 8.75], size: 0.25 },
+  // ── PUNJAB ──
+  { props: { name: "Ludhiana", state: "Punjab", conflicts: 980, aiFlags: 31, pending: true, parcels: 72300 }, center: [75.85, 30.87], size: 0.22 },
+  { props: { name: "Amritsar", state: "Punjab", conflicts: 540, aiFlags: 11, pending: false, parcels: 58100 }, center: [74.85, 31.62], size: 0.22 },
+  { props: { name: "Patiala", state: "Punjab", conflicts: 1450, aiFlags: 44, pending: true, parcels: 61200 }, center: [76.35, 30.35], size: 0.22 },
+  { props: { name: "Jalandhar", state: "Punjab", conflicts: 720, aiFlags: 19, pending: false, parcels: 49800 }, center: [75.60, 31.32], size: 0.22 },
+  // ── GUJARAT ──
+  { props: { name: "Ahmedabad", state: "Gujarat", conflicts: 1780, aiFlags: 62, pending: true, parcels: 125600 }, center: [72.55, 23.05], size: 0.25 },
+  { props: { name: "Surat", state: "Gujarat", conflicts: 920, aiFlags: 25, pending: false, parcels: 88400 }, center: [72.85, 21.22], size: 0.22 },
+  { props: { name: "Rajkot", state: "Gujarat", conflicts: 480, aiFlags: 8, pending: false, parcels: 54200 }, center: [70.75, 22.32], size: 0.25 },
+  { props: { name: "Vadodara", state: "Gujarat", conflicts: 1350, aiFlags: 42, pending: true, parcels: 76500 }, center: [73.25, 22.32], size: 0.22 },
+  // ── ASSAM ──
+  { props: { name: "Kamrup", state: "Assam", conflicts: 1100, aiFlags: 35, pending: true, parcels: 67800 }, center: [91.67, 26.15], size: 0.25 },
+  { props: { name: "Nagaon", state: "Assam", conflicts: 860, aiFlags: 24, pending: true, parcels: 51400 }, center: [92.67, 26.35], size: 0.25 },
+  { props: { name: "Dibrugarh", state: "Assam", conflicts: 390, aiFlags: 7, pending: false, parcels: 38200 }, center: [94.95, 27.42], size: 0.22 },
+  // ── MAHARASHTRA ──
+  { props: { name: "Pune", state: "Maharashtra", conflicts: 1920, aiFlags: 71, pending: true, parcels: 134800 }, center: [73.85, 18.52], size: 0.25 },
+  { props: { name: "Nagpur", state: "Maharashtra", conflicts: 680, aiFlags: 16, pending: false, parcels: 58900 }, center: [79.10, 21.15], size: 0.25 },
+  { props: { name: "Nashik", state: "Maharashtra", conflicts: 1070, aiFlags: 29, pending: true, parcels: 72400 }, center: [73.80, 20.00], size: 0.22 },
+  // ── KARNATAKA ──
+  { props: { name: "Bengaluru", state: "Karnataka", conflicts: 2340, aiFlags: 89, pending: true, parcels: 148200 }, center: [77.60, 12.97], size: 0.22 },
+  { props: { name: "Mysuru", state: "Karnataka", conflicts: 520, aiFlags: 13, pending: false, parcels: 45600 }, center: [76.65, 12.30], size: 0.22 },
+  // ── RAJASTHAN ──
+  { props: { name: "Jaipur", state: "Rajasthan", conflicts: 1680, aiFlags: 52, pending: true, parcels: 98700 }, center: [75.80, 26.92], size: 0.28 },
+  { props: { name: "Jodhpur", state: "Rajasthan", conflicts: 410, aiFlags: 9, pending: false, parcels: 41200 }, center: [73.02, 26.28], size: 0.28 },
+  // ── UTTAR PRADESH ──
+  { props: { name: "Lucknow", state: "Uttar Pradesh", conflicts: 2010, aiFlags: 74, pending: true, parcels: 112300 }, center: [80.95, 26.85], size: 0.25 },
+  { props: { name: "Varanasi", state: "Uttar Pradesh", conflicts: 1340, aiFlags: 40, pending: true, parcels: 67800 }, center: [83.00, 25.32], size: 0.22 },
+  { props: { name: "Agra", state: "Uttar Pradesh", conflicts: 890, aiFlags: 23, pending: false, parcels: 54100 }, center: [78.02, 27.18], size: 0.22 },
+  // ── MADHYA PRADESH ──
+  { props: { name: "Bhopal", state: "Madhya Pradesh", conflicts: 1150, aiFlags: 34, pending: true, parcels: 78200 }, center: [77.42, 23.26], size: 0.25 },
+  { props: { name: "Indore", state: "Madhya Pradesh", conflicts: 760, aiFlags: 20, pending: false, parcels: 62800 }, center: [75.87, 22.72], size: 0.22 },
+  // ── WEST BENGAL ──
+  { props: { name: "Kolkata", state: "West Bengal", conflicts: 1870, aiFlags: 63, pending: true, parcels: 105400 }, center: [88.35, 22.57], size: 0.18 },
+  { props: { name: "Howrah", state: "West Bengal", conflicts: 940, aiFlags: 27, pending: true, parcels: 61200 }, center: [88.30, 22.60], size: 0.15 },
+];
+
+// ─── Build GeoJSON from district definitions ────────────────────────
+
+function makeDistrictRect(center: [number, number], size: number): number[][][] {
+  const hs = size / 2;
+  return [[[center[0]-hs, center[1]-hs], [center[0]+hs, center[1]-hs], [center[0]+hs, center[1]+hs], [center[0]-hs, center[1]+hs], [center[0]-hs, center[1]-hs]]];
+}
+
+const DISTRICT_GEOJSON: GeoJSON.FeatureCollection = {
   type: "FeatureCollection",
-  features: [
-    { type: "Feature", properties: { ulpin: "OD-101-0001", status: "Clean", height: 15 }, geometry: { type: "Polygon", coordinates: [[[85.824, 20.296], [85.826, 20.296], [85.826, 20.298], [85.824, 20.298], [85.824, 20.296]]] } },
-    { type: "Feature", properties: { ulpin: "TN-202-0045", status: "Conflict", height: 45 }, geometry: { type: "Polygon", coordinates: [[[85.827, 20.296], [85.829, 20.296], [85.829, 20.298], [85.827, 20.298], [85.827, 20.296]]] } },
-    { type: "Feature", properties: { ulpin: "PB-303-0099", status: "Clean", height: 15 }, geometry: { type: "Polygon", coordinates: [[[85.824, 20.293], [85.826, 20.293], [85.826, 20.295], [85.824, 20.295], [85.824, 20.293]]] } }
-  ]
+  features: DISTRICTS.map(d => ({
+    type: "Feature" as const,
+    properties: d.props,
+    geometry: { type: "Polygon" as const, coordinates: makeDistrictRect(d.center, d.size) }
+  }))
+};
+
+// ─── Auto-generate cadastral plots for EVERY district ───────────────
+// Creates a 3x3 grid of individual plots centered inside each district
+
+const OWNERS_POOL = [
+  "Ramesh Kumar", "Suresh Nayak", "Priya Mohanty", "Lakshmi Devi", "Bijay Das",
+  "Sanjay Mishra", "Anita Pradhan", "Manoj Pattnaik", "Debashis Jena", "Tapan Behera",
+  "Rashmi Rout", "Niranjan Swain", "Kalyani Trust", "Sunita Sharma", "Vikram Singh",
+  "Aarav Iyer", "Neha Gupta", "Rajesh Patel", "Meena Kumari", "Ashok Reddy",
+  "Pooja Verma", "Govt. Land", "Municipal Corp.", "Forest Dept.", "Railway Board",
+  "Kiran Bose", "Arup Sarkar", "Tanvi Joshi", "Omkar Deshmukh", "Fatima Begum",
+  "Harpreet Kaur", "Gurinder Gill", "Balwant Rai", "Jaswinder Dhillon", "Amarjit Sodhi",
+];
+const STATUSES = ["Clean", "Clean", "Clean", "Conflict", "Conflict", "Govt"];
+const LAND_USES = ["Residential", "Agricultural", "Commercial", "Mixed", "Public", "Industrial"];
+
+function generatePlotsForDistrict(center: [number, number], distName: string, stateCode: string): GeoJSON.Feature[] {
+  // Create a realistic village-sized cluster of small cadastral plots
+  const gridSize = 15; // 15x15 = 225 plots per district
+  const plotW = 0.0015; // ~150m wide
+  const plotH = 0.001;  // ~100m tall
+  const gap = 0.0001;   // ~10m gap (paths/roads)
+  
+  const clusterWidth = gridSize * (plotW + gap);
+  const clusterHeight = gridSize * (plotH + gap);
+  const startX = center[0] - (clusterWidth / 2);
+  const startY = center[1] - (clusterHeight / 2);
+
+  const features: GeoJSON.Feature[] = [];
+  let idx = 0;
+  for (let row = 0; row < gridSize; row++) {
+    for (let col = 0; col < gridSize; col++) {
+      const x = startX + col * (plotW + gap);
+      const y = startY + row * (plotH + gap);
+      const seed = distName.charCodeAt(0) + distName.charCodeAt(distName.length - 1) + idx;
+      const owner = OWNERS_POOL[seed % OWNERS_POOL.length];
+      const status = STATUSES[seed % STATUSES.length];
+      const landUse = LAND_USES[(seed * 3) % LAND_USES.length];
+      features.push({
+        type: "Feature",
+        properties: {
+          plot: `${stateCode}-${(1000 + idx)}/${(5000 + idx * 7)}`,
+          khasra: `${stateCode.slice(0,2)}-${(100 + idx).toString().padStart(3,'0')}`,
+          owner,
+          area: `${(0.5 + (seed % 20) * 0.2).toFixed(2)} ac`,
+          status,
+          landUse,
+          district: distName,
+        },
+        geometry: {
+          type: "Polygon",
+          coordinates: [[[x, y], [x+plotW, y], [x+plotW, y+plotH], [x, y+plotH], [x, y]]]
+        }
+      });
+      idx++;
+    }
+  }
+  return features;
+}
+
+// State code map
+const STATE_CODES: Record<string, string> = {
+  "Odisha": "OD", "Tamil Nadu": "TN", "Punjab": "PB", "Gujarat": "GJ", "Assam": "AS",
+  "Maharashtra": "MH", "Karnataka": "KA", "Rajasthan": "RJ", "Uttar Pradesh": "UP",
+  "Madhya Pradesh": "MP", "West Bengal": "WB",
+};
+
+const ALL_PLOTS: GeoJSON.Feature[] = [];
+for (const d of DISTRICTS) {
+  ALL_PLOTS.push(...generatePlotsForDistrict(d.center, d.props.name, STATE_CODES[d.props.state] || "XX"));
+}
+
+const PLOT_GEOJSON: GeoJSON.FeatureCollection = {
+  type: "FeatureCollection",
+  features: ALL_PLOTS
 };
 
 // ─── Component ──────────────────────────────────────────────────────
@@ -19,12 +157,14 @@ const DEMO_GEOJSON = {
 export default function MapViewer() {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
+  const markersRef = useRef<maplibregl.Marker[]>([]);
   const [mapReady, setMapReady] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(5);
 
   const [activeLayers, setActiveLayers] = useState({
-    cadastral: true,
+    heatmap: true,
     aiSentinel: true,
-    zoning: false
+    integration: false
   });
 
   const toggleLayerState = useCallback((layerName: keyof typeof activeLayers) => {
@@ -40,196 +180,359 @@ export default function MapViewer() {
       container: containerRef.current,
       style: {
         version: 8,
-        name: "Empty Base",
-        sources: {},
+        name: "BhuSetu GIS",
+        glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
+        sources: {
+          satellite: {
+            type: "raster",
+            tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"],
+            tileSize: 256,
+            maxzoom: 16, // Force overzoom past 16 to prevent blank/missing tiles in rural areas
+          }
+        },
         layers: [
-          {
-            id: "background",
-            type: "background",
-            paint: { "background-color": "#F4EBD9" },
-          },
+          // Fallback dark background so missing tiles don't cause white flashes
+          { id: "dark-bg", type: "background", paint: { "background-color": "#2C3526" } },
+          // Satellite stays fully visible at all zoom levels
+          { id: "satellite-base", type: "raster", source: "satellite" }
         ],
       },
-      center: [85.826, 20.295],
-      zoom: 15.5,
-      pitch: 60,
-      bearing: -20,
+      center: [82.0, 22.0],
+      zoom: 5,
+      pitch: 0,
+      bearing: 0,
+      minZoom: 4,
+      maxZoom: 17, // 64 plots per district fill the area — no blank space
     });
 
-    map.addControl(
-      new maplibregl.NavigationControl({ visualizePitch: true }),
-      "bottom-right",
-    );
+    map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "bottom-right");
+
+    map.on("zoom", () => setZoomLevel(Math.round(map.getZoom() * 10) / 10));
 
     map.on("load", () => {
-      // 1. Satellite Base
-      map.addSource('satellite', { type: 'raster', tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'], tileSize: 256 });
-      map.addLayer({ id: 'satellite-layer', type: 'raster', source: 'satellite' });
 
-      // 2. GeoJSON Source
-      map.addSource('parcels', { type: 'geojson', data: DEMO_GEOJSON as GeoJSON.FeatureCollection });
+      // ═══ LAYER GROUP 1: District heatmap ═══════════════════════
 
-      // 3. Cadastral 3D Layer
+      map.addSource("districts", { type: "geojson", data: DISTRICT_GEOJSON });
+
       map.addLayer({
-        id: 'parcels-3d', type: 'fill-extrusion', source: 'parcels',
+        id: "district-heatmap", type: "fill", source: "districts", maxzoom: 14,
         paint: {
-          'fill-extrusion-color': ['match', ['get', 'status'], 'Conflict', '#7A3E14', 'Clean', '#15803D', '#F4EBD9'],
-          'fill-extrusion-height': ['get', 'height'],
-          'fill-extrusion-opacity': 0.85
+          "fill-color": ["interpolate", ["linear"], ["get", "conflicts"],
+            200, "#E8D4B5", 500, "#D4A05A", 1000, "#C86B28", 1500, "#7A3E14", 2000, "#4A200A"
+          ],
+          "fill-opacity": 0.8,
         }
       });
 
-      // 4. Labels Layer (Fixing the missing ULPIN text)
       map.addLayer({
-        id: 'parcel-labels', type: 'symbol', source: 'parcels',
-        layout: { 'text-field': ['get', 'ulpin'], 'text-size': 14 },
-        paint: { 'text-color': '#7A3E14', 'text-halo-color': '#F4EBD9', 'text-halo-width': 3 }
+        id: "district-borders", type: "line", source: "districts", maxzoom: 14,
+        paint: { "line-color": "#FFF8EE", "line-width": 2.5, "line-opacity": 0.9 }
       });
 
-      // 5. AI Sentinel Layer (Red Dots for Conflicts)
       map.addLayer({
-        id: 'ai-markers', type: 'circle', source: 'parcels',
-        filter: ['==', 'status', 'Conflict'],
-        paint: { 'circle-color': '#7A3E14', 'circle-radius': 8, 'circle-stroke-width': 2, 'circle-stroke-color': '#FFF8EE' }
+        id: "integration-overlay", type: "line", source: "districts",
+        filter: ["==", ["get", "pending"], true], maxzoom: 14,
+        paint: { "line-color": "#B91C1C", "line-width": 3, "line-dasharray": [4, 3], "line-opacity": 0.7 },
+        layout: { visibility: "none" }
       });
 
-      // Zoning Placeholder
+      // ═══ LAYER GROUP 2: Cadastral plots ═════════════════════════
+      // Two rendering modes:
+      // - Zoom 12–15: transparent overlay on satellite
+      // - Zoom 15+: bold cadastral survey style on cream background
+
+      map.addSource("plots", { type: "geojson", data: PLOT_GEOJSON });
+
+      // Cadastral grid lines (faint, appear at zoom 13+)
       map.addLayer({
-        id: 'zoning-fill', type: 'fill', source: 'parcels',
-        paint: { 'fill-color': '#C86B28', 'fill-opacity': 0.15 },
-        layout: { visibility: 'none' }
+        id: "cadastral-grid", type: "line", source: "plots", minzoom: 13,
+        paint: {
+          "line-color": "#FFD700",
+          "line-width": ["interpolate", ["linear"], ["zoom"], 13, 0.5, 16, 1.5],
+          "line-dasharray": [4, 3],
+          "line-opacity": 0.6,
+        }
       });
 
-      // Popup logic
-      map.on('click', 'parcels-3d', (e: any) => {
-        if (!e.features || e.features.length === 0) return;
-        const props = e.features[0].properties;
-        const statusBadge =
-          props.status === 'Conflict'
-            ? '<span style="color:#B91C1C;font-weight:700">⚠ CONFLICT</span>'
-            : '<span style="color:#15803d;font-weight:700">✓ CLEAN</span>';
+      // Plot fill — bold saturated colors visible on satellite
+      map.addLayer({
+        id: "plot-fill", type: "fill", source: "plots", minzoom: 12,
+        paint: {
+          "fill-color": ["match", ["get", "status"],
+            "Clean", "rgba(34,197,94,0.45)",
+            "Conflict", "rgba(239,68,68,0.5)",
+            "Govt", "rgba(59,130,246,0.45)",
+            "rgba(250,204,21,0.35)"
+          ],
+          "fill-opacity": [
+            "interpolate", ["linear"], ["zoom"],
+            12, 0.4,
+            14, 0.6,
+            16, 0.8
+          ],
+        }
+      });
 
-        new maplibregl.Popup({ offset: 15, className: 'oatmeal-popup', maxWidth: '260px' })
+      // Plot borders — bright yellow/white for max contrast on satellite
+      map.addLayer({
+        id: "plot-borders", type: "line", source: "plots", minzoom: 12,
+        paint: {
+          "line-color": ["match", ["get", "status"],
+            "Conflict", "#FF0000", "Govt", "#3B82F6", "#FFD700"
+          ],
+          "line-width": ["interpolate", ["linear"], ["zoom"], 12, 1, 14, 2.5, 17, 4],
+        }
+      });
+
+      // Conflict hatching pattern
+      map.addLayer({
+        id: "plot-conflict-hatch", type: "line", source: "plots", minzoom: 14,
+        filter: ["==", ["get", "status"], "Conflict"],
+        paint: {
+          "line-color": "#FF0000",
+          "line-width": 2,
+          "line-dasharray": [3, 2],
+          "line-opacity": 0.7,
+        }
+      });
+
+      // Cadastral Plot Labels (Khasra numbers rendered natively)
+      map.addLayer({
+        id: "plot-labels", type: "symbol", source: "plots", minzoom: 14.5,
+        layout: {
+          "text-field": ["get", "khasra"],
+          "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
+          "text-size": ["interpolate", ["linear"], ["zoom"], 14.5, 10, 17, 16],
+          "text-anchor": "center",
+          "text-allow-overlap": false
+        },
+        paint: {
+          "text-color": "#FFFFFF",
+          "text-halo-color": ["match", ["get", "status"],
+            "Conflict", "#B91C1C", "Govt", "#1565C0", "#000000"
+          ],
+          "text-halo-width": 1.5,
+        }
+      });
+
+      // ═══ POPUPS ════════════════════════════════════════════════
+
+      map.on("click", "district-heatmap", (e: any) => {
+        if (!e.features?.length) return;
+        const p = e.features[0].properties;
+        const sev = p.conflicts > 1000
+          ? '<span style="color:#B91C1C;font-weight:700">⚠ HIGH PRIORITY</span>'
+          : '<span style="color:#15803d;font-weight:700">✓ MONITORING</span>';
+        new maplibregl.Popup({ offset: 10, maxWidth: "290px" })
           .setLngLat(e.lngLat)
-          .setHTML(
-            `<div style="background:#FFF8EE;color:#7A3E14;padding:12px;border-radius:8px;font-size:13px;border:1px solid #E8DCC8;box-shadow:0 4px 6px -1px rgba(122,62,20,0.1)">
-              <div style="font-size:11px;color:#A0845C;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Land Parcel</div>
-              <div style="font-size:15px;font-weight:700;color:#7A3E14;font-family:monospace">${props.ulpin}</div>
-              <div style="margin-top:8px;text-align:center">${statusBadge}</div>
-            </div>`
-          )
+          .setHTML(`
+            <div style="background:#FFF8EE;color:#7A3E14;padding:14px;border-radius:10px;font-size:13px;border:1px solid #E8DCC8;box-shadow:0 4px 12px rgba(122,62,20,0.15)">
+              <div style="font-size:10px;color:#A0845C;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px">${p.state} • District</div>
+              <div style="font-size:18px;font-weight:800;margin-bottom:10px">${p.name}</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;border-top:1px solid #E8DCC8;padding-top:10px">
+                <div><div style="font-size:10px;color:#A0845C">Parcels</div><div style="font-size:14px;font-weight:700">${Number(p.parcels).toLocaleString()}</div></div>
+                <div><div style="font-size:10px;color:#A0845C">Disputes</div><div style="font-size:14px;font-weight:700;color:#B91C1C">${Number(p.conflicts).toLocaleString()}</div></div>
+                <div><div style="font-size:10px;color:#A0845C">AI Flags</div><div style="font-size:14px;font-weight:700;color:#C86B28">${p.aiFlags}</div></div>
+                <div><div style="font-size:10px;color:#A0845C">Pipeline</div><div style="font-size:14px;font-weight:700">${p.pending === true || p.pending === "true" ? '⏳ Pending' : '✅ Synced'}</div></div>
+              </div>
+              <div style="margin-top:10px;text-align:center">${sev}</div>
+            </div>`)
           .addTo(map);
       });
 
-      map.on("mouseenter", "parcels-3d", () => {
-        map.getCanvas().style.cursor = "pointer";
+      map.on("click", "plot-fill", (e: any) => {
+        if (!e.features?.length) return;
+        const p = e.features[0].properties;
+        const stColor = p.status === "Conflict" ? "#B91C1C" : p.status === "Govt" ? "#3b82f6" : "#15803D";
+        new maplibregl.Popup({ offset: 10, maxWidth: "300px" })
+          .setLngLat(e.lngLat)
+          .setHTML(`
+            <div style="background:#FFF8EE;color:#7A3E14;padding:14px;border-radius:10px;font-size:12px;border:1px solid #E8DCC8;box-shadow:0 4px 12px rgba(122,62,20,0.15)">
+              <div style="font-size:9px;color:#A0845C;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px">📋 Bhulekh Cadastral Record</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                <div style="font-size:16px;font-weight:800;font-family:monospace">${p.plot}</div>
+                <span style="background:${stColor};color:white;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700">${p.status.toUpperCase()}</span>
+              </div>
+              <div style="border-top:1px solid #E8DCC8;padding-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px">
+                <div><div style="font-size:9px;color:#A0845C">Khasra No.</div><div style="font-weight:700">${p.khasra}</div></div>
+                <div><div style="font-size:9px;color:#A0845C">Area</div><div style="font-weight:700">${p.area}</div></div>
+                <div><div style="font-size:9px;color:#A0845C">Owner</div><div style="font-weight:600">${p.owner}</div></div>
+                <div><div style="font-size:9px;color:#A0845C">Land Use</div><div style="font-weight:600">${p.landUse}</div></div>
+                <div style="grid-column:span 2"><div style="font-size:9px;color:#A0845C">District</div><div style="font-weight:600">${p.district}</div></div>
+              </div>
+            </div>`)
+          .addTo(map);
       });
-      map.on("mouseleave", "parcels-3d", () => {
-        map.getCanvas().style.cursor = "";
-      });
+
+      map.on("mouseenter", "district-heatmap", () => { map.getCanvas().style.cursor = "pointer"; });
+      map.on("mouseleave", "district-heatmap", () => { map.getCanvas().style.cursor = ""; });
+      map.on("mouseenter", "plot-fill", () => { map.getCanvas().style.cursor = "pointer"; });
+      map.on("mouseleave", "plot-fill", () => { map.getCanvas().style.cursor = ""; });
+
+      // ═══ HTML MARKERS ═════════════════════════════════════════
+
+      for (const d of DISTRICTS) {
+        const p = d.props;
+
+        // District label
+        const labelEl = document.createElement("div");
+        labelEl.className = "district-label-marker";
+        labelEl.innerHTML = `
+          <div style="text-align:center;pointer-events:none">
+            <div style="font-size:12px;font-weight:800;color:#FFF;text-shadow:0 1px 4px rgba(0,0,0,0.7)">${p.name}</div>
+            <div style="font-size:10px;font-weight:600;color:#FFE4C4;text-shadow:0 1px 3px rgba(0,0,0,0.6)">${p.state}</div>
+            <div style="font-size:9px;font-weight:600;color:#FCA5A5;text-shadow:0 1px 3px rgba(0,0,0,0.6)">${Number(p.conflicts).toLocaleString()} disputes</div>
+          </div>
+        `;
+        markersRef.current.push(
+          new maplibregl.Marker({ element: labelEl, anchor: "center" }).setLngLat(d.center).addTo(map)
+        );
+
+        // AI flag badge
+        if (p.aiFlags > 0) {
+          const aiEl = document.createElement("div");
+          aiEl.className = "ai-flag-marker";
+          aiEl.innerHTML = `
+            <div style="display:flex;align-items:center;gap:4px;background:rgba(185,28,28,0.9);color:#fff;padding:2px 7px;border-radius:10px;font-size:9px;font-weight:700;box-shadow:0 2px 8px rgba(185,28,28,0.4);pointer-events:none;white-space:nowrap">
+              <span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#FCA5A5;animation:pulse 1.5s infinite"></span>
+              ⚠ ${p.aiFlags}
+            </div>
+          `;
+          markersRef.current.push(
+            new maplibregl.Marker({ element: aiEl, anchor: "top" }).setLngLat([d.center[0], d.center[1] - d.size * 0.35]).addTo(map)
+          );
+        }
+      }
+
+      // Note: plot labels are shown via popups on click (2000+ DOM markers would crash browser)
 
       setMapReady(true);
     });
 
     mapRef.current = map;
-
     return () => {
       setMapReady(false);
+      markersRef.current.forEach(m => m.remove());
+      markersRef.current = [];
       map.remove();
       mapRef.current = null;
     };
   }, []);
 
-  // ── Armor-Plated Toggle useEffect ─────────────────────────────────
+  // ── Toggle visibility ─────────────────────────────────────────────
 
   useEffect(() => {
     if (!mapRef.current || !mapReady) return;
-    
-    const toggleLayer = (id: string, isVisible: boolean) => {
-      try {
-        if (mapRef.current?.getLayer(id)) {
-          mapRef.current.setLayoutProperty(id, 'visibility', isVisible ? 'visible' : 'none');
-        }
-      } catch (e) {
-        console.warn('Layer toggle failed', e);
-      }
+    const setVis = (id: string, visible: boolean) => {
+      try { if (mapRef.current?.getLayer(id)) mapRef.current.setLayoutProperty(id, "visibility", visible ? "visible" : "none"); }
+      catch (e) { console.warn("Toggle:", id, e); }
     };
 
-    toggleLayer('parcels-3d', activeLayers.cadastral);
-    toggleLayer('parcel-labels', activeLayers.cadastral);
-    toggleLayer('ai-markers', activeLayers.aiSentinel);
-    toggleLayer('zoning-fill', activeLayers.zoning);
+    setVis("district-heatmap", activeLayers.heatmap);
+    setVis("district-borders", activeLayers.heatmap);
+    setVis("plot-fill", activeLayers.heatmap);
+    setVis("plot-borders", activeLayers.heatmap);
+    setVis("cadastral-grid", activeLayers.heatmap);
+    setVis("plot-conflict-hatch", activeLayers.heatmap);
+    setVis("plot-labels", activeLayers.heatmap);
+
+    document.querySelectorAll(".district-label-marker").forEach(el => {
+      (el as HTMLElement).style.display = activeLayers.heatmap ? "block" : "none";
+    });
+    document.querySelectorAll(".ai-flag-marker").forEach(el => {
+      (el as HTMLElement).style.display = activeLayers.aiSentinel ? "block" : "none";
+    });
+    setVis("integration-overlay", activeLayers.integration);
   }, [activeLayers, mapReady]);
+
+  // ── Show/hide plot labels based on zoom level ─────────────────────
+  // (plot labels are handled via click popups to avoid 2000+ DOM markers)
 
   // ─── Render ───────────────────────────────────────────────────────
 
-  const renderToggle = (id: keyof typeof activeLayers, label: string, description: string) => {
+  const renderToggle = (id: keyof typeof activeLayers, label: string, desc: string) => {
     const isOn = activeLayers[id];
     return (
-      <button
-        key={id}
-        type="button"
-        onClick={() => toggleLayerState(id)}
-        className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-[#C86B28]/10"
-      >
+      <button key={id} type="button" onClick={() => toggleLayerState(id)}
+        className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-[#C86B28]/10">
         <div className="flex-1 min-w-0">
           <p className="text-xs font-semibold text-[#7A3E14]">{label}</p>
-          <p className="text-[10px] text-[#7A3E14]/50 truncate">{description}</p>
+          <p className="text-[10px] text-[#7A3E14]/50 truncate">{desc}</p>
         </div>
-        {isOn ? (
-          <Eye size={16} className="flex-shrink-0 text-emerald-600" />
-        ) : (
-          <EyeOff size={16} className="flex-shrink-0 text-[#A0845C]" />
-        )}
+        {isOn ? <Eye size={16} className="flex-shrink-0 text-emerald-600" /> : <EyeOff size={16} className="flex-shrink-0 text-[#A0845C]" />}
       </button>
     );
   };
 
+  const plotCount = DISTRICTS.length * 225;
+
   return (
     <div className="relative h-full w-full">
-      {/* Map container */}
+      <style>{`@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.8)} }`}</style>
+
       <div ref={containerRef} className="h-full w-full" />
 
-      {/* ── Floating Layer Controls ────────────────────────────── */}
+      {/* ── Floating Layer Controls ─────────────────────────────── */}
       <div className="absolute right-4 top-4 z-10 w-64 rounded-xl border border-[#E8DCC8] bg-[#F4EBD9] p-4 shadow-md backdrop-blur-sm text-[#7A3E14]">
-        {/* Header */}
         <div className="mb-3 flex items-center gap-2">
           <Layers size={16} className="text-[#7A3E14]" />
-          <h3 className="text-xs font-bold uppercase tracking-widest text-[#7A3E14]">
-            Map Layers
-          </h3>
+          <h3 className="text-xs font-bold uppercase tracking-widest text-[#7A3E14]">Map Layers</h3>
         </div>
-
-        {/* Layer list */}
         <div className="space-y-2.5">
-          {renderToggle('cadastral', 'Cadastral Boundaries', 'PostGIS parcel extrusions & labels')}
-          {renderToggle('aiSentinel', 'AI Sentinel Flags', 'NDVI change detection overlay')}
-          {renderToggle('zoning', 'Zoning Restrictions', 'Agricultural / commercial zones')}
+          {renderToggle('heatmap', 'Dispute Heatmap', `${DISTRICTS.length} districts • 10 states`)}
+          {renderToggle('aiSentinel', 'AI Sentinel Flags', 'Automated anomaly markers')}
+          {renderToggle('integration', 'Pending Integration', 'Red dashed = unsynced pipeline')}
         </div>
-
-        {/* Footer */}
         <div className="mt-3 border-t border-[#E8DCC8] pt-2.5">
           <div className="flex items-center gap-2 text-[10px] text-[#7A3E14]/50">
             <div className="h-2 w-2 rounded-full bg-emerald-600 shadow-sm" />
-            <span>Demo Mode • EPSG:4326</span>
+            <span>10 States • {DISTRICTS.length} Districts • {plotCount} Plots</span>
+          </div>
+          <div className="mt-1 flex items-center gap-2 text-[10px] text-[#7A3E14]/50">
+            <ZoomIn size={10} />
+            <span>Zoom: {zoomLevel} {zoomLevel >= 12 ? "• 📋 Bhulekh Mode" : ""}</span>
           </div>
         </div>
       </div>
 
-      {/* ── Bottom-left legend ────────────────────────────────── */}
-      <div className="absolute bottom-6 left-4 z-10 flex gap-3 rounded-lg border border-[#E8DCC8] bg-[#F4EBD9] px-4 py-2.5 shadow-md">
-        <div className="flex items-center gap-1.5">
-          <div className="h-3 w-3 rounded-sm bg-[#7A3E14]" />
-          <span className="text-[11px] font-medium text-[#7A3E14]">Conflict</span>
+      {/* ── Zoom hint ────────────────────────────────────────── */}
+      {zoomLevel >= 9 && zoomLevel < 12 && (
+        <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2 flex items-center gap-2 rounded-lg bg-[#7A3E14] px-4 py-2 text-white text-xs font-semibold shadow-lg animate-bounce">
+          <ZoomIn size={14} />
+          Zoom in to see individual cadastral plots
         </div>
-        <div className="flex items-center gap-1.5">
-          <div className="h-3 w-3 rounded-sm bg-emerald-600" />
-          <span className="text-[11px] font-medium text-[#7A3E14]">Clean</span>
+      )}
+      {zoomLevel >= 12 && zoomLevel < 15 && (
+        <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2 flex items-center gap-2 rounded-lg bg-[#C86B28] px-4 py-2 text-white text-xs font-semibold shadow-lg">
+          <ZoomIn size={14} />
+          Plot Overlay Mode — Zoom more for full Bhulekh Survey View
         </div>
-        <div className="flex items-center gap-1.5">
-          <div className="h-3 w-3 rounded-sm bg-[#C86B28]" />
-          <span className="text-[11px] font-medium text-[#7A3E14]">Pending</span>
+      )}
+      {zoomLevel >= 15 && (
+        <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2 flex items-center gap-2 rounded-lg bg-[#15803D] px-4 py-2 text-white text-xs font-semibold shadow-lg">
+          📋 Bhulekh Cadastral Survey — {plotCount} plots • Khasra, Owner, Land Use
         </div>
+      )}
+
+      {/* ── Bottom legend ─────────────────────────────────────── */}
+      <div className="absolute bottom-6 left-4 z-10 rounded-lg border border-[#E8DCC8] bg-[#F4EBD9] px-4 py-2.5 shadow-md">
+        {zoomLevel < 12 ? (
+          <div className="flex gap-3">
+            <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-sm bg-[#4A200A]" /><span className="text-[11px] font-medium text-[#7A3E14]">2000+</span></div>
+            <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-sm bg-[#7A3E14]" /><span className="text-[11px] font-medium text-[#7A3E14]">1500+</span></div>
+            <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-sm bg-[#C86B28]" /><span className="text-[11px] font-medium text-[#7A3E14]">1000+</span></div>
+            <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-sm bg-[#D4A05A]" /><span className="text-[11px] font-medium text-[#7A3E14]">500+</span></div>
+            <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-sm bg-[#E8D4B5]" /><span className="text-[11px] font-medium text-[#7A3E14]">&lt;500</span></div>
+          </div>
+        ) : (
+          <div className="flex gap-3">
+            <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-sm bg-green-500/60 border-2 border-[#FFD700]" /><span className="text-[11px] font-medium text-[#7A3E14]">Clean</span></div>
+            <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-sm bg-red-500/60 border-2 border-red-600" /><span className="text-[11px] font-medium text-[#7A3E14]">Conflict</span></div>
+            <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-sm bg-blue-500/60 border-2 border-blue-600" /><span className="text-[11px] font-medium text-[#7A3E14]">Govt</span></div>
+            <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-sm border-2 border-[#FFD700] bg-transparent" /><span className="text-[11px] font-medium text-[#7A3E14]">Boundary</span></div>
+          </div>
+        )}
       </div>
     </div>
   );

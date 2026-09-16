@@ -17,6 +17,7 @@ import AnalyticsTab from "./AnalyticsTab";
 import AIDetectionTab from "./AIDetectionTab";
 import QueueTab from "./QueueTab";
 import AuditTab from "./AuditTab";
+import StateIntegrationTab from "./StateIntegrationTab";
 
 // ─── Tab definitions ────────────────────────────────────────────────
 
@@ -49,6 +50,8 @@ const TAB_TITLES: Record<string, string> = {
 
 export default function CommandCenter() {
   const [activeTab, setActiveTab] = useState("map");
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
 
   return (
     <div className="flex h-screen w-screen bg-[#F4EBD9] text-[#7A3E14] overflow-hidden font-sans">
@@ -155,28 +158,73 @@ export default function CommandCenter() {
             <LiveClock />
 
             {/* Notification bell */}
-            <button
-              type="button"
-              className="relative rounded-lg p-2 text-[#7A3E14]/50 transition-colors hover:bg-[#C86B28]/10 hover:text-[#7A3E14]"
-            >
-              <Bell size={18} />
-              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-[#B91C1C] ring-2 ring-[#FFF8EE]" />
-            </button>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => { setShowNotifications(!showNotifications); setShowProfile(false); }}
+                className="relative rounded-lg p-2 text-[#7A3E14]/50 transition-colors hover:bg-[#C86B28]/10 hover:text-[#7A3E14]"
+              >
+                <Bell size={18} />
+                <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-[#B91C1C] ring-2 ring-[#FFF8EE]" />
+              </button>
+              
+              {showNotifications && (
+                <div className="absolute right-0 top-full mt-2 w-72 rounded-xl border border-[#E8DCC8] bg-[#F4EBD9] shadow-lg overflow-hidden z-50">
+                  <div className="bg-[#FFF8EE] px-4 py-2.5 border-b border-[#E8DCC8] flex justify-between items-center">
+                    <span className="text-xs font-bold text-[#7A3E14] uppercase tracking-widest">Alerts</span>
+                    <span className="bg-[#B91C1C] text-white text-[10px] px-1.5 py-0.5 rounded-full">3 New</span>
+                  </div>
+                  <div className="divide-y divide-[#E8DCC8] max-h-64 overflow-y-auto">
+                    <div className="p-3 hover:bg-[#EDE3D3] transition-colors cursor-pointer">
+                      <p className="text-xs font-semibold text-[#B91C1C]">AI Sentinel Alert</p>
+                      <p className="text-[11px] text-[#A0845C] mt-0.5">Encroachment detected on TN-202-0001</p>
+                      <p className="text-[9px] text-[#A0845C]/70 mt-1">2 mins ago</p>
+                    </div>
+                    <div className="p-3 hover:bg-[#EDE3D3] transition-colors cursor-pointer">
+                      <p className="text-xs font-semibold text-[#7A3E14]">Pipeline Sync</p>
+                      <p className="text-[11px] text-[#A0845C] mt-0.5">Odisha node ingested 4.2k mutations</p>
+                      <p className="text-[9px] text-[#A0845C]/70 mt-1">1 hr ago</p>
+                    </div>
+                    <div className="p-3 hover:bg-[#EDE3D3] transition-colors cursor-pointer">
+                      <p className="text-xs font-semibold text-[#7A3E14]">Audit Event</p>
+                      <p className="text-[11px] text-[#A0845C] mt-0.5">Admin elevated Inspector Sharma</p>
+                      <p className="text-[9px] text-[#A0845C]/70 mt-1">3 hrs ago</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Divider */}
             <div className="h-6 w-px bg-[#E8DCC8]" />
 
             {/* Officer profile */}
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#C86B28]/15 ring-2 ring-[#C86B28]/30">
-                <User size={16} className="text-[#7A3E14]" />
-              </div>
-              <div className="hidden sm:block">
-                <p className="text-xs font-semibold text-[#7A3E14]">
-                  Inspector R. Sharma
-                </p>
-                <p className="text-[10px] text-[#7A3E14]/50">DILRMP Division</p>
-              </div>
+            <div className="relative">
+              <button 
+                className="flex items-center gap-2.5 hover:bg-[#C86B28]/5 p-1 rounded-lg transition-colors cursor-pointer"
+                onClick={() => { setShowProfile(!showProfile); setShowNotifications(false); }}
+              >
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#C86B28]/15 ring-2 ring-[#C86B28]/30">
+                  <User size={16} className="text-[#7A3E14]" />
+                </div>
+                <div className="hidden sm:block text-left">
+                  <p className="text-xs font-semibold text-[#7A3E14]">
+                    Inspector R. Sharma
+                  </p>
+                  <p className="text-[10px] text-[#7A3E14]/50">DILRMP Division</p>
+                </div>
+              </button>
+              
+              {showProfile && (
+                <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-[#E8DCC8] bg-[#F4EBD9] shadow-lg overflow-hidden z-50">
+                  <div className="p-2 space-y-1">
+                    <button className="w-full text-left px-3 py-2 text-sm text-[#7A3E14] hover:bg-[#EDE3D3] rounded-md transition-colors">Profile Settings</button>
+                    <button className="w-full text-left px-3 py-2 text-sm text-[#7A3E14] hover:bg-[#EDE3D3] rounded-md transition-colors">Security Audit</button>
+                    <div className="h-px bg-[#E8DCC8] my-1" />
+                    <button className="w-full text-left px-3 py-2 text-sm text-[#B91C1C] hover:bg-rose-50 rounded-md transition-colors font-medium">Secure Logout</button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </header>
@@ -188,8 +236,9 @@ export default function CommandCenter() {
           {activeTab === "ai" && <AIDetectionTab />}
           {activeTab === "queue" && <QueueTab />}
           {activeTab === "audit" && <AuditTab />}
+          {activeTab === "integration" && <StateIntegrationTab />}
 
-          {activeTab !== "map" && activeTab !== "analytics" && activeTab !== "ai" && activeTab !== "queue" && activeTab !== "audit" && (
+          {activeTab !== "map" && activeTab !== "analytics" && activeTab !== "ai" && activeTab !== "queue" && activeTab !== "audit" && activeTab !== "integration" && (
             <div className="flex h-full flex-col items-center justify-center gap-4">
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F4EBD9] ring-1 ring-[#E8DCC8] shadow-sm">
                 {(() => {
