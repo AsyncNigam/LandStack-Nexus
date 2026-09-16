@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import maplibregl from "maplibre-gl";
+import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Layers, Eye, EyeOff, ZoomIn } from "lucide-react";
 
