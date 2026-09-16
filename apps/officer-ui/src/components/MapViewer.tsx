@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as maplibregl from "maplibre-gl";
+import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Layers, Eye, EyeOff, ZoomIn } from "lucide-react";
 
@@ -210,9 +211,9 @@ export default function MapViewer() {
     if (import.meta.env.PROD) {
       try {
         if ('setWorkerUrl' in maplibregl) {
-          (maplibregl as any).setWorkerUrl("https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl-worker.js");
+          (maplibregl as any).setWorkerUrl(workerUrl);
         } else {
-          Reflect.set(maplibregl, 'workerUrl', "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl-worker.js");
+          Reflect.set(maplibregl, 'workerUrl', workerUrl);
         }
       } catch (e) {
         console.warn("Could not set MapLibre workerUrl dynamically:", e);
