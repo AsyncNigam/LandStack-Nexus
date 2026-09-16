@@ -23,10 +23,10 @@ export default function App() {
       if (searchUlpin.startsWith("QR-SCANNED-")) {
         setTimeout(() => {
           setData({
-            parcel: { ulpin: searchUlpin, area_sqm: 1200, source_state: "TN" },
-            ror: { owner_name: "Aarav Iyer", khata_no: "K-990", area_acre: "0.29" },
-            registration: { owner_name: "Aarav Iyer", deed_no: "D-8822", area_acre: "0.29" },
-            tax: { property_id: "P-11", tax_due: "0", last_paid_date: "2023-12-01" },
+            parcel: { ulpin: searchUlpin, area_sqm: "1200", source_state: "TN" },
+            ror: { owner_name: "Aarav Iyer", khata_no: "K-990", area_acre: "0.29", source_dept: "Revenue" },
+            registration: { owner_name: "Aarav Iyer", deed_no: "D-8822", area_acre: "0.29", source_dept: "Sub-Registrar" },
+            tax: { owner_name: "Aarav Iyer", tax_due: "0", last_paid_on: "2023-12-01", source_dept: "Municipal" },
             conflicts: []
           });
           setCurrentView("readiness");
@@ -44,11 +44,14 @@ export default function App() {
       console.error("Search failed:", err);
       // Fallback for demo purposes if backend is unreachable
       setData({
-        parcel: { ulpin: searchUlpin, area_sqm: 4046, source_state: "OD" },
-        ror: { owner_name: "Rajesh Kumar", khata_no: "K-101", area_acre: "1.0" },
-        registration: { owner_name: "Suresh Patel", deed_no: "D-202", area_acre: "1.2" },
-        tax: { property_id: "P-303", tax_due: "4500", last_paid_date: "2021-05-12" },
-        conflicts: [{ conflict_type: "OWNERSHIP", severity: "HIGH", description: "Name mismatch" }, { conflict_type: "AREA", severity: "MEDIUM", description: "Area mismatch" }]
+        parcel: { ulpin: searchUlpin, area_sqm: "4046", source_state: "OD" },
+        ror: { owner_name: "Rajesh Kumar", khata_no: "K-101", area_acre: "1.0", source_dept: "Revenue" },
+        registration: { owner_name: "Suresh Patel", deed_no: "D-202", area_acre: "1.2", source_dept: "Sub-Registrar" },
+        tax: { owner_name: "Rajesh Kumar", tax_due: "4500", last_paid_on: "2021-05-12", source_dept: "Municipal" },
+        conflicts: [
+          { id: 1, conflict_type: "OWNERSHIP", severity: "HIGH", field_values: { description: "Name mismatch" } }, 
+          { id: 2, conflict_type: "AREA", severity: "MEDIUM", field_values: { description: "Area mismatch" } }
+        ]
       });
       setCurrentView("readiness");
     } finally {
