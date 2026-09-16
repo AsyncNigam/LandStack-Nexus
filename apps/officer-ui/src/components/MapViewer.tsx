@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import * as maplibregl from "maplibre-gl";
+import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Layers, Eye, EyeOff, ZoomIn } from "lucide-react";
 
@@ -440,6 +440,21 @@ export default function MapViewer() {
       }
 
       // Note: plot labels are shown via popups on click (2000+ DOM markers would crash browser)
+
+      // ═══ DYNAMIC CADASTRAL UPDATES ═════════════════════════════
+      map.on('moveend', () => {
+        if (!activeLayersRef.current.cadastral) return;
+        const source = map.getSource("plots") as maplibregl.GeoJSONSource;
+        if (!source) return;
+        
+        if (map.getZoom() >= 12.5) {
+          const center = map.getCenter();
+          const features = generateDynamicPlots([center.lng, center.lat]);
+          source.setData({ type: "FeatureCollection", features });
+        } else {
+          source.setData({ type: "FeatureCollection", features: [] });
+        }
+      });
 
       setMapReady(true);
     });
