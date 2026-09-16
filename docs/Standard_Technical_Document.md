@@ -5,6 +5,14 @@
 
 ---
 
+## Live Demonstrations
+
+- **Officer Command Center**: [https://land-stack-nexus-officer-ihzhz7b0u.vercel.app/](https://land-stack-nexus-officer-ihzhz7b0u.vercel.app/)
+- **Citizen Premium PWA**: [https://land-stack-nexus-citizen-pwa-umber.vercel.app/](https://land-stack-nexus-citizen-pwa-umber.vercel.app/)
+- **Backend API**: [https://landstack-nexus.onrender.com/](https://landstack-nexus.onrender.com/)
+
+---
+
 ## Table of Contents
 
 1. [System Architecture](#1-system-architecture)
