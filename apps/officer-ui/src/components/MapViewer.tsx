@@ -205,6 +205,20 @@ export default function MapViewer() {
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
+    // Force MapLibre to use a CDN WebWorker in production to bypass Vite Rollup bundling bugs
+    // that cause vectors/polygons (like Cadastral and Heatmap) to be invisible on Vercel.
+    if (import.meta.env.PROD) {
+      try {
+        if ('setWorkerUrl' in maplibregl) {
+          (maplibregl as any).setWorkerUrl("https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl-worker.js");
+        } else {
+          Reflect.set(maplibregl, 'workerUrl', "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl-worker.js");
+        }
+      } catch (e) {
+        console.warn("Could not set MapLibre workerUrl dynamically:", e);
+      }
+    }
+
     const map = new maplibregl.Map({
       container: containerRef.current,
       style: {
