@@ -1,15 +1,18 @@
 import { useState } from "react";
 import {
   Map,
-  BarChart2,
+  LandPlot,
+  BarChart3,
   AlertTriangle,
-  Satellite,
-  Activity,
-  Network,
+  Sparkles,
+  ShieldCheck,
+  Database,
   Bell,
   User,
   Shield,
   ChevronRight,
+  PanelLeft,
+  PanelLeftClose,
 } from "lucide-react";
 import { clsx } from "clsx";
 import MapViewer from "./MapViewer";
@@ -18,6 +21,7 @@ import AIDetectionTab from "./AIDetectionTab";
 import QueueTab from "./QueueTab";
 import AuditTab from "./AuditTab";
 import StateIntegrationTab from "./StateIntegrationTab";
+import CadastralTab from "./CadastralTab";
 
 // ─── Tab definitions ────────────────────────────────────────────────
 
@@ -28,132 +32,245 @@ interface NavItem {
   badge?: number;
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { id: "map", label: "GIS Command Map", icon: Map },
-  { id: "analytics", label: "Analytics", icon: BarChart2 },
-  { id: "queue", label: "Discrepancy Queue", icon: AlertTriangle, badge: 3 },
-  { id: "ai", label: "AI Detection", icon: Satellite },
-  { id: "audit", label: "Audit Trail", icon: Activity },
-  { id: "integration", label: "State Integration", icon: Network },
+interface NavSection {
+  title: string;
+  items: NavItem[];
+}
+
+const NAV_SECTIONS: NavSection[] = [
+  {
+    title: "Surveys & Maps",
+    items: [
+      { id: "map", label: "GIS", icon: Map },
+      { id: "cadastral", label: "Cadastral", icon: LandPlot },
+    ],
+  },
+  {
+    title: "Reconciliation",
+    items: [
+      { id: "queue", label: "Discrepancy", icon: AlertTriangle, badge: 3 },
+      { id: "analytics", label: "Analytics", icon: BarChart3 },
+    ],
+  },
+  {
+    title: "Governance & Audit",
+    items: [
+      { id: "ai", label: "Detection", icon: Sparkles },
+      { id: "audit", label: "Audit", icon: ShieldCheck },
+      { id: "integration", label: "Integration", icon: Database },
+    ],
+  },
 ];
+
+const ALL_NAV_ITEMS = NAV_SECTIONS.flatMap((s) => s.items);
 
 const TAB_TITLES: Record<string, string> = {
   map: "GIS Command Map",
   analytics: "Analytics Dashboard",
   queue: "Discrepancy Queue",
-  ai: "AI-Assisted Change Detection",
+  cadastral: "Cadastral Explorer & RoR Reconciler",
+  ai: "AI Detection",
   audit: "Immutable Audit Trail",
-  integration: "State API Integration Hub",
+  integration: "State Integration Hub",
 };
 
 // ─── Component ──────────────────────────────────────────────────────
 
 export default function CommandCenter() {
-  const [activeTab, setActiveTab] = useState("map");
+  const [activeTab, setActiveTab] = useState("cadastral");
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
 
+  const currentNavItem = ALL_NAV_ITEMS.find((item) => item.id === activeTab);
+
   return (
-    <div className="flex h-screen w-screen bg-[#F4EBD9] text-[#7A3E14] overflow-hidden font-sans">
-      {/* ═══ LEFT SIDEBAR ═══════════════════════════════════════════ */}
-      <aside className="flex w-64 flex-col border-r border-[#E8DCC8] bg-[#F4EBD9]">
-        {/* Logo */}
-        <div className="flex items-center gap-3 border-b border-[#E8DCC8] px-5 py-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#C86B28]/20 shadow-sm">
-            <Shield className="h-5 w-5 text-[#7A3E14]" />
-          </div>
-          <div>
-            <h1 className="text-sm font-bold tracking-tight text-[#7A3E14]">
-              LandStack Nexus
-            </h1>
-            <p className="text-[10px] font-medium uppercase tracking-widest text-[#7A3E14]/50">
-              Command Center
-            </p>
-          </div>
+    <div className="flex h-screen w-screen bg-white text-zinc-900 overflow-hidden font-sans">
+      {/* ═══ LEFT SIDEBAR (BLACK THEME WITH WHITE ACTIVE STATE) ══════════════ */}
+      <aside
+        className={clsx(
+          "flex flex-col border-r border-zinc-800/90 bg-zinc-950 text-zinc-300 select-none transition-all duration-200 ease-in-out flex-shrink-0",
+          isCollapsed ? "w-14" : "w-52",
+        )}
+      >
+        {/* App Title Header & Collapse Toggle */}
+        <div className="p-2">
+          {!isCollapsed ? (
+            <div className="flex items-center justify-between rounded-lg bg-zinc-900 border border-zinc-800 p-1.5 shadow-2xs">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-white text-zinc-950 shadow-2xs">
+                  <Shield size={13} className="text-zinc-950" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold text-white tracking-tight font-display truncate leading-tight">
+                    LandStack Nexus
+                  </div>
+                  <div className="text-[9.5px] text-zinc-400 font-medium truncate leading-tight">Revenue OS • Odisha</div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsCollapsed(true)}
+                title="Collapse sidebar to icons"
+                className="ml-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors"
+              >
+                <PanelLeftClose size={14} />
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-1.5 py-0.5">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white text-zinc-950 shadow-2xs">
+                <Shield size={14} className="text-zinc-950" />
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsCollapsed(false)}
+                title="Expand sidebar"
+                className="flex h-6 w-6 items-center justify-center rounded text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors"
+              >
+                <PanelLeft size={14} />
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
-          <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-[#7A3E14]/50">
-            Operations
-          </p>
-          {NAV_ITEMS.map((item) => {
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setActiveTab(item.id)}
-                className={clsx(
-                  "group relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
-                  isActive
-                    ? "bg-[#C86B28] text-white shadow-sm"
-                    : "text-[#7A3E14]/70 hover:bg-[#C86B28]/10 hover:text-[#7A3E14]",
-                )}
-              >
-                {/* Active indicator bar */}
-                {isActive && (
-                  <div className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-[#C86B28] shadow-md" />
-                )}
+        {/* Grouped Navigation with macOS Dock Magnification Hover Effect */}
+        <nav className="flex-1 space-y-3 overflow-y-auto px-2 py-1.5">
+          {NAV_SECTIONS.map((section) => (
+            <div key={section.title}>
+              {!isCollapsed ? (
+                <p className="px-2.5 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                  {section.title}
+                </p>
+              ) : (
+                <div className="my-2 mx-auto w-6 border-t border-zinc-800" />
+              )}
+              <div className="space-y-1">
+                {section.items.map((item) => {
+                  const isActive = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setActiveTab(item.id)}
+                      title={item.label}
+                      className={clsx(
+                        "group relative flex items-center transition-all duration-200 ease-out active:scale-[0.97]",
+                        isCollapsed
+                          ? "h-10 w-10 justify-center mx-auto rounded-xl hover:scale-115 hover:shadow-lg hover:z-20"
+                          : "w-full gap-3 rounded-xl px-2.5 py-2 hover:translate-x-1 hover:scale-[1.02]",
+                        isActive
+                          ? "bg-white text-zinc-950 font-semibold shadow-md z-10"
+                          : "text-zinc-300 font-medium hover:bg-zinc-900/90 hover:text-white hover:shadow-xs",
+                      )}
+                    >
+                      {/* Dark Icon Container with macOS Zoom Magnification on Hover */}
+                      <div
+                        className={clsx(
+                          "flex items-center justify-center rounded-lg transition-transform duration-200 ease-out flex-shrink-0 group-hover:scale-110",
+                          isCollapsed ? "h-8 w-8" : "h-7 w-7",
+                          isActive
+                            ? "bg-zinc-950 text-white shadow-2xs"
+                            : "bg-zinc-900 border border-zinc-800 text-white group-hover:bg-zinc-850 group-hover:border-zinc-700",
+                        )}
+                      >
+                        <item.icon
+                          size={isCollapsed ? 18 : 16}
+                          strokeWidth={isActive ? 2.5 : 2.1}
+                          className="text-white transition-transform duration-200"
+                        />
+                      </div>
 
-                <item.icon
-                  className={clsx(
-                    "h-4.5 w-4.5 flex-shrink-0",
-                    isActive ? "text-white" : "text-[#7A3E14]/50 group-hover:text-[#7A3E14]/80",
-                  )}
-                  size={18}
-                />
-                <span className="flex-1 text-left">{item.label}</span>
+                      {/* Larger Label */}
+                      {!isCollapsed && (
+                        <span
+                          className={clsx(
+                            "flex-1 text-left tracking-tight truncate text-[13.5px]",
+                            isActive ? "text-zinc-950 font-bold" : "text-zinc-300 group-hover:text-white font-medium",
+                          )}
+                        >
+                          {item.label}
+                        </span>
+                      )}
 
-                {/* Badge */}
-                {item.badge && (
-                  <span
-                    className={clsx(
-                      "flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold",
-                      isActive
-                        ? "bg-white/25 text-white"
-                        : "bg-[#B91C1C] text-white",
-                    )}
-                  >
-                    {item.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+                      {/* Badge */}
+                      {item.badge && (
+                        <span
+                          className={clsx(
+                            "transition-transform duration-200 group-hover:scale-105",
+                            isCollapsed
+                              ? "absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[9px] font-bold font-mono ring-2 ring-zinc-950 shadow-sm"
+                              : "flex h-4.5 min-w-[18px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold font-mono shadow-2xs",
+                            isActive
+                              ? "bg-zinc-950 text-white"
+                              : "bg-rose-500 text-white",
+                          )}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
-        {/* System Status Footer */}
-        <div className="border-t border-[#E8DCC8] px-4 py-3">
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-sm" />
-            <span className="text-[11px] font-medium text-[#7A3E14]/70">
-              System Operational
-            </span>
-          </div>
-          <div className="mt-1.5 flex items-center gap-3 text-[10px] text-[#7A3E14]/50">
-            <span>PostGIS ●</span>
-            <span>3 Parcels ●</span>
-            <span>v1.0.0</span>
-          </div>
+        {/* System Officer Status Footer */}
+        <div className="border-t border-zinc-800 bg-zinc-950 p-1.5 flex justify-center">
+          {isCollapsed ? (
+            <div
+              title="S. Mohapatra (Boudh Tahasildar)"
+              className="relative flex h-7 w-7 items-center justify-center rounded-full bg-zinc-800 border border-zinc-700 text-[10px] font-bold text-zinc-200 shadow-xs cursor-pointer hover:bg-zinc-700 transition-colors"
+            >
+              SM
+              <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-emerald-500 ring-1 ring-zinc-950" />
+            </div>
+          ) : (
+            <div className="flex w-full items-center gap-2 rounded-lg bg-zinc-900 border border-zinc-800 p-1.5 hover:bg-zinc-850 transition-all shadow-2xs cursor-pointer active:scale-[0.98]">
+              <div className="relative flex h-6 w-6 items-center justify-center rounded-full bg-zinc-800 border border-zinc-700 text-[10px] font-bold text-zinc-200 shadow-xs">
+                SM
+                <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-emerald-500 ring-1 ring-zinc-950" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="truncate text-[11px] font-semibold text-zinc-200 leading-tight">S. Mohapatra</p>
+                <p className="truncate text-[9.5px] text-zinc-400 leading-tight">Boudh Tahasildar</p>
+              </div>
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_4px_#10b981]" />
+            </div>
+          )}
         </div>
       </aside>
 
-      {/* ═══ MAIN AREA ══════════════════════════════════════════════ */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        {/* ── Top Header Bar ─────────────────────────────────────── */}
-        <header className="flex h-14 flex-shrink-0 items-center justify-between border-b border-[#E8DCC8] bg-[#FFF8EE] px-6 shadow-sm">
-          {/* Left: Tab title + breadcrumb */}
-          <div className="flex items-center gap-2 text-sm">
-            <span className="font-medium text-[#7A3E14]/50">Operations</span>
-            <ChevronRight className="h-3.5 w-3.5 text-[#7A3E14]/30" />
-            <span className="font-semibold text-[#7A3E14]">
-              {TAB_TITLES[activeTab] ?? activeTab}
-            </span>
+      {/* ═══ MAIN AREA (WHITE DASHBOARD) ════════════════════════════ */}
+      <div className="flex flex-1 flex-col overflow-hidden bg-white">
+        {/* ── Top Header Bar with Highlighted Active Page ─────────── */}
+        <header className="flex h-10 flex-shrink-0 items-center justify-between border-b border-zinc-200 bg-white px-3">
+          {/* Left: Drawer toggle + Active page highlight badge */}
+          <div className="flex items-center gap-1.5 text-xs">
+            <button
+              type="button"
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              className="flex h-6 w-6 items-center justify-center rounded text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition-colors border border-zinc-200/80 shadow-2xs mr-1"
+            >
+              {isCollapsed ? <PanelLeft size={13} /> : <PanelLeftClose size={13} />}
+            </button>
+            <span className="font-medium text-zinc-400 text-[11px]">Operations</span>
+            <ChevronRight className="h-3 w-3 text-zinc-300" />
+            {currentNavItem && (
+              <div className="flex items-center gap-1.5 rounded-md bg-zinc-900 border border-zinc-800 px-2 py-0.5 text-[11.5px] font-semibold text-white shadow-2xs">
+                <div className="flex h-3.5 w-3.5 items-center justify-center rounded text-zinc-300">
+                  <currentNavItem.icon size={12} strokeWidth={2.4} />
+                </div>
+                <span>{TAB_TITLES[activeTab] ?? activeTab}</span>
+              </div>
+            )}
           </div>
 
           {/* Right: Officer profile + notifications */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {/* Live clock */}
             <LiveClock />
 
@@ -162,33 +279,23 @@ export default function CommandCenter() {
               <button
                 type="button"
                 onClick={() => { setShowNotifications(!showNotifications); setShowProfile(false); }}
-                className="relative rounded-lg p-2 text-[#7A3E14]/50 transition-colors hover:bg-[#C86B28]/10 hover:text-[#7A3E14]"
+                className="relative rounded p-1 text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900"
               >
-                <Bell size={18} />
-                <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-[#B91C1C] ring-2 ring-[#FFF8EE]" />
+                <Bell size={15} />
+                <span className="absolute right-0.5 top-0.5 h-1.5 w-1.5 rounded-full bg-rose-500 ring-1 ring-white" />
               </button>
               
               {showNotifications && (
-                <div className="absolute right-0 top-full mt-2 w-72 rounded-xl border border-[#E8DCC8] bg-[#F4EBD9] shadow-lg overflow-hidden z-50">
-                  <div className="bg-[#FFF8EE] px-4 py-2.5 border-b border-[#E8DCC8] flex justify-between items-center">
-                    <span className="text-xs font-bold text-[#7A3E14] uppercase tracking-widest">Alerts</span>
-                    <span className="bg-[#B91C1C] text-white text-[10px] px-1.5 py-0.5 rounded-full">3 New</span>
+                <div className="absolute right-0 top-full mt-2 w-80 rounded-xl border border-zinc-200 bg-white shadow-xl overflow-hidden z-50">
+                  <div className="bg-zinc-50 px-4 py-2.5 border-b border-zinc-200 flex justify-between items-center">
+                    <span className="text-xs font-bold text-zinc-900 uppercase tracking-wider">Alerts</span>
+                    <span className="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">3 New</span>
                   </div>
-                  <div className="divide-y divide-[#E8DCC8] max-h-64 overflow-y-auto">
-                    <div className="p-3 hover:bg-[#EDE3D3] transition-colors cursor-pointer">
-                      <p className="text-xs font-semibold text-[#B91C1C]">AI Sentinel Alert</p>
-                      <p className="text-[11px] text-[#A0845C] mt-0.5">Encroachment detected on TN-202-0001</p>
-                      <p className="text-[9px] text-[#A0845C]/70 mt-1">2 mins ago</p>
-                    </div>
-                    <div className="p-3 hover:bg-[#EDE3D3] transition-colors cursor-pointer">
-                      <p className="text-xs font-semibold text-[#7A3E14]">Pipeline Sync</p>
-                      <p className="text-[11px] text-[#A0845C] mt-0.5">Odisha node ingested 4.2k mutations</p>
-                      <p className="text-[9px] text-[#A0845C]/70 mt-1">1 hr ago</p>
-                    </div>
-                    <div className="p-3 hover:bg-[#EDE3D3] transition-colors cursor-pointer">
-                      <p className="text-xs font-semibold text-[#7A3E14]">Audit Event</p>
-                      <p className="text-[11px] text-[#A0845C] mt-0.5">Admin elevated Inspector Sharma</p>
-                      <p className="text-[9px] text-[#A0845C]/70 mt-1">3 hrs ago</p>
+                  <div className="divide-y divide-zinc-100 max-h-64 overflow-y-auto">
+                    <div className="p-3 hover:bg-zinc-50 transition-colors cursor-pointer">
+                      <p className="text-xs font-semibold text-rose-600">AI Sentinel Alert</p>
+                      <p className="text-[11px] text-zinc-600 mt-0.5">Encroachment detected on TN-202-0001</p>
+                      <p className="text-[10px] text-zinc-400 mt-1">2 mins ago</p>
                     </div>
                   </div>
                 </div>
@@ -196,33 +303,29 @@ export default function CommandCenter() {
             </div>
 
             {/* Divider */}
-            <div className="h-6 w-px bg-[#E8DCC8]" />
+            <div className="h-4 w-px bg-zinc-200" />
 
             {/* Officer profile */}
             <div className="relative">
               <button 
-                className="flex items-center gap-2.5 hover:bg-[#C86B28]/5 p-1 rounded-lg transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 hover:bg-zinc-100 px-1.5 py-1 rounded transition-colors"
                 onClick={() => { setShowProfile(!showProfile); setShowNotifications(false); }}
               >
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#C86B28]/15 ring-2 ring-[#C86B28]/30">
-                  <User size={16} className="text-[#7A3E14]" />
+                <div className="h-6 w-6 rounded-full bg-zinc-800 text-white flex items-center justify-center font-bold text-[10px]">
+                  RS
                 </div>
-                <div className="hidden sm:block text-left">
-                  <p className="text-xs font-semibold text-[#7A3E14]">
-                    Inspector R. Sharma
-                  </p>
-                  <p className="text-[10px] text-[#7A3E14]/50">DILRMP Division</p>
+                <div className="text-left hidden md:block leading-tight">
+                  <p className="text-[11px] font-semibold text-zinc-800 leading-none">Inspector R. Sharma</p>
+                  <p className="text-[9px] text-zinc-400 leading-none mt-0.5">DILRMP Division</p>
                 </div>
               </button>
               
               {showProfile && (
-                <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-[#E8DCC8] bg-[#F4EBD9] shadow-lg overflow-hidden z-50">
-                  <div className="p-2 space-y-1">
-                    <button className="w-full text-left px-3 py-2 text-sm text-[#7A3E14] hover:bg-[#EDE3D3] rounded-md transition-colors">Profile Settings</button>
-                    <button className="w-full text-left px-3 py-2 text-sm text-[#7A3E14] hover:bg-[#EDE3D3] rounded-md transition-colors">Security Audit</button>
-                    <div className="h-px bg-[#E8DCC8] my-1" />
-                    <button className="w-full text-left px-3 py-2 text-sm text-[#B91C1C] hover:bg-rose-50 rounded-md transition-colors font-medium">Secure Logout</button>
-                  </div>
+                <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-zinc-200 bg-white shadow-xl overflow-hidden z-50 p-1 space-y-0.5">
+                  <button className="w-full text-left px-2.5 py-1.5 text-xs text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 rounded-lg transition-colors">Profile Settings</button>
+                  <button className="w-full text-left px-2.5 py-1.5 text-xs text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 rounded-lg transition-colors">Security Audit</button>
+                  <div className="h-px bg-zinc-100 my-1" />
+                  <button className="w-full text-left px-2.5 py-1.5 text-xs text-rose-600 hover:bg-rose-50 rounded-lg transition-colors font-medium">Secure Logout</button>
                 </div>
               )}
             </div>
@@ -235,24 +338,33 @@ export default function CommandCenter() {
           {activeTab === "analytics" && <AnalyticsTab />}
           {activeTab === "ai" && <AIDetectionTab />}
           {activeTab === "queue" && <QueueTab />}
+          {activeTab === "cadastral" && <CadastralTab />}
           {activeTab === "audit" && <AuditTab />}
-          {activeTab === "integration" && <StateIntegrationTab />}
+          {activeTab === "integration" && (
+            <StateIntegrationTab onLaunchCadastral={() => setActiveTab("cadastral")} />
+          )}
 
-          {activeTab !== "map" && activeTab !== "analytics" && activeTab !== "ai" && activeTab !== "queue" && activeTab !== "audit" && activeTab !== "integration" && (
+          {activeTab !== "map" &&
+            activeTab !== "analytics" &&
+            activeTab !== "ai" &&
+            activeTab !== "queue" &&
+            activeTab !== "cadastral" &&
+            activeTab !== "audit" &&
+            activeTab !== "integration" && (
             <div className="flex h-full flex-col items-center justify-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F4EBD9] ring-1 ring-[#E8DCC8] shadow-sm">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-zinc-100 ring-1 ring-zinc-200 shadow-sm">
                 {(() => {
-                  const item = NAV_ITEMS.find((n) => n.id === activeTab);
+                  const item = ALL_NAV_ITEMS.find((n) => n.id === activeTab);
                   if (!item) return null;
                   const Icon = item.icon;
-                  return <Icon size={28} className="text-[#A0845C]" />;
+                  return <Icon size={28} className="text-zinc-600" />;
                 })()}
               </div>
               <div className="text-center">
-                <p className="text-lg font-semibold text-[#A0845C]">
+                <p className="text-base font-semibold text-zinc-900 font-display">
                   {TAB_TITLES[activeTab]}
                 </p>
-                <p className="mt-1 text-sm text-[#A0845C]">
+                <p className="mt-1 text-sm text-zinc-500 font-body">
                   Module loading — available in next deployment
                 </p>
               </div>
@@ -276,14 +388,14 @@ function LiveClock() {
   });
 
   return (
-    <div className="hidden items-center gap-1.5 rounded-md bg-[#C86B28]/10 px-2.5 py-1 text-[11px] font-mono text-[#7A3E14]/60 sm:flex">
-      <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+    <div className="hidden items-center gap-1.5 rounded-md bg-zinc-100 border border-zinc-200 px-2.5 py-1 text-[11px] font-mono text-zinc-600 sm:flex">
+      <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
       {time.toLocaleTimeString("en-IN", {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
       })}
-      <span className="text-[#7A3E14]/40">IST</span>
+      <span className="text-zinc-400">IST</span>
     </div>
   );
 }

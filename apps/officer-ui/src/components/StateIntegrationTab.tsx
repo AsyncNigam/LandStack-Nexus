@@ -15,6 +15,7 @@ import {
   FileText,
   GitMerge,
   BarChart3,
+  Layers,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -65,17 +66,6 @@ const SYNC_LOGS = [
   { time: "09:59", node: "SYS", msg: "Global index compactor finished — 22.1M records indexed.", type: "info" },
   { time: "09:45", node: "SYS", msg: "Conflict detector: 127 new mismatches flagged.", type: "warning" },
   { time: "09:30", node: "SYS", msg: "Daily backup completed: 48.2 GB snapshot.", type: "info" },
-  ...Array.from({ length: 40 }).map((_, i) => {
-    const nodes = ["AP_NODE", "BH_NODE", "CH_NODE", "GO_NODE", "HR_NODE", "SYS", "TN_NODE"];
-    const types = ["success", "info", "warning"];
-    const msgs = ["Pipeline sync completed", "CDC stream ingested", "API handshake successful", "Index compactor finished", "REST endpoint synced"];
-    return {
-      time: `0${8 - Math.floor(i/10)}:${String(59 - (i % 60)).padStart(2, '0')}`,
-      node: nodes[i % nodes.length],
-      msg: `${msgs[i % msgs.length]} — ${1000 + Math.floor(Math.random() * 5000)} records.`,
-      type: types[i % types.length]
-    };
-  })
 ];
 
 // ─── Pipeline Stats ─────────────────────────────────────────────────
@@ -91,49 +81,57 @@ const PIPELINE_METRICS = [
 
 // ─── Component ──────────────────────────────────────────────────────
 
-export default function StateIntegrationTab() {
+interface StateIntegrationTabProps {
+  onLaunchCadastral?: () => void;
+}
+
+export default function StateIntegrationTab({ onLaunchCadastral }: StateIntegrationTabProps = {}) {
   const [isSyncing, setIsSyncing] = useState(false);
   const [selectedNode, setSelectedNode] = useState<typeof STATE_NODES[0] | null>(null);
 
   const handleSyncAll = () => {
     setIsSyncing(true);
-    setTimeout(() => setIsSyncing(false), 2000);
+    setTimeout(() => setIsSyncing(false), 1500);
   };
 
-  const onlineCount = STATE_NODES.filter(n => n.status === "online").length;
-  const degradedCount = STATE_NODES.filter(n => n.status === "degraded").length;
-  const offlineCount = STATE_NODES.filter(n => n.status === "offline").length;
+  const onlineCount = STATE_NODES.filter((n) => n.status === "online").length;
+  const degradedCount = STATE_NODES.filter((n) => n.status === "degraded").length;
+  const offlineCount = STATE_NODES.filter((n) => n.status === "offline").length;
 
   return (
-    <div className="h-full overflow-y-auto p-6 bg-[#F4EBD9]">
+    <div className="h-full overflow-y-auto bg-zinc-50/50 p-8 space-y-6">
       {/* ═══ Header ═════════════════════════════════════════════════ */}
-      <div className="mb-6 flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-[#7A3E14]">DILRMP 3.0 State Integration Hub</h2>
-          <p className="mt-1 text-sm text-[#A0845C]">Real-time API connectivity, data pipeline status, and conflict monitoring across {STATE_NODES.length} state land record databases.</p>
+          <h2 className="text-xl font-bold tracking-tight text-zinc-900 font-display">
+            DILRMP 3.0 State Integration Hub
+          </h2>
+          <p className="mt-0.5 text-xs text-zinc-500 font-body">
+            Real-time API connectivity, data pipeline status, and conflict monitoring across {STATE_NODES.length} state land record databases
+          </p>
         </div>
         <button
           type="button"
           onClick={handleSyncAll}
           disabled={isSyncing}
-          className="flex items-center gap-2 rounded-lg bg-[#7A3E14] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#5a2e0e] disabled:opacity-70"
+          className="flex items-center gap-2 rounded-lg bg-zinc-900 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:bg-zinc-800 disabled:opacity-50"
         >
-          <RefreshCw size={16} className={isSyncing ? "animate-spin" : ""} />
+          <RefreshCw size={13} className={isSyncing ? "animate-spin" : ""} />
           {isSyncing ? "Syncing Pipelines..." : "Sync All Nodes"}
         </button>
       </div>
 
       {/* ═══ Top Metrics Strip ══════════════════════════════════════ */}
-      <div className="grid grid-cols-6 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
         {PIPELINE_METRICS.map((m) => (
-          <div key={m.label} className="rounded-xl border border-[#E8DCC8] bg-white/50 p-4 shadow-sm backdrop-blur-sm">
+          <div key={m.label} className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <m.icon size={14} className="text-[#7A3E14]" />
-              <span className="text-[9px] font-semibold uppercase tracking-widest text-[#A0845C]">{m.label}</span>
+              <m.icon size={14} className="text-zinc-500" />
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 font-display">{m.label}</span>
             </div>
-            <div className="text-xl font-bold text-[#7A3E14]">{m.value}</div>
-            <div className={`flex items-center gap-1 mt-1 text-[10px] font-medium ${m.trendUp ? "text-emerald-600" : "text-[#B91C1C]"}`}>
-              {m.trendUp ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}
+            <div className="text-xl font-bold text-zinc-900 font-display">{m.value}</div>
+            <div className={`flex items-center gap-1 mt-1 text-[10px] font-medium font-body ${m.trendUp ? "text-emerald-600" : "text-amber-600"}`}>
+              {m.trendUp ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
               {m.trend}
             </div>
           </div>
@@ -141,55 +139,65 @@ export default function StateIntegrationTab() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
         {/* ═══ Left Column: Connectivity & Logs ═══════════════════════ */}
         <div className="col-span-1 space-y-6">
-
           {/* Integration Progress */}
-          <div className="rounded-xl border border-[#E8DCC8] bg-white/50 p-5 shadow-sm backdrop-blur-sm">
-            <h3 className="mb-4 text-sm font-semibold text-[#7A3E14] uppercase tracking-widest flex items-center gap-2">
-              <Network size={16} /> Integration Progress
+          <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
+            <h3 className="mb-4 text-xs font-bold text-zinc-900 uppercase tracking-wider font-display flex items-center gap-2">
+              <Network size={14} className="text-zinc-600" /> Integration Progress
             </h3>
             <div className="space-y-4">
               <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-[#A0845C]">Phase 1 Target (28 States)</span>
-                  <span className="font-bold text-[#7A3E14]">{Math.round(STATE_NODES.length / 28 * 100)}%</span>
+                <div className="flex justify-between text-xs mb-1.5 font-body">
+                  <span className="text-zinc-500">National Target (28 States)</span>
+                  <span className="font-bold text-zinc-900">{Math.round((STATE_NODES.length / 28) * 100)}%</span>
                 </div>
-                <div className="h-2.5 w-full rounded-full bg-[#EDE3D3]">
-                  <div className="h-2.5 rounded-full bg-gradient-to-r from-[#C86B28] to-[#15803D]" style={{ width: `${Math.round(STATE_NODES.length / 28 * 100)}%` }} />
+                <div className="h-2 w-full rounded-full bg-zinc-100 overflow-hidden">
+                  <div
+                    className="h-2 rounded-full bg-zinc-900"
+                    style={{ width: `${Math.round((STATE_NODES.length / 28) * 100)}%` }}
+                  />
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-3 pt-2">
-                <div className="rounded-lg bg-[#FFF8EE] p-3 border border-emerald-200 text-center">
-                  <div className="text-2xl font-bold text-emerald-600">{onlineCount}</div>
-                  <div className="text-[10px] text-[#A0845C] font-medium">Online</div>
+              <div className="grid grid-cols-3 gap-2.5 pt-1">
+                <div className="rounded-lg bg-emerald-50/70 p-3 border border-emerald-200 text-center">
+                  <div className="text-2xl font-bold text-emerald-700 font-display">{onlineCount}</div>
+                  <div className="text-[10px] text-emerald-800 font-semibold uppercase tracking-wider font-body">Online</div>
                 </div>
-                <div className="rounded-lg bg-[#FFF8EE] p-3 border border-amber-200 text-center">
-                  <div className="text-2xl font-bold text-amber-600">{degradedCount}</div>
-                  <div className="text-[10px] text-[#A0845C] font-medium">Degraded</div>
+                <div className="rounded-lg bg-amber-50/70 p-3 border border-amber-200 text-center">
+                  <div className="text-2xl font-bold text-amber-700 font-display">{degradedCount}</div>
+                  <div className="text-[10px] text-amber-800 font-semibold uppercase tracking-wider font-body">Degraded</div>
                 </div>
-                <div className="rounded-lg bg-[#FFF8EE] p-3 border border-rose-200 text-center">
-                  <div className="text-2xl font-bold text-[#B91C1C]">{offlineCount}</div>
-                  <div className="text-[10px] text-[#A0845C] font-medium">Offline</div>
+                <div className="rounded-lg bg-red-50/70 p-3 border border-red-200 text-center">
+                  <div className="text-2xl font-bold text-red-700 font-display">{offlineCount}</div>
+                  <div className="text-[10px] text-red-800 font-semibold uppercase tracking-wider font-body">Offline</div>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Sync Logs */}
-          <div className="rounded-xl border border-[#E8DCC8] bg-white/50 p-5 shadow-sm backdrop-blur-sm">
-            <h3 className="mb-4 text-sm font-semibold text-[#7A3E14] uppercase tracking-widest flex items-center gap-2">
-              <Server size={16} /> Live Sync Feed
+          <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
+            <h3 className="mb-4 text-xs font-bold text-zinc-900 uppercase tracking-wider font-display flex items-center gap-2">
+              <Server size={14} className="text-zinc-600" /> Live Sync Feed
             </h3>
-            <div className="space-y-2.5 text-xs font-mono max-h-[360px] overflow-y-auto pr-1">
+            <div className="space-y-2.5 text-xs font-mono max-h-[340px] overflow-y-auto pr-1">
               {SYNC_LOGS.map((log, i) => (
-                <div key={i} className={`flex items-start gap-2 ${
-                  log.type === "success" ? "text-emerald-700" : log.type === "error" ? "text-[#B91C1C]" : log.type === "warning" ? "text-amber-700" : "text-[#A0845C]"
-                }`}>
-                  <span className="text-[#A0845C] flex-shrink-0">[{log.time}]</span>
-                  <span className="font-semibold flex-shrink-0">{log.node}:</span>
-                  <span className="break-words">{log.msg}</span>
+                <div
+                  key={i}
+                  className={`flex items-start gap-2 ${
+                    log.type === "success"
+                      ? "text-emerald-700"
+                      : log.type === "error"
+                      ? "text-red-700"
+                      : log.type === "warning"
+                      ? "text-amber-700"
+                      : "text-zinc-600"
+                  }`}
+                >
+                  <span className="text-zinc-400 flex-shrink-0 font-mono">[{log.time}]</span>
+                  <span className="font-semibold text-zinc-800 flex-shrink-0">{log.node}:</span>
+                  <span className="break-words font-body text-zinc-600">{log.msg}</span>
                 </div>
               ))}
             </div>
@@ -197,11 +205,11 @@ export default function StateIntegrationTab() {
 
           {/* Node Detail Panel */}
           {selectedNode && (
-            <div className="rounded-xl border border-[#C86B28]/30 bg-[#FFF8EE] p-5 shadow-md">
-              <h3 className="mb-3 text-sm font-semibold text-[#7A3E14] uppercase tracking-widest flex items-center gap-2">
-                <GitMerge size={16} /> {selectedNode.name} — Node Details
+            <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm ring-1 ring-zinc-900/5">
+              <h3 className="mb-3 text-xs font-bold text-zinc-900 uppercase tracking-wider font-display flex items-center gap-2">
+                <GitMerge size={14} className="text-zinc-600" /> {selectedNode.name} — Details
               </h3>
-              <div className="space-y-2 text-sm">
+              <div className="space-y-2 text-xs divide-y divide-zinc-100">
                 <DetailRow label="State Department" value={selectedNode.dept} />
                 <DetailRow label="API Version" value={selectedNode.apiVersion} />
                 <DetailRow label="Pipeline Type" value={selectedNode.pipeline} />
@@ -210,71 +218,102 @@ export default function StateIntegrationTab() {
                 <DetailRow label="Active Conflicts" value={selectedNode.conflicts.toLocaleString()} />
                 <DetailRow label="Total Records" value={selectedNode.records} />
               </div>
+
+              {selectedNode.id === "OD" && onLaunchCadastral && (
+                <button
+                  onClick={onLaunchCadastral}
+                  className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-zinc-900 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-zinc-800"
+                >
+                  <Layers size={14} />
+                  Launch Bhunaksha Cadastral Explorer
+                  <ArrowUpRight size={14} />
+                </button>
+              )}
             </div>
           )}
         </div>
 
         {/* ═══ Right Column: Full Node Table ═══════════════════════════ */}
         <div className="col-span-2 space-y-4">
-          <div className="rounded-xl border border-[#E8DCC8] bg-white/50 p-1 shadow-sm backdrop-blur-sm overflow-hidden">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-[#FFF8EE] text-xs uppercase tracking-widest text-[#A0845C]">
+          <div className="rounded-xl border border-zinc-200 bg-white shadow-sm overflow-hidden">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-zinc-50/80 border-b border-zinc-200 text-[10px] uppercase tracking-wider text-zinc-500 font-display">
                 <tr>
-                  <th className="px-4 py-3 font-semibold border-b border-[#E8DCC8]">State Node</th>
-                  <th className="px-4 py-3 font-semibold border-b border-[#E8DCC8]">Status</th>
-                  <th className="px-4 py-3 font-semibold border-b border-[#E8DCC8]">Latency</th>
-                  <th className="px-4 py-3 font-semibold border-b border-[#E8DCC8]">Records</th>
-                  <th className="px-4 py-3 font-semibold border-b border-[#E8DCC8]">Pipeline</th>
-                  <th className="px-4 py-3 font-semibold border-b border-[#E8DCC8]">Uptime</th>
-                  <th className="px-4 py-3 font-semibold border-b border-[#E8DCC8]">Last Sync</th>
+                  <th className="px-4 py-3 font-semibold">State Node</th>
+                  <th className="px-4 py-3 font-semibold">Status</th>
+                  <th className="px-4 py-3 font-semibold">Latency</th>
+                  <th className="px-4 py-3 font-semibold">Records</th>
+                  <th className="px-4 py-3 font-semibold">Pipeline</th>
+                  <th className="px-4 py-3 font-semibold">Uptime</th>
+                  <th className="px-4 py-3 font-semibold">Last Sync</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E8DCC8]">
+              <tbody className="divide-y divide-zinc-100 font-body">
                 {STATE_NODES.map((node) => (
-                  <tr key={node.id}
+                  <tr
+                    key={node.id}
                     onClick={() => setSelectedNode(node)}
-                    className={`transition-colors cursor-pointer ${selectedNode?.id === node.id ? "bg-[#C86B28]/10" : "hover:bg-[#FFF8EE]"}`}
+                    className={`transition-colors cursor-pointer ${
+                      selectedNode?.id === node.id ? "bg-zinc-100/70" : "hover:bg-zinc-50"
+                    }`}
                   >
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-[#7A3E14]/10 font-bold text-xs text-[#7A3E14]">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-zinc-100 font-bold text-xs text-zinc-900 font-mono">
                           {node.id}
                         </div>
                         <div>
-                          <span className="font-semibold text-[#7A3E14]">{node.name}</span>
-                          <div className="text-[10px] text-[#A0845C]">{node.dept.slice(0, 25)}…</div>
+                          <span className="font-semibold text-zinc-900">{node.name}</span>
+                          <div className="text-[10px] text-zinc-400">{node.dept.slice(0, 24)}…</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-4 py-3.5">
-                      {node.status === 'online' && <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-700 border border-emerald-200"><CheckCircle2 size={12} /> Online</span>}
-                      {node.status === 'degraded' && <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-semibold text-amber-700 border border-amber-200"><Clock size={12} /> Degraded</span>}
-                      {node.status === 'offline' && <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2.5 py-1 text-[10px] font-semibold text-rose-700 border border-rose-200"><XCircle size={12} /> Offline</span>}
+                      {node.status === "online" && (
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200">
+                          <CheckCircle2 size={11} /> Online
+                        </span>
+                      )}
+                      {node.status === "degraded" && (
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-0.5 text-[10px] font-semibold text-amber-700 border border-amber-200">
+                          <Clock size={11} /> Degraded
+                        </span>
+                      )}
+                      {node.status === "offline" && (
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-0.5 text-[10px] font-semibold text-red-700 border border-red-200">
+                          <XCircle size={11} /> Offline
+                        </span>
+                      )}
                     </td>
-                    <td className="px-4 py-3.5 font-mono text-xs text-[#A0845C]">{node.latency}</td>
+                    <td className="px-4 py-3.5 font-mono text-zinc-500">{node.latency}</td>
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-1.5">
-                        <Database size={12} className="text-[#A0845C]" />
-                        <span className="font-semibold text-[#7A3E14]">{node.records}</span>
+                        <Database size={12} className="text-zinc-400" />
+                        <span className="font-semibold text-zinc-800 font-mono">{node.records}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3.5">
-                      <span className={`rounded-md px-2 py-0.5 text-[10px] font-semibold ${
-                        node.pipeline.includes("CDC") ? "bg-emerald-50 text-emerald-700 border border-emerald-200" :
-                        node.pipeline.includes("REST") ? "bg-blue-50 text-blue-700 border border-blue-200" :
-                        node.pipeline.includes("SFTP") ? "bg-amber-50 text-amber-700 border border-amber-200" :
-                        "bg-rose-50 text-rose-700 border border-rose-200"
-                      }`}>{node.pipeline}</span>
+                      <span
+                        className={`rounded px-2 py-0.5 text-[10px] font-semibold ${
+                          node.pipeline.includes("CDC")
+                            ? "bg-zinc-100 text-zinc-800 border border-zinc-200"
+                            : node.pipeline.includes("REST")
+                            ? "bg-blue-50 text-blue-700 border border-blue-200"
+                            : "bg-amber-50 text-amber-700 border border-amber-200"
+                        }`}
+                      >
+                        {node.pipeline}
+                      </span>
                     </td>
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-1.5">
-                        <div className="h-1.5 w-12 rounded-full bg-[#EDE3D3]">
+                        <div className="h-1.5 w-12 rounded-full bg-zinc-100 overflow-hidden">
                           <div className="h-1.5 rounded-full bg-emerald-500" style={{ width: node.uptime }} />
                         </div>
-                        <span className="font-mono text-[10px] text-[#A0845C]">{node.uptime}</span>
+                        <span className="font-mono text-[10px] text-zinc-500">{node.uptime}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3.5 text-[10px] text-[#A0845C]">{node.lastSync}</td>
+                    <td className="px-4 py-3.5 text-[10px] text-zinc-400 font-mono">{node.lastSync}</td>
                   </tr>
                 ))}
               </tbody>
@@ -282,9 +321,9 @@ export default function StateIntegrationTab() {
           </div>
 
           {/* ═══ Data Source Registry ═══════════════════════════════════ */}
-          <div className="rounded-xl border border-[#E8DCC8] bg-white/50 p-5 shadow-sm backdrop-blur-sm">
-            <h3 className="mb-4 text-sm font-semibold text-[#7A3E14] uppercase tracking-widest flex items-center gap-2">
-              <FileText size={16} /> State Portal Registry
+          <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
+            <h3 className="mb-4 text-xs font-bold text-zinc-900 uppercase tracking-wider font-display flex items-center gap-2">
+              <FileText size={14} className="text-zinc-600" /> State Portal Registry
             </h3>
             <div className="grid grid-cols-2 gap-3">
               {[
@@ -299,13 +338,13 @@ export default function StateIntegrationTab() {
                 { state: "Punjab", portal: "PLRS (Fard)", url: "plrs.org.in", type: "ROR" },
                 { state: "Madhya Pradesh", portal: "Bhu-Abhilekh", url: "mpbhulekh.gov.in", type: "ROR" },
               ].map((src) => (
-                <div key={src.state} className="flex items-center gap-3 rounded-lg border border-[#E8DCC8] bg-[#FFF8EE] px-4 py-3">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#7A3E14]/10">
-                    <Database size={12} className="text-[#7A3E14]" />
+                <div key={src.state} className="flex items-center gap-3 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3.5 py-2.5">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-md bg-white border border-zinc-200">
+                    <Database size={12} className="text-zinc-700" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="text-xs font-semibold text-[#7A3E14]">{src.state} — {src.portal}</div>
-                    <div className="text-[10px] text-[#A0845C] truncate">{src.url} • {src.type}</div>
+                    <div className="text-xs font-semibold text-zinc-900">{src.state} — {src.portal}</div>
+                    <div className="text-[10px] text-zinc-500 font-mono truncate">{src.url} • {src.type}</div>
                   </div>
                 </div>
               ))}
@@ -321,9 +360,9 @@ export default function StateIntegrationTab() {
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between">
-      <span className="text-xs text-[#A0845C]">{label}</span>
-      <span className="font-mono text-xs font-semibold text-[#7A3E14]">{value}</span>
+    <div className="flex items-center justify-between pt-2">
+      <span className="text-xs text-zinc-500 font-body">{label}</span>
+      <span className="font-mono text-xs font-semibold text-zinc-900">{value}</span>
     </div>
   );
 }

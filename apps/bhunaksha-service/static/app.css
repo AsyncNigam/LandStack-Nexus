@@ -1,0 +1,545 @@
+/* ==========================================================================
+   Design System & Tokens (Strictly adhering to senior design guidelines)
+   ========================================================================== */
+
+:root {
+  /* Typography */
+  --font-display: "Syne", -apple-system, sans-serif;
+  --font-body: "DM Sans", -apple-system, sans-serif;
+
+  /* Color Palette - 1 Brand + Neutral Scale + 1-2 Semantic Accents */
+  --brand-primary: #0284c7;
+  --brand-primary-hover: #0369a1;
+  --brand-primary-active: #075985;
+  --brand-subtle: #0c4a6e;
+  
+  --accent-amber: #d97706;
+  --accent-cyan: #38bdf8;
+  --semantic-success: #059669;
+
+  /* Neutral Scale (Slate Tinted Neutrals) */
+  --neutral-950: #080c14; /* Base background */
+  --neutral-900: #0f172a; /* Panel / Card background */
+  --neutral-850: #131d31; /* Subtle input background */
+  --neutral-800: #1e293b; /* 1px Borders */
+  --neutral-700: #334155; /* Hover borders */
+  --neutral-400: #94a3b8; /* Secondary / Body text */
+  --neutral-300: #cbd5e1; /* Primary body text */
+  --neutral-100: #f1f5f9; /* Near white elements */
+  --neutral-50:  #f8fafc; /* Headings */
+
+  /* Radius (Unified 8px) */
+  --radius: 8px;
+
+  /* Transitions */
+  --transition-micro: 150ms ease-out;
+  --transition-normal: 250ms ease-out;
+}
+
+/* Base Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body, html {
+  height: 100%;
+  width: 100%;
+  background-color: var(--neutral-950);
+  color: var(--neutral-300);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  color: var(--neutral-50);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+/* ==========================================================================
+   App Layout Grid
+   ========================================================================== */
+
+.app-layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   Sidebar Styling
+   ========================================================================== */
+
+.sidebar {
+  background-color: var(--neutral-900);
+  border-right: 1px solid var(--neutral-800);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  z-index: 20;
+}
+
+.sidebar-header {
+  padding: 24px;
+  border-bottom: 1px solid var(--neutral-800);
+}
+
+.brand {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.brand-icon {
+  color: var(--brand-primary);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.brand-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--neutral-50);
+}
+
+.brand-subtitle {
+  display: block;
+  font-size: 12px;
+  color: var(--neutral-400);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.sidebar-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.sidebar-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-body::-webkit-scrollbar-thumb {
+  background-color: var(--neutral-800);
+  border-radius: 4px;
+}
+
+/* Control Sections */
+.control-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: none;
+  color: var(--neutral-400);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--neutral-800);
+}
+
+/* Form Controls */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--neutral-400);
+}
+
+.select-wrapper {
+  position: relative;
+}
+
+.form-select {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  background-color: var(--neutral-850);
+  border: 1px solid var(--neutral-800);
+  border-radius: var(--radius);
+  color: var(--neutral-50);
+  font-family: var(--font-body);
+  font-size: 13px;
+  outline: none;
+  transition: border-color var(--transition-micro);
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  cursor: pointer;
+}
+
+.form-select:hover:not(:disabled) {
+  border-color: var(--neutral-700);
+}
+
+.form-select:focus {
+  border-color: var(--brand-primary);
+}
+
+.form-select:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: var(--radius);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+  transition: background-color var(--transition-micro), border-color var(--transition-micro), color var(--transition-micro);
+  border: 1px solid transparent;
+}
+
+.btn-primary {
+  background-color: var(--brand-primary);
+  color: #ffffff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--brand-primary-hover);
+}
+
+.btn-primary:active:not(:disabled) {
+  background-color: var(--brand-primary-active);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border-color: var(--neutral-800);
+  color: var(--neutral-300);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--neutral-850);
+  border-color: var(--neutral-700);
+  color: var(--neutral-50);
+}
+
+.btn-outline {
+  background-color: transparent;
+  border-color: var(--neutral-800);
+  color: var(--accent-cyan);
+  font-size: 12px;
+  height: 32px;
+  padding: 0 12px;
+}
+
+.btn-outline:hover {
+  background-color: var(--neutral-850);
+  border-color: var(--brand-primary);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   Batch Progress Monitor
+   ========================================================================== */
+
+.progress-section {
+  background-color: var(--neutral-850);
+  border: 1px solid var(--neutral-800);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.progress-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--neutral-50);
+}
+
+.progress-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent-cyan);
+}
+
+.progress-bar-container {
+  height: 6px;
+  background-color: var(--neutral-800);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: var(--brand-primary);
+  transition: width var(--transition-normal);
+}
+
+.progress-current {
+  font-size: 11px;
+  color: var(--neutral-400);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==========================================================================
+   Plot Inspector Details Card
+   ========================================================================== */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--neutral-400);
+  gap: 12px;
+  border: 1px dashed var(--neutral-800);
+  border-radius: var(--radius);
+}
+
+.empty-state p {
+  font-size: 12px;
+  line-height: 1.5;
+  max-width: 240px;
+}
+
+.details-card {
+  background-color: var(--neutral-850);
+  border: 1px solid var(--neutral-800);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.details-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.details-row.vertical {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.details-label {
+  color: var(--neutral-400);
+  font-size: 12px;
+}
+
+.details-value {
+  color: var(--neutral-50);
+  font-weight: 500;
+}
+
+.details-value.prominent {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--accent-cyan);
+}
+
+.details-text {
+  font-size: 12px;
+  color: var(--neutral-300);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  background-color: var(--neutral-900);
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--neutral-800);
+  width: 100%;
+}
+
+.ror-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* ==========================================================================
+   Main Map Viewport & HUD
+   ========================================================================== */
+
+.main-viewport {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  background-color: var(--neutral-950);
+  overflow: hidden;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+  background-color: #0b1120;
+}
+
+/* Top Floating HUD */
+.map-hud {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.hud-left, .hud-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  pointer-events: auto;
+}
+
+.hud-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--neutral-900);
+  border: 1px solid var(--neutral-800);
+  border-radius: var(--radius);
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--neutral-50);
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--semantic-success);
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--neutral-400);
+  pointer-events: none;
+}
+
+#input-search-plot {
+  height: 36px;
+  width: 190px;
+  background-color: var(--neutral-900);
+  border: 1px solid var(--neutral-800);
+  border-radius: var(--radius);
+  padding: 0 12px 0 34px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--neutral-50);
+  outline: none;
+  transition: border-color var(--transition-micro), width var(--transition-normal);
+}
+
+#input-search-plot:focus {
+  border-color: var(--brand-primary);
+  width: 230px;
+}
+
+.coord-badge {
+  background-color: var(--neutral-900);
+  border: 1px solid var(--neutral-800);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--neutral-400);
+}
+
+/* Loading Overlay */
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(8, 12, 20, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  gap: 16px;
+}
+
+.loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--neutral-800);
+  border-top-color: var(--brand-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--neutral-50);
+}
+
+/* Utility Class */
+.hidden {
+  display: none !important;
+}

@@ -38,6 +38,9 @@
 
 ---
 
+> 📖 **Standard Technical Documentation:** Read the comprehensive [Standard Technical Specification & Architecture Document](STANDARD_TECHNICAL_DOCUMENTATION.md) covering API standards, interoperability protocols, reverse GIS cadastral pipelines, data schemas, security frameworks, and scalability.
+
+
 ## 🎯 Problem Statement
 
 India's land records are fragmented across **Revenue**, **Registration**, and **Municipal** departments — each maintaining independent, often contradictory databases. A single parcel can have mismatched owners, conflicting areas, and stale records across systems.

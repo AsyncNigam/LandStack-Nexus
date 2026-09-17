@@ -17,9 +17,9 @@ function safe(value: unknown, fallback = "N/A"): string {
 }
 
 const SEVERITY_BANNER: Record<string, { bg: string; border: string; text: string; label: string }> = {
-  HIGH: { bg: "bg-red-50", border: "border-red-200", text: "text-[#B91C1C]", label: "Critical" },
-  MEDIUM: { bg: "bg-amber-50", border: "border-amber-200", text: "text-amber-800", label: "Warning" },
-  LOW: { bg: "bg-sky-50", border: "border-sky-200", text: "text-sky-800", label: "Info" },
+  HIGH: { bg: "bg-red-50", border: "border-red-200", text: "text-red-700", label: "Critical Priority" },
+  MEDIUM: { bg: "bg-amber-50", border: "border-amber-200", text: "text-amber-800", label: "Medium Priority" },
+  LOW: { bg: "bg-blue-50", border: "border-blue-200", text: "text-blue-800", label: "Advisory" },
 };
 
 // ─── Component ──────────────────────────────────────────────────────
@@ -56,21 +56,21 @@ export default function EvidenceCard({ conflict, onClose, onResolved }: Evidence
   }
 
   return (
-    <div className="absolute bottom-6 right-6 z-30 w-[500px] rounded-2xl border border-[#E8DCC8] bg-[#F4EBD9]/95 shadow-2xl shadow-[#7A3E14]/10 backdrop-blur-xl">
+    <div className="absolute bottom-6 right-6 z-30 w-[500px] rounded-2xl border border-zinc-200 bg-white/95 shadow-2xl shadow-zinc-900/10 backdrop-blur-xl">
       {/* ── Header ──────────────────────────────────────────────── */}
-      <div className="flex items-start justify-between border-b border-[#E8DCC8] px-6 py-4">
+      <div className="flex items-start justify-between border-b border-zinc-200 px-6 py-4">
         <div>
-          <p className="font-mono text-base font-bold text-[#7A3E14]">
+          <p className="font-mono text-base font-bold text-zinc-900">
             {conflict.ulpin}
           </p>
-          <p className="mt-0.5 text-xs font-semibold text-[#7A3E14]">
+          <p className="mt-0.5 text-xs font-semibold text-zinc-600 font-display">
             {conflict.conflict_type} Conflict • {conflict.source_state?.toUpperCase()}
           </p>
         </div>
         <button
           type="button"
           onClick={onClose}
-          className="rounded-lg p-1.5 text-[#A0845C] transition-colors hover:bg-[#EDE3D3] hover:text-[#7A3E14]"
+          className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-900"
           aria-label="Close"
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -86,7 +86,7 @@ export default function EvidenceCard({ conflict, onClose, onResolved }: Evidence
             <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-emerald-600 text-[10px] font-bold text-white">
               AI
             </span>
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-emerald-800">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-800 font-display">
               AI-Assisted Change Detection
             </span>
           </div>
@@ -107,10 +107,10 @@ export default function EvidenceCard({ conflict, onClose, onResolved }: Evidence
       )}
 
       {/* ── Side-by-side comparison ─────────────────────────────── */}
-      <div className="mx-4 mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-[#E8DCC8] bg-[#E8DCC8]">
+      <div className="mx-4 mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-zinc-200 bg-zinc-200">
         {/* Left: Revenue Department */}
-        <div className="bg-[#F4EBD9] p-4">
-          <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-[#A0845C]">
+        <div className="bg-white p-4">
+          <p className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-zinc-500 font-display">
             Revenue Dept (RoR)
           </p>
           {isOwnership && <DataRow label="Owner" value={safe(fv.ror)} />}
@@ -130,8 +130,8 @@ export default function EvidenceCard({ conflict, onClose, onResolved }: Evidence
         </div>
 
         {/* Right: Sub-Registrar */}
-        <div className="bg-[#F4EBD9] p-4">
-          <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-[#A0845C]">
+        <div className="bg-white p-4">
+          <p className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-zinc-500 font-display">
             Sub-Registrar (Reg)
           </p>
           {isOwnership && <DataRow label="Owner" value={safe(fv.registration)} />}
@@ -145,7 +145,7 @@ export default function EvidenceCard({ conflict, onClose, onResolved }: Evidence
 
       {/* ── Alert Banner ────────────────────────────────────────── */}
       <div className={`mx-4 mt-3 rounded-xl border ${banner.border} ${banner.bg} px-4 py-3`}>
-        <p className={`text-xs font-semibold ${banner.text}`}>
+        <p className={`text-xs font-semibold ${banner.text} font-body`}>
           {banner.label}: {alertMessage(conflict)}
         </p>
       </div>
@@ -154,7 +154,7 @@ export default function EvidenceCard({ conflict, onClose, onResolved }: Evidence
       <div className="mx-4 mt-3">
         <label
           htmlFor="resolution-note"
-          className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-[#A0845C]"
+          className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-zinc-500 font-display"
         >
           Resolution Note
         </label>
@@ -163,18 +163,18 @@ export default function EvidenceCard({ conflict, onClose, onResolved }: Evidence
           rows={2}
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          placeholder="Describe the action taken…"
-          className="w-full resize-none rounded-xl border border-[#E8DCC8] bg-[#F4EBD9] px-3 py-2 text-sm text-[#7A3E14] placeholder-[#A0845C] outline-none transition-colors focus:border-[#7A3E14] focus:ring-1 focus:ring-[#7A3E14]"
+          placeholder="Describe official action taken or justification…"
+          className="w-full resize-none rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 placeholder-zinc-400 outline-none transition-all focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 font-body"
         />
       </div>
 
       {/* ── Footer ──────────────────────────────────────────────── */}
-      <div className="flex items-center justify-end gap-3 border-t border-[#E8DCC8] px-6 py-4 mt-3">
+      <div className="flex items-center justify-end gap-3 border-t border-zinc-200 px-6 py-4 mt-3">
         <button
           type="button"
           onClick={onClose}
           disabled={isResolving}
-          className="rounded-lg border border-[#E8DCC8] px-4 py-2 text-sm font-medium text-[#7A3E14] transition-colors hover:bg-[#EDE3D3] hover:text-[#7A3E14] disabled:opacity-50"
+          className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-xs font-semibold text-zinc-700 transition-colors hover:bg-zinc-50 disabled:opacity-50 font-body"
         >
           Close
         </button>
@@ -182,15 +182,15 @@ export default function EvidenceCard({ conflict, onClose, onResolved }: Evidence
           type="button"
           onClick={handleResolve}
           disabled={isResolving}
-          className="rounded-lg bg-[#7A3E14] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#5C2E0A] disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-lg bg-zinc-900 px-4 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50 font-display"
         >
           {isResolving ? (
             <span className="flex items-center gap-2">
-              <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+              <span className="h-3 w-3 animate-spin rounded-full border-2 border-white/30 border-t-white" />
               Resolving…
             </span>
           ) : (
-            "Resolve Issue"
+            "Resolve Discrepancy"
           )}
         </button>
       </div>
@@ -202,9 +202,9 @@ export default function EvidenceCard({ conflict, onClose, onResolved }: Evidence
 
 function DataRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="mb-2 last:mb-0">
-      <p className="text-[10px] uppercase tracking-wider text-[#A0845C]">{label}</p>
-      <p className="mt-0.5 text-sm font-semibold text-[#7A3E14]">{value}</p>
+    <div className="mb-2.5 last:mb-0">
+      <p className="text-[10px] uppercase tracking-wider text-zinc-400 font-display">{label}</p>
+      <p className="mt-0.5 text-xs font-semibold text-zinc-900 font-body">{value}</p>
     </div>
   );
 }

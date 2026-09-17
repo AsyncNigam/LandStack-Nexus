@@ -4,3 +4,8 @@ dist/
 *.tsbuildinfo
 .env
 .env.local
+__pycache__/
+*.pyc
+*.db
+apps/bhunaksha-service/out/
+apps/bhunaksha-service/*.png
