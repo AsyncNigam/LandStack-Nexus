@@ -54,3 +54,44 @@ export interface ApiResponse<T> {
   data: T;
   message?: string;
 }
+
+// ─── Bhunaksha Cadastral Types ─────────────────────────────────────
+export interface BhunakshaHierarchyItem {
+  code: string;
+  name: string;
+}
+
+export interface BhunakshaPlotRecord {
+  id: string;
+  gis_code: string;
+  plot_no: string;
+  khata_no?: string | null;
+  ror_front?: string | null;
+  ror_back?: string | null;
+  land_class?: string | null;
+  area_acres?: number | null;
+  info?: string | null;
+  xmin?: number | null;
+  ymin?: number | null;
+  xmax?: number | null;
+  ymax?: number | null;
+  source?: "cache" | "live";
+}
+
+export interface BhunakshaVillageResponse {
+  status: string;
+  village_gis: string;
+  sheet?: string;
+  sheets: string[];
+  image_url: string;
+  union_extent?: {
+    xmin: number;
+    ymin: number;
+    xmax: number;
+    ymax: number;
+    width: number;
+    height: number;
+  };
+  sheet_extents?: Record<string, any>;
+  plots: BhunakshaPlotRecord[];
+}

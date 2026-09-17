@@ -7,6 +7,7 @@ import pool from "./db.js";
 import ingestionRouter from "./routes/ingestion.js";
 import conflictsRouter from "./routes/conflicts.js";
 import parcelsRouter from "./routes/parcels.js";
+import bhunakshaRouter from "./routes/bhunaksha.js";
 import type { ApiResponse } from "@landstack/shared";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -18,10 +19,17 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 
+// ─── Static Map Rasters ─────────────────────────────────────────────
+const bhunakshaOut = path.resolve(__dirname, "../../bhunaksha-service/out");
+if (fs.existsSync(bhunakshaOut)) {
+  app.use("/maps", express.static(bhunakshaOut));
+}
+
 // ─── Routes ─────────────────────────────────────────────────────────
 app.use("/api/v1/ingest", ingestionRouter);
 app.use("/api/v1/conflicts", conflictsRouter);
 app.use("/api/v1/parcels", parcelsRouter);
+app.use("/api/v1/bhunaksha", bhunakshaRouter);
 
 // ─── Schema initialisation ─────────────────────────────────────────
 async function initDatabase(): Promise<void> {

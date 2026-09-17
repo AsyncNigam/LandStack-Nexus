@@ -376,16 +376,16 @@ export default function MapViewer() {
         new maplibregl.Popup({ offset: 10, maxWidth: "290px" })
           .setLngLat(e.lngLat)
           .setHTML(`
-            <div style="background:#FFF8EE;color:#7A3E14;padding:14px;border-radius:10px;font-size:13px;border:1px solid #E8DCC8;box-shadow:0 4px 12px rgba(122,62,20,0.15)">
-              <div style="font-size:10px;color:#A0845C;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px">${p.state} • District</div>
-              <div style="font-size:18px;font-weight:800;margin-bottom:10px">${p.name}</div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;border-top:1px solid #E8DCC8;padding-top:10px">
-                <div><div style="font-size:10px;color:#A0845C">Parcels</div><div style="font-size:14px;font-weight:700">${Number(p.parcels).toLocaleString()}</div></div>
-                <div><div style="font-size:10px;color:#A0845C">Disputes</div><div style="font-size:14px;font-weight:700;color:#B91C1C">${Number(p.conflicts).toLocaleString()}</div></div>
-                <div><div style="font-size:10px;color:#A0845C">AI Flags</div><div style="font-size:14px;font-weight:700;color:#C86B28">${p.aiFlags}</div></div>
-                <div><div style="font-size:10px;color:#A0845C">Pipeline</div><div style="font-size:14px;font-weight:700">${p.pending === true || p.pending === "true" ? '⏳ Pending' : '✅ Synced'}</div></div>
+            <div style="background:#ffffff;color:#09090b;padding:16px;border-radius:12px;font-size:13px;border:1px solid #e4e4e7;box-shadow:0 8px 24px -4px rgba(0,0,0,0.12);font-family:system-ui,-apple-system,sans-serif">
+              <div style="font-size:10px;color:#71717a;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:600">${p.state} • District</div>
+              <div style="font-size:17px;font-weight:700;margin-bottom:12px;color:#09090b">${p.name}</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;border-top:1px solid #f4f4f5;padding-top:10px">
+                <div><div style="font-size:10px;color:#71717a">Parcels</div><div style="font-size:13px;font-weight:700;font-family:monospace">${Number(p.parcels).toLocaleString()}</div></div>
+                <div><div style="font-size:10px;color:#71717a">Disputes</div><div style="font-size:13px;font-weight:700;color:#dc2626;font-family:monospace">${Number(p.conflicts).toLocaleString()}</div></div>
+                <div><div style="font-size:10px;color:#71717a">AI Flags</div><div style="font-size:13px;font-weight:700;color:#d97706;font-family:monospace">${p.aiFlags}</div></div>
+                <div><div style="font-size:10px;color:#71717a">Pipeline</div><div style="font-size:12px;font-weight:600">${p.pending === true || p.pending === "true" ? '⏳ Pending' : '✓ Synced'}</div></div>
               </div>
-              <div style="margin-top:10px;text-align:center">${sev}</div>
+              <div style="margin-top:12px;text-align:center">${sev}</div>
             </div>`)
           .addTo(map);
       });
@@ -393,22 +393,22 @@ export default function MapViewer() {
       map.on("click", "plot-fill", (e: any) => {
         if (!e.features?.length) return;
         const p = e.features[0].properties;
-        const stColor = p.status === "Conflict" ? "#B91C1C" : p.status === "Govt" ? "#3b82f6" : "#15803D";
+        const stColor = p.status === "Conflict" ? "#dc2626" : p.status === "Govt" ? "#2563eb" : "#16a34a";
         new maplibregl.Popup({ offset: 10, maxWidth: "300px" })
           .setLngLat(e.lngLat)
           .setHTML(`
-            <div style="background:#FFF8EE;color:#7A3E14;padding:14px;border-radius:10px;font-size:12px;border:1px solid #E8DCC8;box-shadow:0 4px 12px rgba(122,62,20,0.15)">
-              <div style="font-size:9px;color:#A0845C;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px">📋 Bhulekh Cadastral Record</div>
+            <div style="background:#ffffff;color:#09090b;padding:16px;border-radius:12px;font-size:12px;border:1px solid #e4e4e7;box-shadow:0 8px 24px -4px rgba(0,0,0,0.12);font-family:system-ui,-apple-system,sans-serif">
+              <div style="font-size:9px;color:#71717a;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;font-weight:600">Bhulekh Cadastral Parcel</div>
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-                <div style="font-size:16px;font-weight:800;font-family:monospace">${p.plot}</div>
-                <span style="background:${stColor};color:white;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700">${p.status.toUpperCase()}</span>
+                <div style="font-size:15px;font-weight:700;font-family:monospace">${p.plot}</div>
+                <span style="background:${stColor};color:white;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700">${p.status.toUpperCase()}</span>
               </div>
-              <div style="border-top:1px solid #E8DCC8;padding-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px">
-                <div><div style="font-size:9px;color:#A0845C">Khasra No.</div><div style="font-weight:700">${p.khasra}</div></div>
-                <div><div style="font-size:9px;color:#A0845C">Area</div><div style="font-weight:700">${p.area}</div></div>
-                <div><div style="font-size:9px;color:#A0845C">Owner</div><div style="font-weight:600">${p.owner}</div></div>
-                <div><div style="font-size:9px;color:#A0845C">Land Use</div><div style="font-weight:600">${p.landUse}</div></div>
-                <div style="grid-column:span 2"><div style="font-size:9px;color:#A0845C">District</div><div style="font-weight:600">${p.district}</div></div>
+              <div style="border-top:1px solid #f4f4f5;padding-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div><div style="font-size:9px;color:#71717a">Khasra No.</div><div style="font-weight:700;font-family:monospace">${p.khasra}</div></div>
+                <div><div style="font-size:9px;color:#71717a">Area</div><div style="font-weight:700">${p.area}</div></div>
+                <div><div style="font-size:9px;color:#71717a">Owner</div><div style="font-weight:600">${p.owner}</div></div>
+                <div><div style="font-size:9px;color:#71717a">Land Use</div><div style="font-weight:600">${p.landUse}</div></div>
+                <div style="grid-column:span 2"><div style="font-size:9px;color:#71717a">District</div><div style="font-weight:600">${p.district}</div></div>
               </div>
             </div>`)
           .addTo(map);
@@ -550,12 +550,12 @@ export default function MapViewer() {
     const onClick = id === 'cadastral' ? handleCadastralToggle : () => toggleLayerState(id);
     return (
       <button key={id} type="button" onClick={onClick}
-        className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-[#C86B28]/10">
+        className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-zinc-100">
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold text-[#7A3E14]">{label}</p>
-          <p className="text-[10px] text-[#7A3E14]/50 truncate">{desc}</p>
+          <p className="text-xs font-semibold text-zinc-900 font-display">{label}</p>
+          <p className="text-[10px] text-zinc-500 truncate font-body">{desc}</p>
         </div>
-        {isOn ? <Eye size={16} className="flex-shrink-0 text-emerald-600" /> : <EyeOff size={16} className="flex-shrink-0 text-[#A0845C]" />}
+        {isOn ? <Eye size={15} className="flex-shrink-0 text-emerald-600" /> : <EyeOff size={15} className="flex-shrink-0 text-zinc-400" />}
       </button>
     );
   };
@@ -569,25 +569,25 @@ export default function MapViewer() {
       <div ref={containerRef} className="h-full w-full" />
 
       {/* ── Floating Layer Controls ─────────────────────────────── */}
-      <div className="absolute right-4 top-4 z-10 w-64 rounded-xl border border-[#E8DCC8] bg-[#F4EBD9] p-4 shadow-md backdrop-blur-sm text-[#7A3E14]">
+      <div className="absolute right-4 top-4 z-10 w-64 rounded-xl border border-zinc-200 bg-white/95 p-4 shadow-lg backdrop-blur-md text-zinc-900">
         <div className="mb-3 flex items-center gap-2">
-          <Layers size={16} className="text-[#7A3E14]" />
-          <h3 className="text-xs font-bold uppercase tracking-widest text-[#7A3E14]">Map Layers</h3>
+          <Layers size={15} className="text-zinc-700" />
+          <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-900 font-display">Map Layers</h3>
         </div>
-        <div className="space-y-2.5">
+        <div className="space-y-1.5">
           {renderToggle('heatmap', 'Dispute Heatmap', `${DISTRICTS.length} districts • 10 states`)}
           {renderToggle('cadastral', 'Cadastral Overlay', 'View land plots and Khasra boundaries')}
           {renderToggle('aiSentinel', 'AI Sentinel Flags', 'Automated anomaly markers')}
           {renderToggle('integration', 'Pending Integration', 'Red dashed = unsynced pipeline')}
         </div>
-        <div className="mt-3 border-t border-[#E8DCC8] pt-2.5">
-          <div className="flex items-center gap-2 text-[10px] text-[#7A3E14]/50">
-            <div className="h-2 w-2 rounded-full bg-emerald-600 shadow-sm" />
+        <div className="mt-3 border-t border-zinc-100 pt-2.5">
+          <div className="flex items-center gap-2 text-[10px] text-zinc-500 font-body">
+            <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-sm" />
             <span>10 States • {DISTRICTS.length} Districts • {plotCount} Plots</span>
           </div>
-          <div className="mt-1 flex items-center gap-2 text-[10px] text-[#7A3E14]/50">
+          <div className="mt-1 flex items-center gap-2 text-[10px] text-zinc-500 font-mono">
             <ZoomIn size={10} />
-            <span>Zoom: {zoomLevel} {zoomLevel >= 12 ? "• 📋 Bhulekh Mode" : ""}</span>
+            <span>Zoom: {zoomLevel} {zoomLevel >= 12 ? "• Bhulekh Cadastral Mode" : ""}</span>
           </div>
         </div>
       </div>
@@ -597,10 +597,10 @@ export default function MapViewer() {
         <div className="absolute left-1/2 bottom-8 z-20 -translate-x-1/2">
           <button 
             onClick={handleCadastralToggle}
-            className="flex items-center gap-2 rounded-full bg-[#15803D] px-6 py-3 text-white text-sm font-bold shadow-2xl hover:bg-[#166534] transition-all animate-bounce border-2 border-white/20"
+            className="flex items-center gap-2 rounded-full bg-zinc-900 px-6 py-2.5 text-white text-xs font-bold shadow-xl hover:bg-zinc-800 transition-all animate-bounce border border-white/20 font-display"
           >
-            <Layers size={18} />
-            See Cadastral Mapping
+            <Layers size={15} />
+            Show Cadastral Mapping
           </button>
         </div>
       )}
@@ -608,29 +608,29 @@ export default function MapViewer() {
         <div className="absolute left-1/2 bottom-8 z-20 -translate-x-1/2">
           <button 
             onClick={handleCadastralToggle}
-            className="flex items-center gap-2 rounded-full bg-[#B91C1C] px-6 py-3 text-white text-sm font-bold shadow-2xl hover:bg-[#991B1B] transition-all border-2 border-white/20"
+            className="flex items-center gap-2 rounded-full bg-red-600 px-6 py-2.5 text-white text-xs font-bold shadow-xl hover:bg-red-700 transition-all border border-white/20 font-display"
           >
-            <EyeOff size={18} />
+            <EyeOff size={15} />
             Hide Cadastral Mapping
           </button>
         </div>
       )}
 
       {/* ── Bottom legend ─────────────────────────────────────── */}
-      <div className="absolute bottom-6 left-4 z-10 rounded-lg border border-[#E8DCC8] bg-[#F4EBD9] px-4 py-2.5 shadow-md">
+      <div className="absolute bottom-6 left-4 z-10 rounded-lg border border-zinc-200 bg-white/95 px-4 py-2.5 shadow-md">
         {zoomLevel < 12 ? (
           <div className="flex gap-3">
-            <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-sm bg-[#4A200A]" /><span className="text-[11px] font-medium text-[#7A3E14]">2000+</span></div>
-            <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-sm bg-[#7A3E14]" /><span className="text-[11px] font-medium text-[#7A3E14]">1500+</span></div>
-            <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-sm bg-[#C86B28]" /><span className="text-[11px] font-medium text-[#7A3E14]">1000+</span></div>
-            <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-sm bg-[#D4A05A]" /><span className="text-[11px] font-medium text-[#7A3E14]">500+</span></div>
-            <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-sm bg-[#E8D4B5]" /><span className="text-[11px] font-medium text-[#7A3E14]">&lt;500</span></div>
+            <div className="flex items-center gap-1.5"><div className="h-2.5 w-2.5 rounded-sm bg-zinc-950" /><span className="text-[11px] font-medium text-zinc-700 font-mono">2000+</span></div>
+            <div className="flex items-center gap-1.5"><div className="h-2.5 w-2.5 rounded-sm bg-zinc-800" /><span className="text-[11px] font-medium text-zinc-700 font-mono">1500+</span></div>
+            <div className="flex items-center gap-1.5"><div className="h-2.5 w-2.5 rounded-sm bg-zinc-600" /><span className="text-[11px] font-medium text-zinc-700 font-mono">1000+</span></div>
+            <div className="flex items-center gap-1.5"><div className="h-2.5 w-2.5 rounded-sm bg-zinc-400" /><span className="text-[11px] font-medium text-zinc-700 font-mono">500+</span></div>
+            <div className="flex items-center gap-1.5"><div className="h-2.5 w-2.5 rounded-sm bg-zinc-200" /><span className="text-[11px] font-medium text-zinc-700 font-mono">&lt;500</span></div>
           </div>
         ) : (
           <div className="flex gap-3">
-            <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-sm bg-[#C8E6C9] border-2 border-[#5D4037]" /><span className="text-[11px] font-medium text-[#7A3E14]">Clean</span></div>
-            <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-sm bg-[#FFCDD2] border-2 border-[#C62828]" /><span className="text-[11px] font-medium text-[#7A3E14]">Conflict</span></div>
-            <div className="flex items-center gap-1.5"><div className="h-3 w-3 rounded-sm bg-[#BBDEFB] border-2 border-[#5D4037]" /><span className="text-[11px] font-medium text-[#7A3E14]">Govt</span></div>
+            <div className="flex items-center gap-1.5"><div className="h-2.5 w-2.5 rounded-sm bg-emerald-100 border border-emerald-500" /><span className="text-[11px] font-medium text-zinc-700 font-body">Clean</span></div>
+            <div className="flex items-center gap-1.5"><div className="h-2.5 w-2.5 rounded-sm bg-red-100 border border-red-500" /><span className="text-[11px] font-medium text-zinc-700 font-body">Conflict</span></div>
+            <div className="flex items-center gap-1.5"><div className="h-2.5 w-2.5 rounded-sm bg-blue-100 border border-blue-500" /><span className="text-[11px] font-medium text-zinc-700 font-body">Govt</span></div>
           </div>
         )}
       </div>

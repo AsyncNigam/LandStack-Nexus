@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "dev": "turbo dev",
+    "dev:bhunaksha": "python apps/bhunaksha-service/server.py",
     "build": "turbo build",
     "lint": "turbo lint"
   },

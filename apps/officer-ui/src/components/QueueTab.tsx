@@ -200,9 +200,9 @@ const SEV_STYLES: Record<string, string> = {
 };
 
 const STATUS_STYLES: Record<string, string> = {
-  UNRESOLVED: "text-[#B91C1C]",
+  UNRESOLVED: "text-rose-600",
   "UNDER REVIEW": "text-amber-600",
-  "AI FLAGGED": "text-[#7A3E14]",
+  "AI FLAGGED": "text-indigo-600",
   RESOLVED: "text-emerald-600",
 };
 
@@ -221,27 +221,27 @@ export default function QueueTab() {
   });
 
   return (
-    <div className="flex h-full flex-col overflow-hidden p-6">
+    <div className="flex h-full flex-col overflow-hidden p-6 bg-white font-sans">
       {/* ── Header ──────────────────────────────────────────────── */}
       <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         {/* Search */}
         <div className="relative w-full max-w-sm">
           <Search
             size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A0845C]"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
           />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by ULPIN…"
-            className="w-full rounded-lg border border-[#E8DCC8] bg-[#F4EBD9] py-2 pl-9 pr-4 text-sm text-[#7A3E14] placeholder-[#A0845C] outline-none transition-colors focus:border-[#7A3E14] focus:ring-1 focus:ring-[#7A3E14]/30 shadow-sm"
+            className="w-full rounded-lg border border-zinc-300 bg-white py-2 pl-9 pr-4 text-xs text-zinc-900 placeholder-zinc-400 outline-none transition-colors focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 shadow-sm"
           />
         </div>
 
         {/* Filter pills */}
         <div className="flex items-center gap-2">
-          <Filter size={14} className="text-[#A0845C]" />
+          <Filter size={14} className="text-zinc-400" />
           {FILTERS.map((f) => (
             <button
               key={f}
@@ -249,8 +249,8 @@ export default function QueueTab() {
               onClick={() => setActiveFilter(f)}
               className={`rounded-full border px-3.5 py-1 text-xs font-medium transition-all ${
                 activeFilter === f
-                  ? "border-[#7A3E14] bg-[#7A3E14]/10 text-[#7A3E14]"
-                  : "border-[#E8DCC8] text-[#A0845C] hover:border-[#E8DCC8] hover:text-[#7A3E14]"
+                  ? "border-[#d8f0bc] bg-[#edf8db] text-zinc-900 font-semibold shadow-2xs"
+                  : "border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900"
               }`}
             >
               {f}
@@ -260,15 +260,15 @@ export default function QueueTab() {
       </div>
 
       {/* ── Table ───────────────────────────────────────────────── */}
-      <div className="flex-1 overflow-auto rounded-xl border border-[#E8DCC8] bg-[#F4EBD9] shadow-sm">
+      <div className="flex-1 overflow-auto rounded-xl border border-zinc-200 bg-white shadow-sm">
         <table className="w-full min-w-[800px] text-left text-sm">
-          <thead className="sticky top-0 z-10 bg-[#F4EBD9]">
+          <thead className="sticky top-0 z-10 bg-zinc-50 border-b border-zinc-200">
             <tr>
               {["ULPIN", "State", "Type", "Severity", "Variance", "Status", "Detected", ""].map(
                 (h) => (
                   <th
                     key={h}
-                    className="border-b border-[#E8DCC8] px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-[#A0845C]"
+                    className="border-b border-zinc-200 px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-zinc-500"
                   >
                     {h}
                   </th>
@@ -276,24 +276,24 @@ export default function QueueTab() {
               )}
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-zinc-100">
             {filtered.map((c) => (
               <tr
                 key={c.id}
-                className="border-b border-[#EDE3D3] transition-colors hover:bg-[#EDE3D3]"
+                className="transition-colors hover:bg-zinc-50"
               >
                 {/* ULPIN */}
-                <td className="px-5 py-3.5 font-mono text-xs font-bold text-[#7A3E14]">
+                <td className="px-5 py-3.5 font-mono text-xs font-bold text-zinc-900">
                   {c.ulpin}
                 </td>
 
                 {/* State */}
-                <td className="px-5 py-3.5 text-xs text-[#A0845C]">{c.state}</td>
+                <td className="px-5 py-3.5 text-xs text-zinc-600">{c.state}</td>
 
                 {/* Type */}
                 <td className="px-5 py-3.5">
-                  <div className="flex items-center gap-1.5 text-xs text-[#7A3E14]">
-                    <AlertTriangle size={13} className="text-[#A0845C]" />
+                  <div className="flex items-center gap-1.5 text-xs text-zinc-800">
+                    <AlertTriangle size={13} className="text-zinc-400" />
                     {c.type}
                   </div>
                 </td>
@@ -310,11 +310,11 @@ export default function QueueTab() {
                 {/* Variance */}
                 <td className="px-5 py-3.5">
                   <div className="flex items-center gap-1.5 font-mono text-xs">
-                    <span className="text-[#A0845C]">{c.dept_a_val}</span>
-                    <ArrowRight size={12} className="flex-shrink-0 text-[#C4A882]" />
-                    <span className="font-semibold text-[#7A3E14]">{c.dept_b_val}</span>
+                    <span className="text-zinc-500">{c.dept_a_val}</span>
+                    <ArrowRight size={12} className="flex-shrink-0 text-zinc-400" />
+                    <span className="font-semibold text-zinc-900">{c.dept_b_val}</span>
                   </div>
-                  <p className="mt-0.5 text-[10px] text-[#A0845C]">
+                  <p className="mt-0.5 text-[10px] text-zinc-400 font-body">
                     {c.dept_a} → {c.dept_b}
                   </p>
                 </td>
@@ -322,22 +322,22 @@ export default function QueueTab() {
                 {/* Status */}
                 <td className="px-5 py-3.5">
                   <span
-                    className={`text-xs font-semibold ${STATUS_STYLES[c.status] ?? "text-[#A0845C]"}`}
+                    className={`text-xs font-semibold ${STATUS_STYLES[c.status] ?? "text-zinc-500"}`}
                   >
                     {c.status}
                   </span>
                 </td>
 
                 {/* Detected */}
-                <td className="px-5 py-3.5 text-xs text-[#A0845C]">{c.detected}</td>
+                <td className="px-5 py-3.5 text-xs text-zinc-500 font-mono">{c.detected}</td>
 
                 {/* Action */}
                 <td className="px-5 py-3.5">
                   <button
                     type="button"
-                    className="flex items-center gap-1.5 rounded-lg border border-[#E8DCC8] px-3 py-1.5 text-xs font-medium text-[#7A3E14] transition-all hover:border-[#7A3E14] hover:bg-[#7A3E14]/5 hover:text-[#7A3E14]"
+                    className="flex items-center gap-1.5 rounded-lg border border-[#d8f0bc] bg-[#edf8db] hover:bg-[#b8f382] px-3 py-1.5 text-xs font-semibold text-zinc-900 transition-all shadow-2xs cursor-pointer active:scale-95"
                   >
-                    <Eye size={13} />
+                    <Eye size={13} className="text-zinc-900" />
                     Review
                   </button>
                 </td>
@@ -346,7 +346,7 @@ export default function QueueTab() {
 
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-5 py-12 text-center text-sm text-[#A0845C]">
+                <td colSpan={8} className="px-5 py-12 text-center text-sm text-zinc-500 font-body">
                   No conflicts match the current filters.
                 </td>
               </tr>
@@ -356,7 +356,7 @@ export default function QueueTab() {
       </div>
 
       {/* ── Footer ──────────────────────────────────────────────── */}
-      <div className="mt-3 flex items-center justify-between text-xs text-[#A0845C]">
+      <div className="mt-3 flex items-center justify-between text-xs text-zinc-500 font-body">
         <span>
           Showing {filtered.length} of {MOCK_CONFLICTS.length} discrepancies
         </span>

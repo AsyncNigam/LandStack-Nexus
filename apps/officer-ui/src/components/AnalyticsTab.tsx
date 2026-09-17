@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Database,
   AlertTriangle,
@@ -47,36 +47,35 @@ const generateDonutData = () => {
 };
 
 const generateBarData = () => [
-  { name: "Odisha", integrated: 80 + Math.floor(Math.random() * 20) },
-  { name: "Tamil Nadu", integrated: 70 + Math.floor(Math.random() * 20) },
-  { name: "Punjab", integrated: 60 + Math.floor(Math.random() * 20) },
-  { name: "Gujarat", integrated: 75 + Math.floor(Math.random() * 20) },
-  { name: "Assam", integrated: 30 + Math.floor(Math.random() * 20) },
-  { name: "Maharashtra", integrated: 85 + Math.floor(Math.random() * 15) },
-  { name: "Karnataka", integrated: 78 + Math.floor(Math.random() * 20) },
-  { name: "Rajasthan", integrated: 55 + Math.floor(Math.random() * 20) },
-  { name: "Uttar Pradesh", integrated: 45 + Math.floor(Math.random() * 25) },
-  { name: "Madhya Pradesh", integrated: 50 + Math.floor(Math.random() * 20) },
-  { name: "West Bengal", integrated: 65 + Math.floor(Math.random() * 20) },
-  ...["Andhra Pradesh", "Bihar", "Chhattisgarh", "Goa", "Haryana", "Himachal Pradesh", "Jharkhand", "Kerala", "Telangana", "Uttarakhand"].map(name => ({
-    name, integrated: 30 + Math.floor(Math.random() * 60)
-  }))
+  { name: "Odisha", integrated: 88 },
+  { name: "Maharashtra", integrated: 85 },
+  { name: "Karnataka", integrated: 78 },
+  { name: "Gujarat", integrated: 75 },
+  { name: "Tamil Nadu", integrated: 70 },
+  { name: "West Bengal", integrated: 65 },
+  { name: "Punjab", integrated: 60 },
+  { name: "Rajasthan", integrated: 55 },
+  { name: "Madhya Pradesh", integrated: 50 },
+  { name: "Uttar Pradesh", integrated: 45 },
+  { name: "Assam", integrated: 32 },
 ];
-const DONUT_COLORS = ["#7A3E14", "#A0845C", "#16a34a", "#B91C1C"];
+
+const DONUT_COLORS = ["#18181b", "#52525b", "#16a34a", "#dc2626"];
 
 // ─── Shared tooltip style ───────────────────────────────────────────
 
 const TOOLTIP_STYLE = {
   contentStyle: {
-    backgroundColor: "#FFF8EE",
-    borderColor: "#E8DCC8",
+    backgroundColor: "#ffffff",
+    borderColor: "#e4e4e7",
     borderRadius: "8px",
-    color: "#7A3E14",
+    color: "#09090b",
     fontSize: "12px",
-    boxShadow: "0 4px 20px rgba(122,62,20,0.08)",
+    boxShadow: "0 4px 16px -2px rgba(0, 0, 0, 0.08)",
+    fontFamily: "var(--font-body)",
   },
-  itemStyle: { color: "#A0845C" },
-  labelStyle: { color: "#7A3E14", fontWeight: 600 },
+  itemStyle: { color: "#52525b" },
+  labelStyle: { color: "#09090b", fontWeight: 600 },
 };
 
 // ─── Metric Cards ───────────────────────────────────────────────────
@@ -101,24 +100,24 @@ function MetricCard({
   trendColor = "text-emerald-600",
 }: MetricCardProps) {
   return (
-    <div className="group relative overflow-hidden rounded-xl border border-[#E8DCC8] bg-[#F4EBD9] p-5 shadow-sm transition-all duration-200 hover:shadow-md">
+    <div className="group relative overflow-hidden rounded-xl border border-zinc-200/90 bg-white p-5 shadow-sm transition-all duration-200 hover:border-zinc-300 hover:shadow">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-[#A0845C]">
+          <p className="text-xs font-medium uppercase tracking-wider text-zinc-500 font-display">
             {label}
           </p>
-          <p className="mt-2 text-2xl font-bold tracking-tight text-[#7A3E14]">
+          <p className="mt-2 text-2xl font-bold tracking-tight text-zinc-900 font-display">
             {value}
           </p>
           {trend && (
-            <span className={`mt-1 flex items-center gap-0.5 text-xs font-medium ${trendColor}`}>
-              <ArrowUpRight size={12} />
+            <span className={`mt-1.5 flex items-center gap-0.5 text-xs font-medium font-body ${trendColor}`}>
+              <ArrowUpRight size={13} />
               {trend}
             </span>
           )}
         </div>
-        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${iconBg}`}>
-          <Icon size={20} className={iconColor} />
+        <div className={`flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-100 ${iconBg}`}>
+          <Icon size={18} className={iconColor} />
         </div>
       </div>
     </div>
@@ -140,36 +139,48 @@ export default function AnalyticsTab() {
       setDonutData(generateDonutData());
       setBarData(generateBarData());
       setIsRefreshing(false);
-    }, 600);
+    }, 500);
   };
 
   return (
-    <div className="h-full overflow-y-auto p-6 relative">
-      <button 
-        onClick={handleRefresh}
-        disabled={isRefreshing}
-        className="absolute top-6 right-6 flex items-center gap-2 rounded-lg bg-[#7A3E14]/10 px-3 py-1.5 text-xs font-semibold text-[#7A3E14] transition-colors hover:bg-[#7A3E14]/20"
-      >
-        <RefreshCw size={14} className={isRefreshing ? "animate-spin" : ""} />
-        {isRefreshing ? "Fetching..." : "Refresh Data"}
-      </button>
+    <div className="h-full overflow-y-auto bg-zinc-50/50 p-8 space-y-6">
+      {/* Header action */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold tracking-tight text-zinc-900 font-display">
+            National Land Analytics & Audit Ledger
+          </h2>
+          <p className="text-xs text-zinc-500 font-body mt-0.5">
+            Real-time synchronization metrics across Revenue, Cadastral, and Registry departments
+          </p>
+        </div>
+        <button
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+          className="flex items-center gap-2 rounded-lg bg-zinc-900 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:bg-zinc-800 disabled:opacity-50"
+        >
+          <RefreshCw size={13} className={isRefreshing ? "animate-spin" : ""} />
+          {isRefreshing ? "Syncing..." : "Sync Analytics"}
+        </button>
+      </div>
 
       {/* ── Metric Cards ───────────────────────────────────────── */}
-      <div className="mb-6 grid grid-cols-4 gap-4 mt-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           label="Total ULPINs Indexed"
           value="1,245,892"
           icon={Database}
-          iconColor="text-[#7A3E14]"
-          iconBg="bg-[#7A3E14]/10"
+          iconColor="text-zinc-900"
+          iconBg="bg-zinc-100"
           trend="+14.2% this month"
+          trendColor="text-emerald-600"
         />
         <MetricCard
           label="Active Discrepancies"
           value="4,302"
           icon={AlertTriangle}
-          iconColor="text-[#B91C1C]"
-          iconBg="bg-[#B91C1C]/10"
+          iconColor="text-red-600"
+          iconBg="bg-red-50"
           trend="-8% vs last week"
           trendColor="text-emerald-600"
         />
@@ -177,9 +188,9 @@ export default function AnalyticsTab() {
           label="AI Sentinel Flags"
           value="112"
           icon={Satellite}
-          iconColor="text-[#7A3E14]"
-          iconBg="bg-[#7A3E14]/10"
-          trend="+23 new today"
+          iconColor="text-amber-600"
+          iconBg="bg-amber-50"
+          trend="+23 flagged today"
           trendColor="text-amber-600"
         />
         <MetricCard
@@ -188,63 +199,63 @@ export default function AnalyticsTab() {
           icon={Network}
           iconColor="text-emerald-600"
           iconBg="bg-emerald-50"
-          trend="Phase 1 target"
-          trendColor="text-[#A0845C]"
+          trend="Phase 1 Rollout"
+          trendColor="text-zinc-600"
         />
       </div>
 
       {/* ── Charts Row ─────────────────────────────────────────── */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* ── Area Chart: Daily Reconciliations (2 cols) ──────── */}
-        <div className="col-span-2 rounded-xl border border-[#E8DCC8] bg-[#F4EBD9] p-5 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
+        <div className="lg:col-span-2 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+          <div className="mb-6 flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-semibold text-[#7A3E14]">
+              <h3 className="text-sm font-bold text-zinc-900 font-display">
                 Daily Automated Reconciliations
               </h3>
-              <p className="mt-0.5 text-xs text-[#A0845C]">
-                Last 7 days • Cross-department record matching
+              <p className="mt-0.5 text-xs text-zinc-500 font-body">
+                Last 7 days • Cross-department multi-layer parcel verification
               </p>
             </div>
-            <div className="flex items-center gap-1.5 rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-              <TrendingUp size={14} />
-              1.10M total
+            <div className="flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+              <TrendingUp size={13} />
+              1.10M verified
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="100%" height={290}>
             <AreaChart data={areaData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
               <defs>
-                <linearGradient id="gradientOchre" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#7A3E14" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#7A3E14" stopOpacity={0} />
+                <linearGradient id="zincReconGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#18181b" stopOpacity={0.15} />
+                  <stop offset="95%" stopColor="#18181b" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E8DCC8" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" vertical={false} />
               <XAxis
                 dataKey="name"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "#A0845C", fontSize: 12 }}
+                tick={{ fill: "#71717a", fontSize: 12 }}
               />
               <YAxis
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "#A0845C", fontSize: 11 }}
+                tick={{ fill: "#71717a", fontSize: 11 }}
                 tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}k`}
               />
               <Tooltip
                 contentStyle={TOOLTIP_STYLE.contentStyle}
                 labelStyle={TOOLTIP_STYLE.labelStyle}
                 itemStyle={TOOLTIP_STYLE.itemStyle}
-                formatter={(value) => [Number(value).toLocaleString(), "Records"]}
+                formatter={(value) => [Number(value).toLocaleString(), "Parcels"]}
               />
               <Area
                 type="monotone"
                 dataKey="reconciled"
-                stroke="#7A3E14"
-                strokeWidth={2.5}
-                fill="url(#gradientOchre)"
-                animationDuration={1500}
+                stroke="#18181b"
+                strokeWidth={2}
+                fill="url(#zincReconGrad)"
+                animationDuration={1000}
                 animationEasing="ease-out"
               />
             </AreaChart>
@@ -252,16 +263,16 @@ export default function AnalyticsTab() {
         </div>
 
         {/* ── Donut Chart: Discrepancy Breakdown (1 col) ─────── */}
-        <div className="col-span-1 rounded-xl border border-[#E8DCC8] bg-[#F4EBD9] p-5 shadow-sm">
-          <h3 className="text-sm font-semibold text-[#7A3E14]">
+        <div className="lg:col-span-1 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+          <h3 className="text-sm font-bold text-zinc-900 font-display">
             Discrepancy Breakdown
           </h3>
-          <p className="mt-0.5 text-xs text-[#A0845C]">
-            By conflict category
+          <p className="mt-0.5 text-xs text-zinc-500 font-body">
+            By conflict category & validation layer
           </p>
 
-          <div className="mt-2 flex items-center justify-center">
-            <ResponsiveContainer width="100%" height={180}>
+          <div className="mt-4 flex items-center justify-center">
+            <ResponsiveContainer width="100%" height={190}>
               <PieChart>
                 <Pie
                   data={donutData}
@@ -271,12 +282,11 @@ export default function AnalyticsTab() {
                   outerRadius={78}
                   paddingAngle={3}
                   dataKey="value"
-                  animationDuration={1200}
-                  animationEasing="ease-out"
+                  animationDuration={1000}
                   stroke="none"
                 >
                   {donutData.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={DONUT_COLORS[index]} />
+                    <Cell key={`cell-${index}`} fill={DONUT_COLORS[index % DONUT_COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip
@@ -290,17 +300,17 @@ export default function AnalyticsTab() {
           </div>
 
           {/* Legend */}
-          <div className="mt-1 space-y-2">
+          <div className="mt-4 space-y-2 border-t border-zinc-100 pt-3">
             {donutData.map((entry, i) => (
               <div key={entry.name} className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
                   <div
                     className="h-2.5 w-2.5 rounded-full"
-                    style={{ backgroundColor: DONUT_COLORS[i] }}
+                    style={{ backgroundColor: DONUT_COLORS[i % DONUT_COLORS.length] }}
                   />
-                  <span className="text-[#A0845C]">{entry.name}</span>
+                  <span className="text-zinc-600 font-body">{entry.name}</span>
                 </div>
-                <span className="font-semibold text-[#7A3E14]">{entry.value}%</span>
+                <span className="font-semibold text-zinc-900 font-mono">{entry.value}%</span>
               </div>
             ))}
           </div>
@@ -308,33 +318,33 @@ export default function AnalyticsTab() {
       </div>
 
       {/* ── Bar Chart: State Integration (Full width) ──────────── */}
-      <div className="mt-4 rounded-xl border border-[#E8DCC8] bg-[#F4EBD9] p-5 shadow-sm">
-        <div className="mb-4 flex items-center justify-between">
+      <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+        <div className="mb-5 flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-semibold text-[#7A3E14]">
+            <h3 className="text-sm font-bold text-zinc-900 font-display">
               State DILRMP 3.0 Integration Status
             </h3>
-            <p className="mt-0.5 text-xs text-[#A0845C]">
-              API connectivity & data pipeline readiness (%)
+            <p className="mt-0.5 text-xs text-zinc-500 font-body">
+              API connectivity & data pipeline synchronization score (%)
             </p>
           </div>
-          <span className="rounded-md bg-[#F4EBD9] border border-[#E8DCC8] px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-[#A0845C]">
+          <span className="rounded-full bg-zinc-100 border border-zinc-200 px-3 py-1 text-[11px] font-semibold text-zinc-700 font-body">
             Phase 1 Rollout
           </span>
         </div>
-        <ResponsiveContainer width="100%" height={220}>
+        <ResponsiveContainer width="100%" height={230}>
           <BarChart data={barData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E8DCC8" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" vertical={false} />
             <XAxis
               dataKey="name"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#A0845C", fontSize: 12 }}
+              tick={{ fill: "#71717a", fontSize: 11 }}
             />
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#A0845C", fontSize: 11 }}
+              tick={{ fill: "#71717a", fontSize: 11 }}
               domain={[0, 100]}
               tickFormatter={(v: number) => `${v}%`}
             />
@@ -346,11 +356,10 @@ export default function AnalyticsTab() {
             />
             <Bar
               dataKey="integrated"
-              fill="#16a34a"
-              radius={[6, 6, 0, 0]}
-              animationDuration={1200}
-              animationEasing="ease-out"
-              barSize={40}
+              fill="#18181b"
+              radius={[4, 4, 0, 0]}
+              animationDuration={1000}
+              barSize={32}
             />
           </BarChart>
         </ResponsiveContainer>
