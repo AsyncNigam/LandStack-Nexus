@@ -249,7 +249,7 @@ export default function QueueTab() {
               onClick={() => setActiveFilter(f)}
               className={`rounded-full border px-3.5 py-1 text-xs font-medium transition-all ${
                 activeFilter === f
-                  ? "border-zinc-900 bg-zinc-900 text-white"
+                  ? "border-[#d8f0bc] bg-[#edf8db] text-zinc-900 font-semibold shadow-2xs"
                   : "border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900"
               }`}
             >
@@ -335,9 +335,9 @@ export default function QueueTab() {
                 <td className="px-5 py-3.5">
                   <button
                     type="button"
-                    className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition-all hover:bg-zinc-100 hover:text-zinc-900 shadow-sm"
+                    className="flex items-center gap-1.5 rounded-lg border border-[#d8f0bc] bg-[#edf8db] hover:bg-[#b8f382] px-3 py-1.5 text-xs font-semibold text-zinc-900 transition-all shadow-2xs cursor-pointer active:scale-95"
                   >
-                    <Eye size={13} />
+                    <Eye size={13} className="text-zinc-900" />
                     Review
                   </button>
                 </td>
