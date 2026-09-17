@@ -461,11 +461,11 @@ export default function CadastralTab() {
 
         {/* Right Status Indicator & Toggle Inspector Button */}
         <div className="ml-auto flex items-center gap-2 shrink-0">
-          <div className="hidden sm:flex items-center gap-1.5 rounded border border-zinc-200 bg-white px-2 py-1 text-[11px] text-zinc-700 shadow-sm">
-            <CheckCircle2 size={12} className="text-emerald-600" />
-            <span className="font-medium">NIC</span>
+          <div className="hidden sm:flex items-center gap-1.5 rounded-md border border-[#d8f0bc] bg-[#edf8db] px-2.5 py-1 text-[11px] text-zinc-900 shadow-2xs font-medium">
+            <CheckCircle2 size={13} className="text-zinc-900" />
+            <span>NIC Gateway</span>
             {villageData && (
-              <span className="text-zinc-500 font-mono">
+              <span className="text-zinc-600 font-mono font-normal">
                 • {villageData.plots.length} Plots
               </span>
             )}
@@ -629,7 +629,7 @@ export default function CadastralTab() {
                       }}
                       className={`rounded px-1.5 py-0.5 text-[11px] font-medium transition-colors ${
                         isSelected
-                          ? "bg-zinc-900 text-white"
+                          ? "bg-[#edf8db] text-zinc-900 font-bold border border-[#cbeaa0]"
                           : "border border-zinc-200 bg-zinc-50 text-zinc-700 hover:bg-zinc-100"
                       }`}
                     >
@@ -655,7 +655,7 @@ export default function CadastralTab() {
                           Plot #{selectedPlot.plot_no}
                         </h3>
                       </div>
-                      <span className="rounded bg-zinc-200 px-2 py-0.5 text-[10px] font-semibold text-zinc-800">
+                      <span className="rounded bg-[#edf8db] border border-[#d8f0bc] px-2 py-0.5 text-[10px] font-semibold text-zinc-900">
                         {selectedPlot.land_class || "Sarada"}
                       </span>
                     </div>
