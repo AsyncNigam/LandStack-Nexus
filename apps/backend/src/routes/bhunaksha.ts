@@ -13,7 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const router = Router();
-const BHUNAKSHA_API = process.env.BHUNAKSHA_SERVICE_URL || "http://127.0.0.1:8000";
+const BHUNAKSHA_API = (process.env.BHUNAKSHA_SERVICE_URL || "http://127.0.0.1:8000").replace(/\/$/, "");
 const OUT_DIR = path.resolve(__dirname, "../../../bhunaksha-service/out");
 
 // ─── Hierarchy Endpoints ──────────────────────────────────────────
