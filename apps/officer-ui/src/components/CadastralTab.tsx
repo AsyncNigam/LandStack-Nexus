@@ -105,6 +105,16 @@ export default function CadastralTab() {
     handleFetchVillage("28", "2", "2", "81");
   }, []);
 
+  // ─── URL Helper for Production Map Rendering ─────────────────────
+  const getMapImageUrl = (url?: string) => {
+    if (!url) return "";
+    const base = import.meta.env.PROD ? "https://landstack-nexus.onrender.com" : "";
+    if (url.startsWith("/maps/")) {
+      return `${base}/api/v1/bhunaksha${url}`;
+    }
+    return url.startsWith("/") ? `${base}${url}` : url;
+  };
+
   // ─── Cascading Handlers ──────────────────────────────────────────
   const handleFetchTehsils = async (distCode: string, isInitial = false) => {
     setLoadingTehsils(true);
@@ -538,7 +548,7 @@ export default function CadastralTab() {
               >
                 <img
                   ref={imgRef}
-                  src={villageData.image_url}
+                  src={getMapImageUrl(villageData.image_url)}
                   alt="Stitched Cadastral Map"
                   className="rounded border border-zinc-300 shadow-md pointer-events-none max-h-[calc(100vh-95px)] max-w-full object-contain bg-white"
                 />
