@@ -30,9 +30,10 @@
 
 | Application | Live URL | Deployment Platform |
 |---|---|---|
-| **Officer Command Center** | [land-stack-nexus-officer-ihzhz7b0u.vercel.app](https://land-stack-nexus-officer-ihzhz7b0u.vercel.app/) | Vercel (Edge) |
+| **Officer Command Center** | [land-stack-nexus-officer-ui.vercel.app](https://land-stack-nexus-officer-ui.vercel.app/) | Vercel (Edge) |
 | **Citizen Premium PWA** | [land-stack-nexus-citizen-pwa-umber.vercel.app](https://land-stack-nexus-citizen-pwa-umber.vercel.app/) | Vercel (Edge) |
-| **Backend API / Engine** | [landstack-nexus.onrender.com](https://landstack-nexus.onrender.com/) | Render |
+| **Node.js Integration API** | [landstack-nexus.onrender.com](https://landstack-nexus.onrender.com/) | Render |
+| **Python Cadastral Engine** | [landstack-nexus-1.onrender.com](https://landstack-nexus-1.onrender.com/) | Render |
 
 > **Evaluator Note:** The Officer UI map features procedurally generated Cadastral mapping. Please zoom into a major city (e.g., Bhopal, Chennai) on the map and toggle the Cadastral Overlay to see the dynamic parcel mesh render in real-time.
 

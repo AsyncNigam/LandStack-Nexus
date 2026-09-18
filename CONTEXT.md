@@ -15,6 +15,14 @@ This document captures the complete **Before vs. After** trajectory of the codeb
 
 ---
 
+## Live Deployments (SIH 2026)
+- **Officer Command Center**: [https://land-stack-nexus-officer-ui.vercel.app/](https://land-stack-nexus-officer-ui.vercel.app/)
+- **Citizen Premium PWA**: [https://land-stack-nexus-citizen-pwa-umber.vercel.app/](https://land-stack-nexus-citizen-pwa-umber.vercel.app/)
+- **Node.js Integration API**: [https://landstack-nexus.onrender.com/](https://landstack-nexus.onrender.com/)
+- **Python Cadastral Engine**: [https://landstack-nexus-1.onrender.com/](https://landstack-nexus-1.onrender.com/)
+
+---
+
 ## 1. High-Level Comparison: Before vs. After
 
 | Dimension | Before Transformation | After Overhaul (Current State) |
