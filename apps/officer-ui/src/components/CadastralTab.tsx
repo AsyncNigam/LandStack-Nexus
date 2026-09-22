@@ -26,42 +26,15 @@ interface HierarchyItem {
   name: string;
 }
 
-// ─── 30 Official Odisha Districts ──────────────────────────────────
-const ODISHA_DISTRICTS: HierarchyItem[] = [
-  { code: "1", name: "1 ବାଲେଶ୍ବର" },
-  { code: "2", name: "2 ବଲାଙ୍ଗିର" },
-  { code: "3", name: "3 କଟକ" },
-  { code: "4", name: "4 ଢେଙ୍କାନାଳ" },
-  { code: "5", name: "5 ଗଞ୍ଜାମ" },
-  { code: "6", name: "6 କଳାହାଣ୍ଡି" },
-  { code: "7", name: "7 କେନ୍ଦୁଝର" },
-  { code: "8", name: "8 କୋରାପୁଟ" },
-  { code: "9", name: "9 ମୟୂରଭଞ୍ଜ" },
-  { code: "10", name: "10 କନ୍ଧମାଳ" },
-  { code: "11", name: "11 ପୁରୀ" },
-  { code: "12", name: "12 ସମ୍ବଲପୁର" },
-  { code: "13", name: "13 ସୁନ୍ଦରଗଡ଼" },
-  { code: "14", name: "14 ଅନୁଗୋଳ." },
-  { code: "15", name: "15 ବରଗଡ଼" },
-  { code: "16", name: "16 ଭଦ୍ରକ" },
-  { code: "17", name: "17 ଜଗତସିଂହପୁର" },
-  { code: "18", name: "18 ଯାଜପୁର" },
-  { code: "19", name: "19 କେନ୍ଦ୍ରାପଡ଼ା" },
-  { code: "20", name: "20 ଖୋର୍ଦ୍ଧା" },
-  { code: "21", name: "21 ନୂଆପଡ଼ା" },
-  { code: "22", name: "22 ନୟାଗଡ଼" },
-  { code: "23", name: "23 ସୋନପୁର" },
-  { code: "24", name: "24 ଗଜପତି" },
-  { code: "25", name: "25 ମାଲକାନଗିରି" },
-  { code: "26", name: "26 ନବରଙ୍ଗପୁର" },
-  { code: "27", name: "27 ରାୟଗଡ଼ା" },
-  { code: "28", name: "28 ବୌଦ୍ଧ" },
-  { code: "29", name: "29 ଦେବଗଡ଼" },
-  { code: "30", name: "30 ଝାରସୁଗୁଡ଼ା" },
+// ─── Supported States ──────────────────────────────────────────────
+const STATES: HierarchyItem[] = [
+  { code: "OD", name: "Odisha (OD)" },
+  { code: "CG", name: "Chhattisgarh (CG)" },
 ];
 
 export default function CadastralTab() {
   // ─── Selected Hierarchy Codes ────────────────────────────────────
+  const [selectedState, setSelectedState] = useState("OD");
   const [selectedDist, setSelectedDist] = useState("28");
   const [selectedTehsil, setSelectedTehsil] = useState("2");
   const [selectedRI, setSelectedRI] = useState("2");
@@ -69,12 +42,14 @@ export default function CadastralTab() {
   const [selectedSheet, setSelectedSheet] = useState("01");
 
   // ─── Hierarchy Options & Loading States ──────────────────────────
-  const [districts] = useState<HierarchyItem[]>(ODISHA_DISTRICTS);
+  const [states] = useState<HierarchyItem[]>(STATES);
+  const [districts, setDistricts] = useState<HierarchyItem[]>([]);
   const [tehsils, setTehsils] = useState<HierarchyItem[]>([]);
   const [ris, setRis] = useState<HierarchyItem[]>([]);
   const [villages, setVillages] = useState<HierarchyItem[]>([]);
   const [sheets, setSheets] = useState<string[]>(["01", "02", "03"]);
 
+  const [loadingDistricts, setLoadingDistricts] = useState(false);
   const [loadingTehsils, setLoadingTehsils] = useState(false);
   const [loadingRIs, setLoadingRIs] = useState(false);
   const [loadingVillages, setLoadingVillages] = useState(false);
@@ -101,8 +76,7 @@ export default function CadastralTab() {
 
   // ─── Initial Load ────────────────────────────────────────────────
   useEffect(() => {
-    handleFetchTehsils("28", true);
-    handleFetchVillage("28", "2", "2", "81");
+    handleFetchDistricts("OD", true);
   }, []);
 
   // ─── URL Helper for Production Map Rendering ─────────────────────
@@ -116,10 +90,42 @@ export default function CadastralTab() {
   };
 
   // ─── Cascading Handlers ──────────────────────────────────────────
-  const handleFetchTehsils = async (distCode: string, isInitial = false) => {
+  const handleFetchDistricts = async (stateCode: string, isInitial = false) => {
+    setLoadingDistricts(true);
+    try {
+      const res = await axios.get(`/api/v1/bhunaksha/hierarchy/districts?state=${stateCode}`);
+      const list: HierarchyItem[] = Array.isArray(res.data) ? res.data : [];
+      setDistricts(list);
+
+      if (list.length > 0) {
+        const targetDist = isInitial && stateCode === "OD"
+          ? (list.find((d) => d.code === "28")?.code || list[0].code)
+          : list[0].code;
+
+        setSelectedDist(targetDist);
+        handleFetchTehsils(stateCode, targetDist, isInitial);
+      } else {
+        setSelectedDist("");
+        setTehsils([]);
+        setSelectedTehsil("");
+        setRis([]);
+        setSelectedRI("");
+        setVillages([]);
+        setSelectedVillage("");
+      }
+    } catch (err) {
+      console.error("Failed to fetch districts", err);
+      setDistricts([]);
+      setSelectedDist("");
+    } finally {
+      setLoadingDistricts(false);
+    }
+  };
+
+  const handleFetchTehsils = async (stateCode: string, distCode: string, isInitial = false) => {
     setLoadingTehsils(true);
     try {
-      const res = await axios.get(`/api/v1/bhunaksha/hierarchy/tehsils?dist=${distCode}`);
+      const res = await axios.get(`/api/v1/bhunaksha/hierarchy/tehsils?state=${stateCode}&dist=${distCode}`);
       const list: HierarchyItem[] = Array.isArray(res.data) ? res.data : [];
       setTehsils(list);
 
@@ -129,7 +135,7 @@ export default function CadastralTab() {
           : list[0].code;
 
         setSelectedTehsil(targetTehsil);
-        handleFetchRIs(distCode, targetTehsil, isInitial);
+        handleFetchRIs(stateCode, distCode, targetTehsil, isInitial);
       } else {
         setSelectedTehsil("");
         setRis([]);
@@ -146,7 +152,7 @@ export default function CadastralTab() {
     }
   };
 
-  const handleFetchRIs = async (distCode: string, tehsilCode: string, isInitial = false) => {
+  const handleFetchRIs = async (stateCode: string, distCode: string, tehsilCode: string, isInitial = false) => {
     if (!tehsilCode) {
       setRis([]);
       setSelectedRI("");
@@ -155,7 +161,7 @@ export default function CadastralTab() {
     setLoadingRIs(true);
     try {
       const res = await axios.get(
-        `/api/v1/bhunaksha/hierarchy/ris?dist=${distCode}&tehsil=${tehsilCode}`,
+        `/api/v1/bhunaksha/hierarchy/ris?state=${stateCode}&dist=${distCode}&tehsil=${tehsilCode}`,
       );
       const list: HierarchyItem[] = Array.isArray(res.data) ? res.data : [];
       setRis(list);
@@ -166,7 +172,7 @@ export default function CadastralTab() {
           : list[0].code;
 
         setSelectedRI(targetRI);
-        handleFetchVillages(distCode, tehsilCode, targetRI, isInitial);
+        handleFetchVillages(stateCode, distCode, tehsilCode, targetRI, isInitial);
       } else {
         setSelectedRI("");
         setVillages([]);
@@ -182,6 +188,7 @@ export default function CadastralTab() {
   };
 
   const handleFetchVillages = async (
+    stateCode: string,
     distCode: string,
     tehsilCode: string,
     riCode: string,
@@ -195,7 +202,7 @@ export default function CadastralTab() {
     setLoadingVillages(true);
     try {
       const res = await axios.get(
-        `/api/v1/bhunaksha/hierarchy/villages?dist=${distCode}&tehsil=${tehsilCode}&ri=${riCode}`,
+        `/api/v1/bhunaksha/hierarchy/villages?state=${stateCode}&dist=${distCode}&tehsil=${tehsilCode}&ri=${riCode}`,
       );
       const list: HierarchyItem[] = Array.isArray(res.data) ? res.data : [];
       setVillages(list);
@@ -206,10 +213,13 @@ export default function CadastralTab() {
           : list[0].code;
 
         setSelectedVillage(targetVillage);
-        const sheetsList = await handleFetchSheets(distCode, tehsilCode, riCode, targetVillage);
+        const sheetsList = await handleFetchSheets(stateCode, distCode, tehsilCode, riCode, targetVillage);
         const firstSheet = sheetsList && sheetsList.length > 0 ? sheetsList[0] : "01";
         if (!isInitial) {
-          handleFetchVillage(distCode, tehsilCode, riCode, targetVillage, firstSheet);
+          handleFetchVillage(stateCode, distCode, tehsilCode, riCode, targetVillage, firstSheet);
+        } else {
+          // Fallback if we were initializing
+          handleFetchVillage(stateCode, distCode, tehsilCode, riCode, targetVillage, firstSheet);
         }
       } else {
         setSelectedVillage("");
@@ -226,6 +236,7 @@ export default function CadastralTab() {
   };
 
   const handleFetchSheets = async (
+    stateCode: string,
     distCode: string,
     tehsilCode: string,
     riCode: string,
@@ -234,7 +245,7 @@ export default function CadastralTab() {
     setLoadingSheets(true);
     try {
       const res = await axios.get(
-        `/api/v1/bhunaksha/hierarchy/sheets?dist=${distCode}&tehsil=${tehsilCode}&ri=${riCode}&village=${villageCode}`,
+        `/api/v1/bhunaksha/hierarchy/sheets?state=${stateCode}&dist=${distCode}&tehsil=${tehsilCode}&ri=${riCode}&village=${villageCode}`,
       );
       const list: string[] = Array.isArray(res.data) && res.data.length > 0
         ? res.data
@@ -252,40 +263,47 @@ export default function CadastralTab() {
     }
   };
 
+  const onStateSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const sCode = e.target.value;
+    setSelectedState(sCode);
+    handleFetchDistricts(sCode);
+  };
+
   const onDistrictSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const dCode = e.target.value;
     setSelectedDist(dCode);
-    handleFetchTehsils(dCode);
+    handleFetchTehsils(selectedState, dCode);
   };
 
   const onTehsilSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const tCode = e.target.value;
     setSelectedTehsil(tCode);
-    handleFetchRIs(selectedDist, tCode);
+    handleFetchRIs(selectedState, selectedDist, tCode);
   };
 
   const onRISelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const rCode = e.target.value;
     setSelectedRI(rCode);
-    handleFetchVillages(selectedDist, selectedTehsil, rCode);
+    handleFetchVillages(selectedState, selectedDist, selectedTehsil, rCode);
   };
 
   const onVillageSelect = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const vCode = e.target.value;
     setSelectedVillage(vCode);
-    const sheetsList = await handleFetchSheets(selectedDist, selectedTehsil, selectedRI, vCode);
+    const sheetsList = await handleFetchSheets(selectedState, selectedDist, selectedTehsil, selectedRI, vCode);
     const initialSheet = sheetsList && sheetsList.length > 0 ? sheetsList[0] : "01";
-    handleFetchVillage(selectedDist, selectedTehsil, selectedRI, vCode, initialSheet);
+    handleFetchVillage(selectedState, selectedDist, selectedTehsil, selectedRI, vCode, initialSheet);
   };
 
   const onSheetSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const sCode = e.target.value;
     setSelectedSheet(sCode);
-    handleFetchVillage(selectedDist, selectedTehsil, selectedRI, selectedVillage, sCode);
+    handleFetchVillage(selectedState, selectedDist, selectedTehsil, selectedRI, selectedVillage, sCode);
   };
 
   // ─── Fetch Individual Standalone Sheet Map ────────────────────────
   const handleFetchVillage = async (
+    state = selectedState,
     dist = selectedDist,
     tehsil = selectedTehsil,
     ri = selectedRI,
@@ -296,6 +314,7 @@ export default function CadastralTab() {
     setReconcileResult(null);
     try {
       const res = await axios.post<BhunakshaVillageResponse>("/api/v1/bhunaksha/stitch/village", {
+        state,
         dist,
         tehsil,
         ri,
@@ -360,14 +379,35 @@ export default function CadastralTab() {
     <div className="flex h-full w-full flex-col bg-white text-zinc-900 overflow-hidden font-sans">
       {/* ═══ 5-Level Cascading Hierarchy Filter Bar (Ultra-Compact Inline Toolbar) ═════════════════════ */}
       <div className="flex items-center gap-2 border-b border-zinc-200 bg-zinc-50/90 px-3 py-1.5 overflow-x-auto text-xs shrink-0">
-        {/* 1. District Dropdown (All 30 Official Districts) */}
+        
+        {/* 0. State Dropdown */}
+        <div className="flex items-center gap-1 shrink-0">
+          <span className="text-[11px] font-semibold text-zinc-500 whitespace-nowrap">State:</span>
+          <div className="relative">
+            <select
+              value={selectedState}
+              onChange={onStateSelect}
+              className="h-7 appearance-none rounded-md border border-zinc-300 bg-white pl-2 pr-6 text-xs font-medium text-zinc-900 focus:border-zinc-900 focus:outline-none"
+            >
+              {states.map((s) => (
+                <option key={s.code} value={s.code}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+            <ChevronDown size={12} className="pointer-events-none absolute right-1.5 top-2 text-zinc-400" />
+          </div>
+        </div>
+
+        {/* 1. District Dropdown */}
         <div className="flex items-center gap-1 shrink-0">
           <span className="text-[11px] font-semibold text-zinc-500 whitespace-nowrap">Dist:</span>
           <div className="relative">
             <select
               value={selectedDist}
               onChange={onDistrictSelect}
-              className="h-7 appearance-none rounded-md border border-zinc-300 bg-white pl-2 pr-6 text-xs font-medium text-zinc-900 focus:border-zinc-900 focus:outline-none"
+              disabled={loadingDistricts}
+              className="h-7 appearance-none rounded-md border border-zinc-300 bg-white pl-2 pr-6 text-xs font-medium text-zinc-900 focus:border-zinc-900 focus:outline-none disabled:opacity-50"
             >
               {districts.map((d) => (
                 <option key={d.code} value={d.code}>

@@ -28,11 +28,11 @@ if hasattr(sys.stdout, "reconfigure"):
 if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
-BASE_URL = "https://app3bhunakshaodisha.nic.in:8443/bhunaksha"
-STATE_CODE = "21"  # Odisha
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "bhunaksha_cache.db")
 OUTPUT_DIR = os.path.join(BASE_DIR, "out")
+
+from bhunaksha_scraper import STATE_CONFIG
 
 # Official District-to-Server routing across the Odisha Bhunaksha NIC cluster
 DISTRICT_CLUSTER_MAP: Dict[str, str] = {
@@ -80,9 +80,12 @@ ALL_CLUSTER_SERVERS: List[str] = [
     "https://bhunakshaodisha.nic.in/bhunaksha",
 ]
 
-def get_cluster_url(dist: str) -> str:
-    """Return the authoritative server for a given district code."""
-    return DISTRICT_CLUSTER_MAP.get(str(dist).strip(), "https://app3bhunakshaodisha.nic.in:8443/bhunaksha")
+def get_cluster_url(state_id: str, dist: str) -> str:
+    """Return the authoritative server for a given state and district code."""
+    config = STATE_CONFIG.get(state_id, STATE_CONFIG["OD"])
+    if state_id == "OD":
+        return DISTRICT_CLUSTER_MAP.get(str(dist).strip(), config["base"])
+    return config["base"]
 
 _ROR_RE = re.compile(
     r"ViewRoR\.aspx\?DistCode=(\d+)&TehCode=(\d+)&VillCode=(\d+)&KhataNo=(\d+)&type=(front|back)"
@@ -142,7 +145,7 @@ def init_db(db_path: str = DB_PATH) -> sqlite3.Connection:
 # ---------------------------------------------------------------------------
 # 2. Hierarchy Discovery APIs
 # ---------------------------------------------------------------------------
-def fetch_levels(level: int, codes: str = "") -> List[Dict[str, Any]]:
+def fetch_levels(state_id: str, level: int, codes: str = "") -> List[Dict[str, Any]]:
     """
     Query the NIC ListsAfterLevel endpoint dynamically across the cluster.
     level 0: Districts (codes="")
@@ -171,13 +174,19 @@ def fetch_levels(level: int, codes: str = "") -> List[Dict[str, Any]]:
         print(f"[-] Cache check failed: {e}")
 
     # 2. Query cluster servers starting with the district's dedicated host
-    primary_server = get_cluster_url(dist)
-    servers_to_try = [primary_server] + [s for s in ALL_CLUSTER_SERVERS if s != primary_server]
+    primary_server = get_cluster_url(state_id, dist)
+    
+    if state_id == "OD":
+        servers_to_try = [primary_server] + [s for s in ALL_CLUSTER_SERVERS if s != primary_server]
+    else:
+        servers_to_try = [primary_server]
+
+    config = STATE_CONFIG.get(state_id, STATE_CONFIG["OD"])
 
     for base_url in servers_to_try:
         url = f"{base_url}/rest/Levels/ListsAfterLevel"
         payload = {
-            "state": STATE_CODE,
+            "state": config["code"],
             "level": str(level),
             "codes": clean_codes
         }
@@ -240,27 +249,30 @@ ALL_ODISHA_DISTRICTS = [
 ]
 
 
-def get_districts() -> List[Dict[str, str]]:
-    return ALL_ODISHA_DISTRICTS
-
-
-def get_tehsils(dist: str) -> List[Dict[str, str]]:
-    raw = fetch_levels(1, f"{dist},")
+def get_districts(state_id: str) -> List[Dict[str, str]]:
+    if state_id == "OD":
+        return ALL_ODISHA_DISTRICTS
+    raw = fetch_levels(state_id, 0, "")
     return [{"code": item["code"], "name": item["value"]} for item in raw]
 
 
-def get_ris(dist: str, tehsil: str) -> List[Dict[str, str]]:
-    raw = fetch_levels(2, f"{dist},{tehsil},")
+def get_tehsils(state_id: str, dist: str) -> List[Dict[str, str]]:
+    raw = fetch_levels(state_id, 1, f"{dist},")
     return [{"code": item["code"], "name": item["value"]} for item in raw]
 
 
-def get_villages(dist: str, tehsil: str, ri: str) -> List[Dict[str, str]]:
-    raw = fetch_levels(3, f"{dist},{tehsil},{ri},")
+def get_ris(state_id: str, dist: str, tehsil: str) -> List[Dict[str, str]]:
+    raw = fetch_levels(state_id, 2, f"{dist},{tehsil},")
     return [{"code": item["code"], "name": item["value"]} for item in raw]
 
 
-def get_sheets(dist: str, tehsil: str, ri: str, village: str) -> List[str]:
-    raw = fetch_levels(4, f"{dist},{tehsil},{ri},{village},")
+def get_villages(state_id: str, dist: str, tehsil: str, ri: str) -> List[Dict[str, str]]:
+    raw = fetch_levels(state_id, 3, f"{dist},{tehsil},{ri},")
+    return [{"code": item["code"], "name": item["value"]} for item in raw]
+
+
+def get_sheets(state_id: str, dist: str, tehsil: str, ri: str, village: str) -> List[str]:
+    raw = fetch_levels(state_id, 4, f"{dist},{tehsil},{ri},{village},")
     sheets = [item["code"] for item in raw if item.get("code")]
     if not sheets:
         sheets = ["01"]  # Default fallback
@@ -270,12 +282,13 @@ def get_sheets(dist: str, tehsil: str, ri: str, village: str) -> List[str]:
 # ---------------------------------------------------------------------------
 # 3. Sheet Extent & WMS Map Retrieval
 # ---------------------------------------------------------------------------
-def get_sheet_extent(dist: str, tehsil: str, ri: str, village: str, sheet: str) -> Optional[Dict[str, Any]]:
+def get_sheet_extent(state_id: str, dist: str, tehsil: str, ri: str, village: str, sheet: str) -> Optional[Dict[str, Any]]:
     """Fetch the local coordinate bounding box for one village sheet via POST."""
+    config = STATE_CONFIG.get(state_id, STATE_CONFIG["OD"])
     levels = f"{dist},{tehsil},{ri},{village},{sheet},"
-    base_url = get_cluster_url(dist)
+    base_url = get_cluster_url(state_id, dist)
     url = f"{base_url}/rest/MapInfo/getVVVVExtentGeoref"
-    payload = {"state": STATE_CODE, "gisLevels": levels, "srs": "0"}
+    payload = {"state": config["code"], "gisLevels": levels, "srs": "0"}
     for attempt in range(3):
         try:
             r = session.post(url, data=payload, timeout=25)
@@ -292,13 +305,14 @@ def get_sheet_extent(dist: str, tehsil: str, ri: str, village: str, sheet: str) 
     return None
 
 
-def get_sheet_map_png(dist: str, gis_code: str, extent: Dict[str, Any], pixels_per_unit: float = 5.0) -> Tuple[bytes, int, int]:
+def get_sheet_map_png(state_id: str, dist: str, gis_code: str, extent: Dict[str, Any], pixels_per_unit: float = 5.0) -> Tuple[bytes, int, int]:
     """Download the raster village sheet PNG sized to match the real aspect ratio."""
+    config = STATE_CONFIG.get(state_id, STATE_CONFIG["OD"])
     width = max(1, round((extent["xmax"] - extent["xmin"]) * pixels_per_unit))
     height = max(1, round((extent["ymax"] - extent["ymin"]) * pixels_per_unit))
     bbox = f"{extent['xmin']},{extent['ymin']},{extent['xmax']},{extent['ymax']}"
     
-    base_url = get_cluster_url(dist)
+    base_url = get_cluster_url(state_id, dist)
     url = f"{base_url}/WMS"
     params = {
         "SERVICE": "WMS",
@@ -308,7 +322,7 @@ def get_sheet_map_png(dist: str, gis_code: str, extent: Dict[str, Any], pixels_p
         "TRANSPARENT": "true",
         "LAYERS": "VILLAGE_MAP",
         "STYLES": "VILLAGE_MAP",
-        "state": STATE_CODE,
+        "state": config["code"],
         "gis_code": gis_code,
         "CRS": "EPSG:3857",
         "WIDTH": str(width),
@@ -324,7 +338,7 @@ def get_sheet_map_png(dist: str, gis_code: str, extent: Dict[str, Any], pixels_p
 # 4. Multi-Sheet Stitching Engine
 # ---------------------------------------------------------------------------
 def stitch_village_sheets(
-    dist: str, tehsil: str, ri: str, village: str, sheets: List[str],
+    state_id: str, dist: str, tehsil: str, ri: str, village: str, sheets: List[str],
     pixels_per_unit: float = 5.0, out_dir: str = OUTPUT_DIR
 ) -> Tuple[str, Dict[str, float], Dict[str, Dict[str, Any]]]:
     """
@@ -337,13 +351,13 @@ def stitch_village_sheets(
 
     print(f"[*] Processing {len(sheets)} sheet(s) for Village {village} (Sheets: {', '.join(sheets)})...")
     for sheet in sheets:
-        ext = get_sheet_extent(dist, tehsil, ri, village, sheet)
+        ext = get_sheet_extent(state_id, dist, tehsil, ri, village, sheet)
         if not ext:
             print(f"[-] Warning: Extent not found for sheet {sheet}, skipping.")
             continue
         extents[sheet] = ext
         gis_code = ext.get("gisCode", f"{dist}{tehsil}{ri}{village}{sheet}")
-        png_bytes, w, h = get_sheet_map_png(dist, gis_code, ext, pixels_per_unit)
+        png_bytes, w, h = get_sheet_map_png(state_id, dist, gis_code, ext, pixels_per_unit)
         tiles[sheet] = (png_bytes, w, h)
         print(f"    - Sheet {sheet}: {w}x{h} px, BBOX=({ext['xmin']:.1f}, {ext['ymin']:.1f}) -> ({ext['xmax']:.1f}, {ext['ymax']:.1f})")
 
@@ -394,7 +408,7 @@ def stitch_village_sheets(
 
 
 def fetch_single_sheet_map(
-    dist: str, tehsil: str, ri: str, village: str, sheet: str,
+    state_id: str, dist: str, tehsil: str, ri: str, village: str, sheet: str,
     pixels_per_unit: float = 4.0, out_dir: str = OUTPUT_DIR
 ) -> Tuple[str, Dict[str, Any], Dict[str, Any]]:
     """
@@ -402,12 +416,12 @@ def fetch_single_sheet_map(
     Saves the standalone sheet PNG and metadata.
     """
     os.makedirs(out_dir, exist_ok=True)
-    ext = get_sheet_extent(dist, tehsil, ri, village, sheet)
+    ext = get_sheet_extent(state_id, dist, tehsil, ri, village, sheet)
     if not ext:
         raise ValueError(f"Could not retrieve extent for District {dist}, Tehsil {tehsil}, Village {village}, Sheet {sheet}")
 
     gis_code = ext.get("gisCode", f"{dist}{tehsil}{ri}{village}{sheet}")
-    png_bytes, w, h = get_sheet_map_png(dist, gis_code, ext, pixels_per_unit)
+    png_bytes, w, h = get_sheet_map_png(state_id, dist, gis_code, ext, pixels_per_unit)
 
     sheet_gis = f"{dist}_{tehsil}_{ri}_{village}_{sheet}"
     out_img_path = os.path.join(out_dir, f"{sheet_gis}.png")
