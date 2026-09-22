@@ -66,8 +66,10 @@ if hasattr(sys.stdout, "reconfigure"):
 if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
-BASE = "https://app3bhunakshaodisha.nic.in:8443/bhunaksha"
-STATE = "21"  # Odisha
+STATE_CONFIG = {
+    "OD": {"base": "https://app3bhunakshaodisha.nic.in:8443/bhunaksha", "code": "21"},
+    "CG": {"base": "https://bhunaksha.cg.nic.in/bhunaksha", "code": "22"}
+}
 
 _ROR_RE = re.compile(
     r"ViewRoR\.aspx\?DistCode=(\d+)&TehCode=(\d+)&VillCode=(\d+)&KhataNo=(\d+)&type=(front|back)"
@@ -92,24 +94,26 @@ session.headers.update({
 })
 
 
-def get_extent(dist, tehsil, ri, village, sheet="01"):
+def get_extent(state_id, dist, tehsil, ri, village, sheet="01"):
     """Fetch the local-coordinate bounding box for one village sheet."""
+    config = STATE_CONFIG.get(state_id, STATE_CONFIG["OD"])
     levels = f"{dist},{tehsil},{ri},{village},{sheet},"
     r = session.post(
-        f"{BASE}/rest/MapInfo/getVVVVExtentGeoref",
-        data={"state": STATE, "gisLevels": levels, "srs": "0"},
+        f"{config['base']}/rest/MapInfo/getVVVVExtentGeoref",
+        data={"state": config["code"], "gisLevels": levels, "srs": "0"},
         timeout=20,
     )
     r.raise_for_status()
     return r.json()
 
 
-def get_plot_at_xy(dist, tehsil, ri, village, sheet, x, y):
+def get_plot_at_xy(state_id, dist, tehsil, ri, village, sheet, x, y):
     """Hit-test a single (x, y) point in local sheet coords -> plot info dict or None."""
+    config = STATE_CONFIG.get(state_id, STATE_CONFIG["OD"])
     levels = f"{dist},{tehsil},{ri},{village},{sheet},"
     r = session.get(
-        f"{BASE}/ScalarDatahandler",
-        params={"OP": "4", "state": STATE, "levels": levels, "x": x, "y": y},
+        f"{config['base']}/ScalarDatahandler",
+        params={"OP": "4", "state": config["code"], "levels": levels, "x": x, "y": y},
         timeout=20,
     )
     if r.status_code != 200 or not r.text.strip():
@@ -124,7 +128,7 @@ def get_plot_at_xy(dist, tehsil, ri, village, sheet, x, y):
     return data
 
 
-def get_village_map_png(gis_code, extent, pixels_per_unit=5.0):
+def get_village_map_png(state_id, gis_code, extent, pixels_per_unit=5.0):
     """
     Pull the raster village sheet as PNG, sized to MATCH the extent's real aspect
     ratio (pixels_per_unit units of local-coordinate space per pixel) instead of a
@@ -132,11 +136,12 @@ def get_village_map_png(gis_code, extent, pixels_per_unit=5.0):
     non-square sheets and breaks any later attempt to align sheets by coordinate.
     Returns (png_bytes, width_px, height_px).
     """
+    config = STATE_CONFIG.get(state_id, STATE_CONFIG["OD"])
     width = max(1, round((extent["xmax"] - extent["xmin"]) * pixels_per_unit))
     height = max(1, round((extent["ymax"] - extent["ymin"]) * pixels_per_unit))
     bbox = f"{extent['xmin']},{extent['ymin']},{extent['xmax']},{extent['ymax']}"
     r = session.get(
-        f"{BASE}/WMS",
+        f"{config['base']}/WMS",
         params={
             "SERVICE": "WMS",
             "VERSION": "1.3.0",
@@ -145,7 +150,7 @@ def get_village_map_png(gis_code, extent, pixels_per_unit=5.0):
             "TRANSPARENT": "true",
             "LAYERS": "VILLAGE_MAP",
             "STYLES": "VILLAGE_MAP",
-            "state": STATE,
+            "state": config["code"],
             "gis_code": gis_code,
             "CRS": "EPSG:3857",
             "WIDTH": width,
@@ -158,7 +163,7 @@ def get_village_map_png(gis_code, extent, pixels_per_unit=5.0):
     return r.content, width, height
 
 
-def stitch_village_sheets(dist, tehsil, ri, village, sheets, pixels_per_unit=5.0,
+def stitch_village_sheets(state_id, dist, tehsil, ri, village, sheets, pixels_per_unit=5.0,
                            out_path="stitched_village.png"):
     """
     Combine multiple sheets of the SAME village into one image, using their
@@ -175,10 +180,10 @@ def stitch_village_sheets(dist, tehsil, ri, village, sheets, pixels_per_unit=5.0
     extents = {}
     tiles = {}
     for sheet in sheets:
-        ext = get_extent(dist, tehsil, ri, village, sheet)
+        ext = get_extent(state_id, dist, tehsil, ri, village, sheet)
         extents[sheet] = ext
         gis_code = ext.get("gisCode", f"{dist}{tehsil}{ri}{village}{sheet}")
-        png_bytes, w, h = get_village_map_png(gis_code, ext, pixels_per_unit)
+        png_bytes, w, h = get_village_map_png(state_id, gis_code, ext, pixels_per_unit)
         tiles[sheet] = (png_bytes, w, h)
         print(f"sheet {sheet}: extent={ext}, size={w}x{h}px")
 
@@ -204,7 +209,7 @@ def stitch_village_sheets(dist, tehsil, ri, village, sheets, pixels_per_unit=5.0
     return out_path, union_extent
 
 
-def scrape_village(dist, tehsil, ri, village, sheet="01", grid_step=15, out_dir="out"):
+def scrape_village(state_id, dist, tehsil, ri, village, sheet="01", grid_step=15, out_dir="out"):
     """
     Grid-sample a village sheet for plots + pull its raster map.
     grid_step is in local sheet units - tune based on plot density (smaller step =
@@ -214,10 +219,10 @@ def scrape_village(dist, tehsil, ri, village, sheet="01", grid_step=15, out_dir=
     os.makedirs(out_dir, exist_ok=True)
     gis_code = f"{dist}{tehsil}{ri}{village}{sheet}"
 
-    extent = get_extent(dist, tehsil, ri, village, sheet)
+    extent = get_extent(state_id, dist, tehsil, ri, village, sheet)
     print(f"[{gis_code}] extent: {extent}")
 
-    png, _w, _h = get_village_map_png(extent["gisCode"], extent)
+    png, _w, _h = get_village_map_png(state_id, extent["gisCode"], extent)
     with open(f"{out_dir}/{gis_code}.png", "wb") as f:
         f.write(png)
 
@@ -234,7 +239,7 @@ def scrape_village(dist, tehsil, ri, village, sheet="01", grid_step=15, out_dir=
             if already_covered(x, y):
                 y += grid_step
                 continue
-            info = get_plot_at_xy(dist, tehsil, ri, village, sheet, x, y)
+            info = get_plot_at_xy(state_id, dist, tehsil, ri, village, sheet, x, y)
             if info and "ID" in info:
                 if info["ID"] not in plots:
                     ror = extract_khata_and_ror_links(info.get("plotInfoLinks", ""))

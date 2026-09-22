@@ -7,9 +7,10 @@
 
 ## Live Demonstrations
 
-- **Officer Command Center**: [https://land-stack-nexus-officer-ihzhz7b0u.vercel.app/](https://land-stack-nexus-officer-ihzhz7b0u.vercel.app/)
+- **Officer Command Center**: [https://land-stack-nexus-officer-ui.vercel.app/](https://land-stack-nexus-officer-ui.vercel.app/)
 - **Citizen Premium PWA**: [https://land-stack-nexus-citizen-pwa-umber.vercel.app/](https://land-stack-nexus-citizen-pwa-umber.vercel.app/)
-- **Backend API**: [https://landstack-nexus.onrender.com/](https://landstack-nexus.onrender.com/)
+- **Node.js Integration API**: [https://landstack-nexus.onrender.com/](https://landstack-nexus.onrender.com/)
+- **Python Cadastral Engine**: [https://landstack-nexus-1.onrender.com/](https://landstack-nexus-1.onrender.com/)
 
 ---
 

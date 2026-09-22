@@ -77,7 +77,7 @@ const TAB_TITLES: Record<string, string> = {
 // ─── Component ──────────────────────────────────────────────────────
 
 export default function CommandCenter() {
-  const [activeTab, setActiveTab] = useState("cadastral");
+  const [activeTab, setActiveTab] = useState("map");
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
@@ -113,7 +113,7 @@ export default function CommandCenter() {
               </div>
               <div className="flex items-center gap-1 min-w-0 flex-1">
                 <span className="text-[14px] font-bold text-zinc-900 tracking-tight font-display truncate">
-                  LandStack
+                  LandStack Nexus
                 </span>
                 <ChevronDown size={14} className="text-zinc-500 flex-shrink-0" />
               </div>
@@ -317,7 +317,9 @@ export default function CommandCenter() {
           {activeTab === "analytics" && <AnalyticsTab />}
           {activeTab === "ai" && <AIDetectionTab />}
           {activeTab === "queue" && <QueueTab />}
-          {activeTab === "cadastral" && <CadastralTab />}
+          <div className={activeTab === "cadastral" ? "block h-full" : "hidden"}>
+            <CadastralTab />
+          </div>
           {activeTab === "audit" && <AuditTab />}
           {activeTab === "integration" && (
             <StateIntegrationTab onLaunchCadastral={() => setActiveTab("cadastral")} />

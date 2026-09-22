@@ -18,50 +18,16 @@ const OUT_DIR = path.resolve(__dirname, "../../../bhunaksha-service/out");
 
 // ─── Hierarchy Endpoints ──────────────────────────────────────────
 
-// Official 30 Odisha Districts as per Bhunaksha Government Portal
-const ALL_ODISHA_DISTRICTS = [
-  { code: "1", name: "ବାଲେଶ୍ବର (Balasore)" },
-  { code: "2", name: "ବଲାଙ୍ଗିର (Balangir)" },
-  { code: "3", name: "କଟକ (Cuttack)" },
-  { code: "4", name: "ଢେଙ୍କାନାଳ (Dhenkanal)" },
-  { code: "5", name: "ଗଞ୍ଜାମ (Ganjam)" },
-  { code: "6", name: "କଳାହାଣ୍ଡି (Kalahandi)" },
-  { code: "7", name: "କେନ୍ଦୁଝର (Kendujhar)" },
-  { code: "8", name: "କୋରାପୁଟ (Koraput)" },
-  { code: "9", name: "ମୟୂରଭଞ୍ଜ (Mayurbhanj)" },
-  { code: "10", name: "କନ୍ଧମାଳ (Kandhamal)" },
-  { code: "11", name: "ପୁରୀ (Puri)" },
-  { code: "12", name: "ସମ୍ବଲପୁର (Sambalpur)" },
-  { code: "13", name: "ସୁନ୍ଦରଗଡ଼ (Sundargarh)" },
-  { code: "14", name: "ଅନୁଗୋଳ. (Angul)" },
-  { code: "15", name: "ବରଗଡ଼ (Bargarh)" },
-  { code: "16", name: "ଭଦ୍ରକ (Bhadrak)" },
-  { code: "17", name: "ଜଗତସିଂହପୁର (Jagatsinghpur)" },
-  { code: "18", name: "ଯାଜପୁର (Jajpur)" },
-  { code: "19", name: "କେନ୍ଦ୍ରାପଡ଼ା (Kendrapara)" },
-  { code: "20", name: "ଖୋର୍ଦ୍ଧା (Khordha)" },
-  { code: "21", name: "ନୂଆପଡ଼ା (Nuapada)" },
-  { code: "22", name: "ନୟାଗଡ଼ (Nayagarh)" },
-  { code: "23", name: "ସୋନପୁର (Sonepur)" },
-  { code: "24", name: "ଗଜପତି (Gajapati)" },
-  { code: "25", name: "ମାଲକାନଗିରି (Malkangiri)" },
-  { code: "26", name: "ନବରଙ୍ଗପୁର (Nabarangpur)" },
-  { code: "27", name: "ରାୟଗଡ଼ା (Rayagada)" },
-  { code: "28", name: "ବୌଦ୍ଧ (Boudh)" },
-  { code: "29", name: "ଦେବଗଡ଼ (Deogarh)" },
-  { code: "30", name: "ଝାରସୁଗୁଡ଼ା (Jharsuguda)" },
-];
-
-router.get("/hierarchy/districts", async (_req: Request, res: Response) => {
+router.get("/hierarchy/districts", async (req: Request, res: Response) => {
   try {
-    const response = await axios.get(`${BHUNAKSHA_API}/api/hierarchy/districts`, { timeout: 10000 });
-    if (Array.isArray(response.data) && response.data.length >= 25) {
-      return res.json(response.data);
-    }
-  } catch {
-    // Proceed to canonical list
+    const response = await axios.get(`${BHUNAKSHA_API}/api/hierarchy/districts`, { 
+      params: req.query,
+      timeout: 10000 
+    });
+    return res.json(response.data);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
   }
-  res.json(ALL_ODISHA_DISTRICTS);
 });
 
 router.get("/hierarchy/tehsils", async (req: Request, res: Response) => {
@@ -89,10 +55,10 @@ router.get("/hierarchy/ris", async (req: Request, res: Response) => {
 });
 
 router.get("/hierarchy/villages", async (req: Request, res: Response) => {
-  const { dist, tehsil, ri } = req.query;
+  const { state, dist, tehsil, ri } = req.query;
   try {
     const response = await axios.get(`${BHUNAKSHA_API}/api/hierarchy/villages`, {
-      params: { dist, tehsil, ri },
+      params: { state, dist, tehsil, ri },
       timeout: 12000,
     });
     if (Array.isArray(response.data) && response.data.length > 0) {

@@ -54,6 +54,7 @@ batch_jobs: Dict[str, Dict[str, Any]] = {}
 # Request/Response Models
 # ---------------------------------------------------------------------------
 class StitchVillageRequest(BaseModel):
+    state: str = "OD"
     dist: str
     tehsil: str
     ri: str
@@ -64,6 +65,7 @@ class StitchVillageRequest(BaseModel):
 
 
 class FetchSheetRequest(BaseModel):
+    state: str = "OD"
     dist: str
     tehsil: str
     ri: str
@@ -74,6 +76,7 @@ class FetchSheetRequest(BaseModel):
 
 
 class StitchRIRequest(BaseModel):
+    state: str = "OD"
     dist: str
     tehsil: str
     ri: str
@@ -84,53 +87,59 @@ class StitchRIRequest(BaseModel):
 # Hierarchy Endpoints
 # ---------------------------------------------------------------------------
 @app.get("/api/hierarchy/districts")
-def list_districts():
+def list_districts(state: str = Query("OD", description="State code")):
     try:
-        return bp.get_districts()
+        return bp.get_districts(state)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api/hierarchy/tehsils")
-def list_tehsils(dist: str = Query(..., description="District code")):
+def list_tehsils(
+    state: str = Query("OD", description="State code"),
+    dist: str = Query(..., description="District code")
+):
     try:
-        return bp.get_tehsils(dist)
+        return bp.get_tehsils(state, dist)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api/hierarchy/ris")
 def list_ris(
+    state: str = Query("OD", description="State code"),
     dist: str = Query(..., description="District code"),
     tehsil: str = Query(..., description="Tehsil code")
 ):
     try:
-        return bp.get_ris(dist, tehsil)
+        return bp.get_ris(state, dist, tehsil)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api/hierarchy/villages")
 def list_villages(
+    state: str = Query("OD", description="State code"),
     dist: str = Query(..., description="District code"),
     tehsil: str = Query(..., description="Tehsil code"),
     ri: str = Query(..., description="RI code")
 ):
     try:
-        return bp.get_villages(dist, tehsil, ri)
+        return bp.get_villages(state, dist, tehsil, ri)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api/hierarchy/sheets")
 def list_sheets(
+    state: str = Query("OD", description="State code"),
     dist: str = Query(..., description="District code"),
     tehsil: str = Query(..., description="Tehsil code"),
     ri: str = Query(..., description="RI code"),
     village: str = Query(..., description="Village code")
 ):
     try:
-        return bp.get_sheets(dist, tehsil, ri, village)
+        return bp.get_sheets(state, dist, tehsil, ri, village)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -196,7 +205,7 @@ def fetch_sheet(req: FetchSheetRequest):
     # Fetch live single sheet
     try:
         out_img, sheet_extent, extents = bp.fetch_single_sheet_map(
-            req.dist, req.tehsil, req.ri, req.village, req.sheet,
+            req.state, req.dist, req.tehsil, req.ri, req.village, req.sheet,
             pixels_per_unit=req.pixels_per_unit, out_dir=OUTPUT_DIR
         )
         conn = bp.init_db()
@@ -326,9 +335,9 @@ def stitch_village(req: StitchVillageRequest):
 
     # Otherwise, execute stitching
     try:
-        sheets = bp.get_sheets(req.dist, req.tehsil, req.ri, req.village)
+        sheets = bp.get_sheets(req.state, req.dist, req.tehsil, req.ri, req.village)
         out_img, union_ext, extents = bp.stitch_village_sheets(
-            req.dist, req.tehsil, req.ri, req.village, sheets,
+            req.state, req.dist, req.tehsil, req.ri, req.village, sheets,
             pixels_per_unit=req.pixels_per_unit, out_dir=OUTPUT_DIR
         )
 
@@ -441,10 +450,10 @@ def stitch_village(req: StitchVillageRequest):
 # ---------------------------------------------------------------------------
 # RI Batch Stitching (Background Worker)
 # ---------------------------------------------------------------------------
-def _run_ri_batch(job_id: str, dist: str, tehsil: str, ri: str, pixels_per_unit: float):
+def _run_ri_batch(job_id: str, state_id: str, dist: str, tehsil: str, ri: str, pixels_per_unit: float):
     job = batch_jobs[job_id]
     try:
-        villages = bp.get_villages(dist, tehsil, ri)
+        villages = bp.get_villages(state_id, dist, tehsil, ri)
         job["total_villages"] = len(villages)
         job["villages"] = villages
 
@@ -455,9 +464,9 @@ def _run_ri_batch(job_id: str, dist: str, tehsil: str, ri: str, pixels_per_unit:
             job["current_index"] = idx
 
             try:
-                sheets = bp.get_sheets(dist, tehsil, ri, v_code)
+                sheets = bp.get_sheets(state_id, dist, tehsil, ri, v_code)
                 out_img, union_ext, extents = bp.stitch_village_sheets(
-                    dist, tehsil, ri, v_code, sheets,
+                    state_id, dist, tehsil, ri, v_code, sheets,
                     pixels_per_unit=pixels_per_unit, out_dir=OUTPUT_DIR
                 )
                 job["completed"].append({
@@ -487,18 +496,19 @@ def start_stitch_ri(req: StitchRIRequest, background_tasks: BackgroundTasks):
     job_id = str(uuid.uuid4())[:8]
     batch_jobs[job_id] = {
         "job_id": job_id,
+        "state": req.state,
         "dist": req.dist,
         "tehsil": req.tehsil,
         "ri": req.ri,
-        "status": "in_progress",
+        "status": "running",
+        "total_villages": 0,
         "current_village": "Initializing...",
         "current_index": 0,
-        "total_villages": 0,
         "completed": [],
         "failed": []
     }
-    background_tasks.add_task(_run_ri_batch, job_id, req.dist, req.tehsil, req.ri, req.pixels_per_unit)
-    return {"job_id": job_id, "status": "started"}
+    background_tasks.add_task(_run_ri_batch, job_id, req.state, req.dist, req.tehsil, req.ri, req.pixels_per_unit)
+    return {"job_id": job_id, "status": "running"}
 
 
 @app.get("/api/stitch/ri/status")
